@@ -159,7 +159,7 @@ class Event(models.Model):
     def __str__(self):
         return self.title
     
-class Inetrship(models.Model):
+class Internship(models.Model):
     posted_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
