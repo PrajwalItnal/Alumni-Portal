@@ -1,55 +1,359 @@
 {% extends "base.html" %}
 
-{% block title %} Home Page {% endblock %}
+{% block title %}Home | Alumni Portal{% endblock %}
 
 {% block content %}
+<style>
 
-    <body>
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 8rem 2rem 5rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 0%, rgba(99,179,237,0.14) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 80% 90%, rgba(167,139,250,0.09) 0%, transparent 60%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  .hero::after {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,179,237,0.025) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none;
+  }
+  @keyframes bgPulse {
+    from { opacity: 0.6; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.04); }
+  }
 
-    <section class="hero">
-        <h1>Welcome to the Alumni Portal</h1>
-        <p>
-           Connecting Pas,Present and Future - One Alumni Network.
-        </p>
-    </section>
+  .hero-badge {
+    position: relative; z-index: 2;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.2);
+    border-radius: 50px; padding: 0.4rem 1.1rem;
+    font-size: 0.75rem; font-weight: 600; color: #63b3ed;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 1.8rem; animation: fadeUp 0.5s 0.1s both;
+  }
 
+  .hero h1 {
+    position: relative; z-index: 2;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 6vw, 4.5rem); font-weight: 700;
+    line-height: 1.1; color: #fff; margin-bottom: 1.3rem;
+    animation: fadeUp 0.5s 0.2s both;
+  }
+  .hero h1 span {
+    background: linear-gradient(135deg, #63b3ed, #6366f1);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
 
-    <section class="features">
+  .hero p {
+    position: relative; z-index: 2;
+    font-size: 1.05rem; color: rgba(255,255,255,0.45);
+    max-width: 560px; margin: 0 auto 2.5rem;
+    line-height: 1.8; font-weight: 300;
+    animation: fadeUp 0.5s 0.3s both;
+  }
+
+  .hero-buttons {
+    position: relative; z-index: 2;
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.5s 0.4s both;
+  }
+  .hero-btn-primary {
+    padding: 0.9rem 2.2rem;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    color: #fff; border: none; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; text-decoration: none;
+    box-shadow: 0 4px 24px rgba(99,102,241,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.55); color: #fff; }
+
+  .hero-stats {
+    position: relative; z-index: 2;
+    display: flex; gap: 3rem; margin-top: 4.5rem;
+    flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.5s 0.5s both;
+  }
+  .hero-stat { text-align: center; }
+  .hero-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700; color: #fff;
+  }
+  .hero-stat-num span { color: #63b3ed; }
+  .hero-stat-label {
+    font-size: 0.75rem; color: rgba(255,255,255,0.35);
+    letter-spacing: 0.07em; text-transform: uppercase; margin-top: 0.2rem;
+  }
+
+  .scroll-hint {
+    position: relative; z-index: 2;
+    margin-top: 3rem;
+    animation: fadeUp 0.5s 0.6s both;
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+  }
+  .scroll-hint span { font-size: 0.72rem; color: rgba(255,255,255,0.25); letter-spacing: 0.08em; text-transform: uppercase; }
+  .scroll-arrow {
+    width: 28px; height: 28px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.3); font-size: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(5px); }
+  }
+
+  /* ── SECTION DIVIDER ── */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+    margin: 0 2rem;
+  }
+
+  /* ── FEATURES ── */
+  .features-section { padding: 6rem 2rem; }
+  .features-inner { max-width: 1200px; margin: 0 auto; }
+  .features-header {
+    text-align: center; margin-bottom: 3.5rem;
+    animation: fadeUp 0.5s 0.1s both;
+  }
+  .features-header .s-tag {
+    display: inline-block; font-size: 0.73rem; font-weight: 600;
+    color: #63b3ed; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.7rem;
+  }
+  .features-header h2 {
+    font-family: 'Playfair Display', serif; font-size: 2.3rem;
+    font-weight: 700; color: #fff;
+  }
+  .features-header p { color: rgba(255,255,255,0.4); font-size: 0.93rem; max-width: 480px; margin: 0.7rem auto 0; }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem; animation: fadeUp 0.6s 0.2s both;
+  }
+  .features-bottom {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1.4rem; max-width: 800px; margin: 1.4rem auto 0;
+    animation: fadeUp 0.6s 0.3s both;
+  }
+  .feature-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px; padding: 2rem;
+    position: relative; overflow: hidden;
+    transition: transform 0.3s, border-color 0.3s, background 0.3s;
+  }
+  .feature-box::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    transform: scaleX(0); transform-origin: left; transition: transform 0.3s;
+  }
+  .feature-box:hover { transform: translateY(-6px); border-color: rgba(99,179,237,0.22); background: rgba(99,179,237,0.04); }
+  .feature-box:hover::before { transform: scaleX(1); }
+  .feature-icon {
+    width: 46px; height: 46px;
+    background: rgba(99,179,237,0.1); border: 1px solid rgba(99,179,237,0.15);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 1.2rem;
+  }
+  .feature-box h3 {
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+    color: #fff; margin-bottom: 0.6rem;
+  }
+  .feature-box p { font-size: 0.87rem; color: rgba(255,255,255,0.42); line-height: 1.7; margin: 0; }
+
+  /* ── ABOUT ── */
+  .about-section {
+    padding: 6rem 2rem;
+    background: rgba(255,255,255,0.015);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .about-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 5rem; align-items: center;
+    animation: fadeUp 0.6s 0.2s both;
+  }
+  .about-text .s-tag {
+    display: inline-block; font-size: 0.73rem; font-weight: 600;
+    color: #63b3ed; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem;
+  }
+  .about-text h2 {
+    font-family: 'Playfair Display', serif; font-size: 2.2rem;
+    font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 1.2rem;
+  }
+  .about-text h2 em { font-style: normal; color: #63b3ed; }
+  .about-text p { color: rgba(255,255,255,0.45); font-size: 0.93rem; line-height: 1.85; margin-bottom: 1rem; }
+  .about-text a {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-top: 0.8rem; font-size: 0.88rem; font-weight: 600;
+    color: #63b3ed; text-decoration: none; transition: gap 0.2s, color 0.2s;
+  }
+  .about-text a:hover { gap: 0.8rem; color: #fff; }
+
+  .about-cards { display: flex; flex-direction: column; gap: 1rem; }
+  .about-card {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px; padding: 1.3rem 1.5rem;
+    display: flex; align-items: center; gap: 1.1rem;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .about-card:hover { border-color: rgba(99,179,237,0.22); background: rgba(99,179,237,0.04); }
+  .about-card-icon {
+    width: 44px; height: 44px; flex-shrink: 0;
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; box-shadow: 0 4px 14px rgba(99,102,241,0.3);
+  }
+  .about-card h4 { font-size: 0.92rem; font-weight: 600; color: #fff; margin-bottom: 0.2rem; font-family: 'DM Sans', sans-serif; }
+  .about-card p { font-size: 0.81rem; color: rgba(255,255,255,0.38); margin: 0; line-height: 1.5; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 900px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .features-bottom { grid-template-columns: 1fr; max-width: 100%; }
+    .about-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+    .hero-stats { gap: 1.8rem; }
+  }
+</style>
+
+<div class="home-page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">✦ Welcome to Alumni Portal</div>
+    <h1>Connecting <span>Past, Present</span><br>&amp; Future Alumni</h1>
+    <p>One powerful network bringing together students, graduates, and the college — fostering careers, mentorship, and lifelong connections.</p>
+    <div class="hero-buttons">
+      <a href="#features-section" class="hero-btn-primary" onclick="scrollToFeatures(event)">Explore Features ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-num">12<span>K+</span></div>
+        <div class="hero-stat-label">Alumni Registered</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">3<span>K+</span></div>
+        <div class="hero-stat-label">Active Students</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">850<span>+</span></div>
+        <div class="hero-stat-label">Jobs Posted</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">200<span>+</span></div>
+        <div class="hero-stat-label">Events Hosted</div>
+      </div>
+    </div>
+    <div class="scroll-hint">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow">↓</div>
+    </div>
+  </section>
+
+  <div class="section-divider"></div>
+
+  <!-- FEATURES -->
+  <section class="features-section" id="features-section">
+    <div class="features-inner">
+      <div class="features-header">
+        <div class="s-tag">✦ What We Offer</div>
+        <h2>Everything in One Platform</h2>
+        <p>Powerful tools designed to connect, grow, and give back to your community.</p>
+      </div>
+      <div class="features-grid">
         <div class="feature-box">
-            <h3>Alumni Registration </h3>
-            <p>Sign up and join the alumni community.</p>
+          <div class="feature-icon">🎓</div>
+          <h3>Alumni Registration</h3>
+          <p>Sign up, build your profile, and join the growing alumni community in minutes.</p>
         </div>
         <div class="feature-box">
-            <h3>🎉Events & Reunion </h3>
-            <p>Stay updated with reunions, meetups, and college events.</p>
+          <div class="feature-icon">🎉</div>
+          <h3>Events &amp; Reunions</h3>
+          <p>Stay updated with reunions, meetups, workshops, and exciting college events.</p>
         </div>
-
         <div class="feature-box">
-            <h3>💼 Job Opportunities</h3>
-            <p>Explore career openings and internships.</p>
+          <div class="feature-icon">💼</div>
+          <h3>Job Opportunities</h3>
+          <p>Explore exclusive career openings, internships, and placements shared by alumni.</p>
         </div>
-
+      </div>
+      <div class="features-bottom">
         <div class="feature-box">
-            <h3>💖 Donations</h3>
-            <p>Support students and the institution through scholarships and funding.</p>
+          <div class="feature-icon">💖</div>
+          <h3>Donations</h3>
+          <p>Support students and the institution through scholarships and funding initiatives.</p>
         </div>
-
         <div class="feature-box">
-            <h3>Mentorship</h3>
-            <p>Get guidance from industry experts and achieve your goals through our mentorship program! 😊</p>
+          <div class="feature-icon">🤝</div>
+          <h3>Mentorship</h3>
+          <p>Get guidance from industry experts and alumni to accelerate your career growth.</p>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
+  <div class="section-divider"></div>
 
-    <section class="about">
-        <h2>About Alumni Portal</h2>
-        <p>
-            The Alumni Portal is a centralized web platform designed to connect
-            students with their institution and with alumnies . It helps alumni share experiences,
-            explore career growth, attend events, and build a strong professional network.
-        </p>
-    </section>
+  <!-- ABOUT -->
+  <section class="about-section">
+    <div class="about-inner">
+      <div class="about-text">
+        <div class="s-tag">✦ About the Portal</div>
+        <h2>Built to <em>Connect</em><br>Generations</h2>
+        <p>The Alumni Portal is a centralized web platform designed to connect students with their institution and with alumni across the world. It helps alumni share experiences, explore career growth, attend events, and build a strong professional network.</p>
+        <p>Whether you're a fresh graduate or a seasoned professional, this platform is your bridge back to the college community and forward to new opportunities.</p>
+        <a href="#">Learn more about us →</a>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card-icon">🌍</div>
+          <div>
+            <h4>Global Network</h4>
+            <p>Connect with alumni spread across 40+ countries worldwide.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🏆</div>
+          <div>
+            <h4>Verified Profiles</h4>
+            <p>All alumni are verified by the college for a trusted network.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">📊</div>
+          <div>
+            <h4>Smart Dashboard</h4>
+            <p>Personalized dashboards for students, alumni, and admins.</p>
+          </div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🔒</div>
+          <div>
+            <h4>Secure &amp; Private</h4>
+            <p>Your data is protected with industry-standard security practices.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-</body>
-
+</div>
 {% endblock %}
