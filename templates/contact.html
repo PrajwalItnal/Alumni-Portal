@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} Contact Page {% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Contact Us</h2>
+
+    <div class="row">
+        
+        <div class="col-md-6">
+            <h4>College Contact Information</h4>
+            <p><strong>College Name:</strong> BLDEA'S Commerce BHS Arts TGP Science College</p>
+            <p><strong>Address:</strong> Jamkhandi - 587301, Karnataka</p>
+            <p><strong>Email:</strong> bldeajkd@college.com</p>
+            <p><strong>Phone:</strong> +91 9353648142</p>
+        </div>
+
+        <div class="col-md-6">
+            <h4>Send Us a Message</h4>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label>Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Subject</label>
+                    <input type="text" name="subject" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Message</label>
+                    <textarea name="message" rows="4" class="form-control" required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">
+                    Send Message
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
