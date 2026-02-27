@@ -296,12 +296,11 @@
       <span class="nav-brand-text">Smart Alumni Connect</span>
     </a>
     <ul class="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">About</a></li>
-      <li><a href="#">Events</a></li>
-      <li><a href="#">Jobs</a></li>
-      <li><a href="#" class="nav-cta">Login</a></li>
-    </ul>
+  <li><a href="{% url 'home' %}">Home</a></li>
+  <li><a href="{% url 'about' %}">About</a></li>
+  <li><a href="{% url 'contact' %}">Contact</a></li>
+  <li><a href="{% url 'login' %}" class="nav-cta">Login</a></li>
+</ul>
   </nav>
 
   <div class="page-wrapper">
