@@ -112,6 +112,7 @@ class Job(models.Model):
     last_date = models.DateField()
     required_skills = models.TextField(default=True)
     posted_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default="Open")
     
     class Meta:
         db_table = "Jobs"
@@ -119,3 +120,65 @@ class Job(models.Model):
     def __str__(self):
         return f"{self.title} - {self.company_name}"
     
+class Donation(models.Model):
+    donated_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="donations"
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    donated_at = models.DateTimeField(auto_now_add=True)
+    payment_method = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = "donations"
+
+    def __str__(self):  
+        return f"Donation of {self.amount} by {self.donated_by.username}"
+        
+
+class Event(models.Model):
+    organized_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="organized_events"
+    )
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    date = models.DateField()
+    event_time = models.TimeField()
+    event_type = models.CharField(max_length=100)
+    location = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default="Upcoming")
+
+    class Meta:
+        db_table = "Events"
+
+    def __str__(self):
+        return self.title
+    
+class Inetrship(models.Model):
+    posted_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="posted_internships"
+    )
+    company_name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    location = models.CharField(max_length=200)
+    stipend = models.CharField(max_length=100, blank=True, null=True)
+    last_date = models.DateField()
+    required_skills = models.TextField(default=True)
+    posted_at = models.DateTimeField(auto_now_add=True)
+    duration = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=20, default="Open")
+
+
+    class Meta:
+        db_table = "Internships"
+
+    def __str__(self):
+        return f"{self.title} - {self.company_name}"
