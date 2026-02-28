@@ -87,7 +87,8 @@ def login(request):
         user = None
         try:
             user = User.objects.get(register_id=register_id, password=password)
-            return redirect('user:home', register_id=user.register_id)
+            request.session["register_id"] = user.register_id
+            return redirect('user:home')
         except User.DoesNotExist:
             messages.error(request, "Invalid register ID or password.")
             return redirect('login')
