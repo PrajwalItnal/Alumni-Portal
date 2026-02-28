@@ -83,14 +83,12 @@ class Alumni(models.Model):
         choices=EMPLOYMENT_STATUS_CHOICES
     )
 
-    company_name = models.CharField(max_length=150, blank=True)
-    job_title = models.CharField(max_length=100, blank=True)
-    industry = models.CharField(max_length=100, blank=True)
+    company_name = models.CharField(max_length=150, blank=True, null = True)
+    job_title = models.CharField(max_length=100, blank=True, null = True)
     experience_year = models.IntegerField(blank=True, null=True)
-    pursuing_degree = models.CharField(max_length=150, blank=True)
-    university = models.CharField(max_length=150, blank=True)
-    willing_to_mentor = models.BooleanField(default=False)
-    available_for_referral = models.BooleanField(default=False)
+    pursuing_degree = models.CharField(max_length=150, blank=True, null=True)
+    university = models.CharField(max_length=150, blank=True, null=True)
+    available_for_referral = models.BooleanField(default=False, blank=True)
 
     class Meta:
         db_table = "alumni"
