@@ -1,0 +1,71 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %}Alumni Dashboard | Smart Alumni Portal{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    <h1>Alumni Dashboard</h1>
+        <li><a href="{% url 'user:logout' %}">Logout</a></li>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="welcome-box">
+        <h2>Welcome, {{ user.username | title }} 👋</h2>
+        <p>
+            Connect with your institution, share opportunities,
+            participate in alumni meets, and contribute to the community.
+        </p>
+    </div>
+
+    <div class="actions">
+
+        <div class="action-card">
+            <h3>👤 View Profiles</h3>
+            <p>View alumni's and students profile information.</p>
+            <a href="/alumnidetail" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>🎉 Create and View Alumni Meet Up</h3>
+            <p>Participate and Create in alumni meet events.</p>
+            <a href="/alumnimeet" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💰 Add and View Donation Detail</h3>
+            <p>View your donation history.</p>
+            <a href="/donationdetail" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 Add and view Jobs</h3>
+            <p>Share or view job references.</p>
+            <a href="/jobreference" class="action-btn">Open</a>
+        </div>
+
+        <div class="action-card">
+            <h3>Create and View Intership</h3>
+            <p>Explore alumni internship details.</p>
+            <a href="/internship" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>Add and View Achievements</h3>
+            <p>Explore alumni achievements details.</p>
+            <a href="/achievements" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>Add and View Events</h3>
+            <p>Explore alumni events details.</p>
+            <a href="/events" class="action-btn">View</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

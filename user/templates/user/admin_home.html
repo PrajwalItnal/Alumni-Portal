@@ -1,0 +1,75 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %}Admin Dashboard | Smart Alumni Portal{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    <h1>Admin Dashboard</h1>
+
+    <ul class="nav-right">
+        {% comment %} <li><a href="{% url 'admin_home' %}">Home</a></li>
+        <li><a href="{% url 'change_password' %}">Change Password</a></li>
+        <li><a href="/logout">Logout</a></li> {% endcomment %}
+    </ul>
+        <a href="{% url 'user:logout' %}">Logout</a>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="welcome-box">
+        <h2>Welcome, {{ user.username | title }} 👋</h2>
+        <p>
+            Manage college details, departments, alumni connections,
+            job postings and donation records.
+        </p>
+    </div>
+
+    <div class="actions">
+
+        <!-- Row 1 -->
+        <div class="action-card">
+            <h3>🏫 College Detail</h3>
+            <p>View and manage college information.</p>
+            <a href="/collegedetail" class="action-btn">Open</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 View and Add Events</h3>
+            <p>View and add events for Students</p>
+            <a href="/viewevents" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💰 View and Add Donation</h3>
+            <p>Check alumni donation Details</p>
+            <a href="/viewdonation" class="action-btn">View</a>
+        </div>
+
+        <!-- Break -->
+        <div class="break"></div>
+
+        <div class="action-card">
+            <h3>💼 View and Add Jobs Details</h3>
+            <p>View jobs posted by Students</p>
+            <a href="/viewjobdetails" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 View and Add Achievements</h3>
+            <p>View achievements of Students.</p>
+            <a href="/viewachievements" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 View and Add Intership</h3>
+            <p>View and add intership details of Students.</p>
+            <a href="/viewinternship" class="action-btn">View</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
