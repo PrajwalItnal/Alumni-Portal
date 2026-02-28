@@ -180,3 +180,30 @@ class Internship(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.company_name}"
+    
+class Achievement(models.Model):
+    achieved_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    certificate = models.FileField(upload_to="achievements/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "achievements"
+
+class College(models.Model):
+    name = models.CharField(max_length=200)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15)
+    website = models.URLField(blank=True, null=True)
+    established_year = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        db_table = "college"
