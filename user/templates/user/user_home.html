@@ -1,6 +1,6 @@
 {% extends 'user/user_base.html' %}
 
-{% block title %} Welcometo Alumni Portal {% endblock %}
+{% block title %} Welcome To Alumni Portal {% endblock %}
 
 {% block content %}
 <!-- NAVBAR -->
@@ -8,8 +8,8 @@
     <h1>Student Dashboard</h1>
 
     <ul class="nav-right">
-        <li><a href="/studenthome">Home</a></li>
-        <li><a href="/logout">Logout</a></li>
+        <li><a href="{% url 'user:home' %}">Home</a></li>
+        <a href="{% url 'user:logout' %}">Logout</a>
     </ul>
 </div>
 

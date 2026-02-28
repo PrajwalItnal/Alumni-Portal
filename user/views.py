@@ -7,4 +7,8 @@ def home(request):
     if not register_id:
         return redirect("login")
     else:
-        return HttpResponse(f"Welcome to your dashboard, {register_id}!")
+        return render(request, "user/user_home.html", {"register_id": register_id})
+
+def logout(request):
+    request.session.flush()
+    return redirect('home')
