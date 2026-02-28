@@ -1,8 +1,9 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
-
 from user.models import User
+from django.core.mail import send_mail
+from django.conf import settings
 
 def home(request):
     return render(request, "home.html")
@@ -10,31 +11,31 @@ def home(request):
 def about(request):
     return render(request, "about.html")
 
-from django.core.mail import send_mail
-from django.conf import settings
-from django.shortcuts import render
-
 def contact(request):
     if request.method == 'POST':
         name = request.POST.get("name")
         email = request.POST.get("email")
         message = request.POST.get("message")
 
-        subject = "New Contact Message – Alumni Portal"
-
+        subject = "New Contact Form Submission | Alumni Portal"
         body = f"""
-            Dear Admin,
+        Dear Administrator,
 
-            You have received a new contact message from the Alumni Portal website.
+        A new message has been submitted through the Alumni Portal Contact Form.
 
-            Name: {name}
-            Email: {email}
+        Contact Details:
+        ----------------------------------------
+        Name  : {name}
+        Email : {email}
+        ----------------------------------------
 
-            Message:
-            {message}
+        Message:
+        {message}
 
-            Thank you,
-            Alumni Portal System
+        Please review this inquiry and respond as appropriate.
+
+        Best Regards,
+        Alumni Portal System
         """
 
         send_mail(
@@ -45,20 +46,25 @@ def contact(request):
             fail_silently=False,
         )
 
-        user_subject = "Thank You for Contacting Us – Alumni Portal"
+        user_subject = "Thank You for Contacting Alumni Portal"
         user_body = f"""
-            Dear {name},
+        Dear {name},
 
-            Thank you for contacting the Alumni Portal.
+        Thank you for contacting the Alumni Portal.
 
-            We have received your message and our team will get back to you as soon as possible.
+        We have successfully received your message and appreciate you reaching out to us. 
+        Our team will review your inquiry and respond as soon as possible.
 
-            Here is a copy of your message:
+        For your reference, here is a copy of your message:
 
-            {message}
+        ----------------------------------------
+        {message}
+        ----------------------------------------
 
-            Best Regards,
-            Alumni Portal Team
+        If you have any additional information to share, feel free to reply to this email.
+
+        Warm Regards,  
+        Alumni Portal Team
         """
 
         send_mail(
@@ -68,8 +74,8 @@ def contact(request):
             [email],  # Send to user
             fail_silently=False,
         )
-
-        return render(request, "contact.html", {"success": True})
+        messages.success(request, "Your message has been sent successfully! We will get back to you soon.")
+        return redirect('contact')
 
     return render(request, "contact.html")
 

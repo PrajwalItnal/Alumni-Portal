@@ -141,9 +141,11 @@
             We value every communication from our alumni network and student community.
           </p>
         </div>
-          {% if success %}
-            <p style="color:green;">Message sent successfully!</p>
-          {% endif %}
+        {% if messages %}
+          {% for message in messages %}
+              <p style="color:green;">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
         <form method="POST" class="contact-form">
           {% csrf_token %}
 
