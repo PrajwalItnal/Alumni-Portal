@@ -11,4 +11,5 @@ def contact(request):
     return render(request, "contact.html")
 
 def login(request):
+    ## Hello
     return render(request, "login.html")
