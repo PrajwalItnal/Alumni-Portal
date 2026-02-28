@@ -73,7 +73,9 @@
 
   @media (max-width: 900px) {
     .contact-grid { grid-template-columns: 1fr; }
+
   }
+  
 </style>
 
 <div class="contact-page">
@@ -139,7 +141,9 @@
             We value every communication from our alumni network and student community.
           </p>
         </div>
-
+          {% if success %}
+            <p style="color:green;">Message sent successfully!</p>
+          {% endif %}
         <form method="POST" class="contact-form">
           {% csrf_token %}
 
