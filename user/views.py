@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 # Create your views here.
 
-def home(request):
-    return HttpResponse("Welcome to the Alumni Portal User Page!")
+def home(request, register_id):
+    
+    return HttpResponse(f"Welcome to the Alumni Portal User Page, {register_id}!")
 
