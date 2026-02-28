@@ -1,0 +1,74 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %} Welcometo Alumni Portal {% endblock %}
+
+{% block content %}
+<!-- NAVBAR -->
+<div class="navbar">
+    <h1>Student Dashboard</h1>
+
+    <ul class="nav-right">
+        <li><a href="/studenthome">Home</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="welcome-box">
+        <h2>Welcome, {{user.username}} 👋</h2>
+        <p>
+            Explore alumni network, apply for internships,
+            request mentorship, and view career opportunities.
+        </p>
+    </div>
+
+    <div class="actions">
+
+       
+        <div class="action-card">
+            <h3>🎓 View Alumni</h3>
+            <p>Explore registered alumni profiles.</p>
+            <a href="/viewalumni" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>👤 View Profile</h3>
+            <p>Check and update your profile details.</p>
+            <a href="/viewprofile" class="action-btn">Open</a>
+        </div>
+
+        <div class="action-card">
+            <h3>🤝 Request Mentorship</h3>
+            <p>Connect with alumni mentors.</p>
+            <a href="/requestmentorship" class="action-btn">Request</a>
+        </div>
+
+        <!-- Break -->
+        <div class="break"></div>
+
+        <!-- Row 2 -->
+        <div class="action-card">
+            <h3>🏢 Internship</h3>
+            <p>Browse available internship opportunities.</p>
+            <a href="/internship" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 View Job</h3>
+            <p>See job openings posted by alumni.</p>
+            <a href="/viewjob" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>🖼 View Gallery</h3>
+            <p>Explore college and alumni event gallery.</p>
+            <a href="/viewgallery" class="action-btn">Open</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
