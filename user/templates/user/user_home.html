@@ -8,7 +8,7 @@
     <h1>Student Dashboard</h1>
 
     <ul class="nav-right">
-        <li><a href="{% url 'user:home' %}">Home</a></li>
+    
         <a href="{% url 'user:logout' %}">Logout</a>
     </ul>
 </div>
@@ -30,27 +30,35 @@
         <div class="action-card">
             <h3>🎓 View Alumni</h3>
             <p>Explore registered alumni profiles.</p>
-            <a href="/viewalumni" class="action-btn">View</a>
+            <a href="/#" class="action-btn">View</a>
         </div>
 
-        <div class="action-card">
-            <h3>👤 View Profile</h3>
-            <p>Check and update your profile details.</p>
-            <a href="/viewprofile" class="action-btn">Open</a>
-        </div>
+       <div class="action-card">
+    <h3>👤 My Profile</h3>
+    <p>View and update your personal, academic, and career details.</p>
+    <a href="/viewprofile" class="action-btn">Open Profile</a>
+</div>
 
         <div class="action-card">
-            <h3>🤝 Request Mentorship</h3>
-            <p>Connect with alumni mentors.</p>
-            <a href="/requestmentorship" class="action-btn">Request</a>
-        </div>
+    <h3>📅 View Events</h3>
+    <p>Discover upcoming college events, alumni meetups, and special programs.</p>
+    <a href="/viewevents" class="action-btn">Explore Events</a>
+</div>
+
+<div class="action-card">
+    <h3>🏫 View College Details</h3>
+    <p>Explore complete information about the college, including address, contact details, departments, and facilities.</p>
+    <a href="/collegedetail" class="action-btn">View Details</a>
+</div>
+
+
 
         <!-- Break -->
         <div class="break"></div>
 
         <!-- Row 2 -->
         <div class="action-card">
-            <h3>🏢 Internship</h3>
+            <h3>🏢 View Internship</h3>
             <p>Browse available internship opportunities.</p>
             <a href="/internship" class="action-btn">View</a>
         </div>
@@ -61,11 +69,13 @@
             <a href="/viewjob" class="action-btn">View</a>
         </div>
 
+        
+
         <div class="action-card">
-            <h3>🖼 View Gallery</h3>
-            <p>Explore college and alumni event gallery.</p>
-            <a href="/viewgallery" class="action-btn">Open</a>
-        </div>
+    <h3>🏆 View Achievements</h3>
+    <p>Explore outstanding accomplishments, awards, and success stories of our students and alumni.</p>
+    <a href="#" class="action-btn">Explore Achievements</a>
+</div>
 
     </div>
 
