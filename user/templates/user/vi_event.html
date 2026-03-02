@@ -1,0 +1,66 @@
+{% extends "user/user_base.html" %}
+
+{% block title %}Create/View Events | Smart Alumni Portal{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    
+    {% if user.role == "Admin" or user.role == "Alumni" %}
+        <h1>Create and View Events</h1>
+    {% else %}
+        <h1>View Events</h1>
+    {% endif %}
+        <div class="nav-left">
+            <span>Welcome, {{ user.username }}</span>
+        </div>
+    <ul class="nav-right">
+        <li><a href="{% url 'user:admin_home' %}">Home</a></li>
+        <li><a href="{% url 'user:logout' %}">Logout</a></li>
+    </ul>
+</div>
+
+<div class="main">
+
+    {% if user.role == "Admin" or user.role == "Alumni" %}
+    <div class="actions">
+        <form action="{% url 'user:event_create' %}">
+            <div class="action-card">
+                <h3>➕ Create Event</h3>
+                <p>Create new events for students to attend.</p>
+                <button type="submit" class="action-btn">Create</button>
+            </div>
+        </form>
+    {% endif %}
+        <div class="event-list">
+            {% for event in events %}
+                <div class="event-card">
+                {% if event.image %}
+                    <img src="{{ event.image.url }}" class="event-image" alt="{{ event.title }}">
+                {% else %}
+                    <div class="event-image" style="background:#ddd; display:flex; align-items:center; justify-content:center;">
+                        <span>No Image</span>
+                    </div>
+                {% endif %}
+               <div class="event-content">
+                <span class="event-type-badge">{{ event.event_type }}</span>
+                <h3 style="margin: 0 0 10px 0;">{{ event.title }}</h3>
+                <p style="color: #444; font-size: 0.95rem;">{{ event.description|truncatewords:20 }}</p>
+                
+                <div class="event-meta">
+                    <div>📅 <strong>Date:</strong> {{ event.date|date:"M d, Y" }}</div>
+                    <div>⏰ <strong>Time:</strong> {{ event.event_time|time:"g:i A" }}</div>
+                    <div>📍 <strong>Location:</strong> {{ event.location }}</div>
+                    <div style="margin-top:5px; font-style: italic;">
+                        👤 Organized by: {{ event.organized_by.username }}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+                <p>No upcoming events at the moment. Please check back later!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -28,7 +28,6 @@
 
     <div class="actions">
 
-        <!-- Row 1 -->
         <div class="action-card">
             <h3>🏫 College Detail</h3>
             <p>View and manage college information.</p>
@@ -38,7 +37,7 @@
         <div class="action-card">
             <h3>💼 View and Add Events</h3>
             <p>View and add events for Students</p>
-            <a href="/viewevents" class="action-btn">View</a>
+            <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
         </div>
 
         <div class="action-card">
@@ -66,6 +65,24 @@
             <h3>💼 View and Add Intership</h3>
             <p>View and add intership details of Students.</p>
             <a href="/viewinternship" class="action-btn">View</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 Register Students</h3>
+            <p>Register new students in the system.</p>
+            <a href="/register_student" class="action-btn">Register</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 Convert Alumni</h3>
+            <p>Convert students to alumni in the system.</p>
+            <a href="/convert_alumni" class="action-btn">Convert</a>
+        </div>
+
+        <div class="action-card">
+            <h3>💼 Get Student And Alumni Details</h3>
+            <p>View and manage student and alumni details.</p>
+            <a href="/view_student_alumni" class="action-btn">View</a>
         </div>
 
     </div>

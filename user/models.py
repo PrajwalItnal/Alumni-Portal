@@ -1,3 +1,5 @@
+from email.mime import image
+
 from django.db import models
 
 class User(models.Model):
@@ -144,13 +146,13 @@ class Event(models.Model):
     )
     title = models.CharField(max_length=200)
     description = models.TextField()
+    event_type = models.CharField(max_length=100, default="General")
     date = models.DateField()
     event_time = models.TimeField()
-    event_type = models.CharField(max_length=100)
     location = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default="Upcoming")
-
+    image = models.FileField(upload_to="event_images/", blank=True, null=True)
+    
     class Meta:
         db_table = "Events"
 
