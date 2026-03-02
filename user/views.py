@@ -66,6 +66,26 @@ def view_achievements(request):
     if not register_id:
         return redirect("login")
     else:
-        user = User.objects.filter(register_id = register_id)
+        user = User.objects.filter(register_id = register_id).first()
         achievements = Achievement.objects.all().order_by('created_at')
-        render(request,"user/view_achievement.html", {"user" : user, "achievements" : achievements})
+        return render(request,"user/view_achievement.html", {"user" : user, "achievements" : achievements})
+
+def create_achievements(request):
+    if request.method == 'POST':
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        else:
+            user = User.objects.filter(register_id = register_id).first()
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            certificate = request.FILES.get('certificate')
+            Achievement.objects.create(
+                achieved_by = user,
+                title = title,
+                description = description,
+                certificate = certificate
+            )
+            messages.success(request, "Achievement add successfully")
+            return redirect('user:achievements_view')
+    return render(request, "user/create_achievement.html")

@@ -1,6 +1,59 @@
 {% extends "user/user_base.html" %}
-{% block title %}View Achievements{% endblock %}
+
+{% block title %}Achievements{% endblock %}
 
 {% block content %}
+<div class="container">
+    <h2>🏆 Achievements</h2>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
+                background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
+                color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if user.role == "Admin" or user.role == "Alumni" %}
+        <div style="background: #fdfd96; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p>Have a new success to share?</p>
+            <a href="{% url 'user:create_achievement' %}" class="btn">Post New Achievement</a>
+        </div>
+    {% endif %}
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        
+        {% for achievement in achievements %}
+            <div style="border: 1px solid #ddd; border-radius: 10px; width: 300px; background: #fff;">
+                
+                <div style="background: #eee; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                    🏅
+                </div>
+
+                <div style="padding: 15px;">
+                    <h3>{{ achievement.title }}</h3>
+                    <p>{{ achievement.description|truncatewords:20 }}</p>
+                    <hr>
+                    <small>By: <b>{{ achievement.achieved_by.username }}</b></small><br>
+                    <small>Date: {{ achievement.created_at|date:"d M Y" }}</small>
+                </div>
+
+                <div style="padding: 10px; border-top: 1px solid #eee; text-align: center;">
+                    {% if achievement.certificate %}
+                        <a href="{{ achievement.certificate.url }}" target="_blank" style="color: blue; text-decoration: none; font-weight: bold;">
+                           📄 View Certificate
+                        </a>
+                    {% else %}
+                        <span style="color: gray;">No Certificate</span>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p>No achievements found yet.</p>
+        {% endfor %}
+
+    </div>
+</div>
 {% endblock %}
