@@ -1,6 +1,9 @@
+from email.mime import message
+from unicodedata import name
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from user.models import Event, User, Achievement
+from django.contrib import messages
 import datetime
 
 # Create your views here.
@@ -32,7 +35,31 @@ def vi_event(request):
         return render(request, "user/vi_event.html", {"user": user, "events": events})
     
 def create_event(request):
-    pass
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    else:
+        user = User.objects.get(register_id=register_id)
+        if request.method == "POST":
+            title = request.POST.get("title")
+            description = request.POST.get("description")
+            event_type = request.POST.get("event_type")
+            date = request.POST.get("date")
+            time = request.POST.get("event_time")
+            location = request.POST.get("location")
+            image = request.FILES.get("image")
+            date = request.POST.get("date")
+            Event.objects.create(title=title, 
+                                description=description, 
+                                event_type=event_type, 
+                                date=date, 
+                                event_time=time, 
+                                location=location, 
+                                image=image,
+                                organized_by=user)
+            messages.success(request, "Event created successfully!")
+            return redirect("user:vi_event")
+        return render(request, "user/create_event.html", {"user": user})
 
 def view_achievements(request):
     register_id = request.session.get("register_id")
