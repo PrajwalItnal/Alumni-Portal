@@ -1,0 +1,45 @@
+{% extends "user_base.html" %}
+
+{% block title %}View Donations{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2>💰 Your Donations</h2>
+    <div>
+        
+        <a href="{% url 'user:create_donation' %}" class="btn btn-success" style="font-size:20px;">
+            ➕
+        </a>
+        <a href="{% url 'user:home' %}" class="btn">🏠 Home</a>
+        <a href="{% url 'user:logout' %}" class="btn btn-danger">🚪 Logout</a>
+    </div>
+</div>
+
+<hr>
+
+<div class="card">
+    <table border="1" width="100%" cellpadding="10">
+        <tr>
+            <th>Amount</th>
+            <th>Payment Method</th>
+            <th>Description</th>
+            <th>Date</th>
+        </tr>
+
+        {% for donation in donations %}
+        <tr>
+            <td>₹ {{ donation.amount }}</td>
+            <td>{{ donation.payment_method }}</td>
+            <td>{{ donation.description }}</td>
+            <td>{{ donation.donated_at }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" align="center">No donations yet.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

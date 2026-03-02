@@ -1,9 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from user.models import User
+from user.models import Donation, User,Achievement
 from django.core.mail import send_mail
 from django.conf import settings
+from django.shortcuts import render, redirect
+
+
 
 def home(request):
     return render(request, "home.html")
@@ -93,3 +96,4 @@ def login(request):
             messages.error(request, "Invalid register ID or password.")
             return redirect('login')
     return render(request, "login.html")
+

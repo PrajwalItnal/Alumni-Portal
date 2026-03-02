@@ -9,6 +9,7 @@ urlpatterns = [
     path("admin_home/", views.home, name="admin_home"),
     path("alumni_home/", views.home, name="alumni_home"),
     path("user_home/", views.home, name="user_home"),
-    path("events/user/", views.vi_event, name="vi_event"),
+    path("events/view/", views.vi_event, name="vi_event"),
     path("events/create/", views.create_event, name="event_create"),
+    path("achievements/view/", views.view_achievements, name = "achievements_view")
 ]

@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
-from user.models import Event, User
+from user.models import Event, User, Achievement
 import datetime
 
 # Create your views here.
@@ -33,3 +33,12 @@ def vi_event(request):
     
 def create_event(request):
     pass
+
+def view_achievements(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    else:
+        user = User.objects.filter(register_id = register_id)
+        achievements = Achievement.objects.all().order_by('created_at')
+        render(request,"user/view_achievement.html", {"user" : user, "achievements" : achievements})
