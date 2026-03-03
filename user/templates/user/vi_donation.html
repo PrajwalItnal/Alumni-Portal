@@ -1,45 +1,56 @@
-{% extends "user_base.html" %}
+{% extends "user/user_base.html" %}
 
-{% block title %}View Donations{% endblock %}
+{% block title %}Donations{% endblock %}
 
 {% block content %}
+<div class="container">
+    <h2>💰 Donations</h2>
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h2>💰 Your Donations</h2>
-    <div>
-        
-        <a href="{% url 'user:create_donation' %}" class="btn btn-success" style="font-size:20px;">
-            ➕
-        </a>
-        <a href="{% url 'user:home' %}" class="btn">🏠 Home</a>
-        <a href="{% url 'user:logout' %}" class="btn btn-danger">🚪 Logout</a>
-    </div>
-</div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px;
+                background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
+                color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-<hr>
+    {% if user.role == "Admin" or user.role == "Alumni" %}
+        <div style="background: #fdfd96; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <p>Want to contribute to the community?</p>
+            <a href="{% url 'user:create_donation' %}" class="btn">➕ Make a Donation</a>
+        </div>
+    {% endif %}
 
-<div class="card">
-    <table border="1" width="100%" cellpadding="10">
-        <tr>
-            <th>Amount</th>
-            <th>Payment Method</th>
-            <th>Description</th>
-            <th>Date</th>
-        </tr>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
 
         {% for donation in donations %}
-        <tr>
-            <td>₹ {{ donation.amount }}</td>
-            <td>{{ donation.payment_method }}</td>
-            <td>{{ donation.description }}</td>
-            <td>{{ donation.donated_at }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4" align="center">No donations yet.</td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+            <div style="border: 1px solid #ddd; border-radius: 10px; width: 300px; background: #fff;">
 
+                <div style="background: #e8f5e9; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-radius: 10px 10px 0 0;">
+                    💵
+                </div>
+
+                <div style="padding: 15px;">
+                    <h3 style="color: #2e7d32;">₹ {{ donation.amount }}</h3>
+                    <p>{{ donation.description|truncatewords:20|default:"No description provided." }}</p>
+                    <hr>
+                    <small>By: <b>{{ donation.donated_by.username }}</b></small><br>
+                    <small>Date: {{ donation.donated_at|date:"d M Y" }}</small>
+                </div>
+
+                <div style="padding: 10px; border-top: 1px solid #eee; text-align: center;">
+                    <span style="background: #d4edda; color: #155724; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold;">
+                        💳 {{ donation.payment_method }}
+                    </span>
+                </div>
+
+            </div>
+        {% empty %}
+            <p>No donations found yet.</p>
+        {% endfor %}
+
+    </div>
+</div>
 {% endblock %}

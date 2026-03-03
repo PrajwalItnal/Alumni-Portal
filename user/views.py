@@ -5,6 +5,9 @@ from django.shortcuts import render,redirect
 from user.models import Event, User, Achievement
 from django.contrib import messages
 import datetime
+from django.contrib.auth.decorators import login_required
+from .models import Donation
+
 
 # Create your views here.
 def home(request):
@@ -89,3 +92,43 @@ def create_achievements(request):
             messages.success(request, "Achievement add successfully")
             return redirect('user:achievements_view')
     return render(request, "user/create_achievement.html")
+
+
+
+
+def donation_list(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    else:
+        user = User.objects.filter(register_id=register_id).first()
+        donations = Donation.objects.all().order_by('-donated_at')
+        return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
+
+
+def create_donation(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+
+    user = User.objects.filter(register_id=register_id).first()
+
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        payment_method = request.POST.get('payment_method')
+        description = request.POST.get('description')
+
+        if not amount or not payment_method:
+            messages.error(request, "❌ Amount and Payment Method are required.")
+            return redirect('user:create_donation')
+
+        Donation.objects.create(
+            donated_by=user,
+            amount=amount,
+            payment_method=payment_method,
+            description=description,
+        )
+        messages.success(request, "✅ Donation recorded successfully!")
+        return redirect('user:donation_list')
+
+    return render(request, 'user/add_donation.html', {"user": user})
