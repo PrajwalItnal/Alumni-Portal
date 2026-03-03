@@ -95,17 +95,6 @@ def create_achievements(request):
 
 
 
-
-def donation_list(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
-        return redirect("login")
-    else:
-        user = User.objects.filter(register_id=register_id).first()
-        donations = Donation.objects.all().order_by('-donated_at')
-        return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
-
-
 def create_donation(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -130,5 +119,15 @@ def create_donation(request):
         )
         messages.success(request, "✅ Donation recorded successfully!")
         return redirect('user:donation_list')
-
     return render(request, 'user/add_donation.html', {"user": user})
+
+def donation_list(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    else:
+        user = User.objects.filter(register_id=register_id).first()
+        donations = Donation.objects.all().order_by('-donated_at')
+        return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
+
+
