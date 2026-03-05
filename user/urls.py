@@ -15,4 +15,5 @@ urlpatterns = [
     path("achievements/create/", views.create_achievements, name = "create_achievement"),
     path('donations/', views.donation_list, name='donation_list'),
     path('donations/create/', views.create_donation, name='create_donation'),
+    
 ]

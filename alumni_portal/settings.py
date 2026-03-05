@@ -147,3 +147,4 @@ EMAIL_HOST_USER = 'junedfattekhan00@gmail.com'
 EMAIL_HOST_PASSWORD = 'yttt dizr ajgz efgp'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
