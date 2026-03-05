@@ -2,9 +2,9 @@ from email.mime import message
 from unicodedata import name
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
-from user.models import Event, User, Achievement
+from user.models import Event, User, Achievement, Job
 from django.contrib import messages
-import datetime
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .models import Donation
 
@@ -130,4 +130,96 @@ def donation_list(request):
         donations = Donation.objects.all().order_by('-donated_at')
         return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
 
+def view_job(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    else:
+        user = User.objects.filter(register_id=register_id).first()
+        jobs = Job.objects.all().order_by('-posted_at')
+        return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
+    
+def add_job(request):
+    if request.method == 'POST':
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        
+        user = User.objects.filter(register_id=register_id).first()
+        
+        # Using .get('key', '') ensures we never get 'None'
+        title = request.POST.get('title', '').strip()
+        company_name = request.POST.get('c_name', '').strip()
+        description = request.POST.get('description', '').strip()
+        location = request.POST.get('location', '').strip()
+        salary = request.POST.get('salary', '').strip()
+        last_date = request.POST.get('last_date', '').strip()
+        required_skills = request.POST.get('required_skills', '').strip()
 
+        # 1. Check if fields are empty before doing logic
+        if not all([title, company_name, description, location, last_date, required_skills]):
+            messages.error(request, "❌ Please fill all required fields.")
+            return redirect('user:add_job')
+
+        # 2. Validation Logic
+        if len(title) < 3:
+            messages.error(request, "❌ Job title must be at least 3 characters.")
+            return redirect('user:add_job')
+
+        try:
+            last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
+            if last_date_obj < datetime.today().date():
+                messages.error(request, "❌ Last date cannot be in the past.")
+                return redirect('user:add_job')
+        except ValueError:
+            messages.error(request, "❌ Invalid date format.")
+            return redirect('user:add_job')
+
+        if salary and (not salary.isdigit() or int(salary) <= 0):
+            messages.error(request, "❌ Salary must be a valid number greater than 0.")
+            return redirect('user:add_job')
+
+        if len(description.split()) < 5:
+            messages.error(request, "❌ Description must be at least 5 words.")
+            return redirect('user:add_job')
+
+        # 3. Create the Job
+        Job.objects.create(
+            posted_by=user,
+            company_name=company_name,
+            title=title,
+            description=description,
+            location=location,
+            salary=salary,
+            last_date=last_date,
+            required_skills=required_skills
+        )
+        messages.success(request, "Job posted successfully!")
+        return redirect('user:view_job')
+
+    return render(request, "user/add_job.html")
+
+def filter_job(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+
+    jobs = Job.objects.all()
+
+    title_query = request.GET.get("title", "").strip()
+    location_query = request.GET.get("loc", "").strip() # Matches name="loc"
+
+    if title_query:
+        jobs = jobs.filter(title__icontains=title_query)
+        print(f"Filtering by title: {title_query}")
+
+    if location_query:
+        jobs = jobs.filter(location__icontains=location_query)
+        print(f"Filtering by location: {location_query}")
+
+    jobs = jobs.order_by('-posted_at')
+    
+    print(f"Jobs found: {jobs.count()}")
+
+    user = User.objects.filter(register_id=register_id).first()
+    return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
