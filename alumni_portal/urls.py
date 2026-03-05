@@ -28,6 +28,8 @@ urlpatterns = [
     path("contact", views.contact, name="contact"),
     path("login", views.login, name="login"),
     path("user/", include("user.urls")),
+    path("reset_password", views.reset_password, name="reset_password"),
+    path("send_otp", views.send_otp, name = "send_otp")
 ]
 
 if settings.DEBUG:
