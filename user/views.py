@@ -7,6 +7,7 @@ from django.contrib import messages
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .models import Donation
+from .models import Internship
 
 
 # Create your views here.
@@ -223,3 +224,124 @@ def filter_job(request):
 
     user = User.objects.filter(register_id=register_id).first()
     return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
+
+
+
+
+
+def internship_list(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    internships = Internship.objects.all().order_by('-posted_at')
+    return render(request, 'user/view_internship.html', {'internships': internships, 'user': user})
+
+
+def internship_create(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+
+    if user.role not in ["Admin", "Alumni"]:
+        messages.error(request, "You are not authorized to post internships.")
+        return redirect("user:internship_list")
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        company_name = request.POST.get("company_name")
+        description = request.POST.get("description")
+        location = request.POST.get("location")
+        stipend = request.POST.get("stipend")
+        duration = request.POST.get("duration")
+        last_date = request.POST.get("last_date")
+        required_skills = request.POST.get("required_skills")
+        status = request.POST.get("status", "Open")
+
+        Internship.objects.create(
+            posted_by=user,
+            title=title,
+            company_name=company_name,
+            description=description,
+            location=location,
+            stipend=stipend or None,
+            duration=duration or None,
+            last_date=last_date,
+            required_skills=required_skills,
+            status=status,
+        )
+        messages.success(request, "Internship posted successfully!")
+        return redirect("user:internship_list")
+
+    return render(request, "user/create_internship.html", {'user': user})
+'''
+def filter_internship(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+
+    title = request.GET.get('title', '')
+    loc = request.GET.get('loc', '')
+
+    internships = Internship.objects.all().order_by('-posted_at')
+
+    if title:
+        internships = internships.filter(title__icontains=title)
+    if loc:
+        internships = internships.filter(location__icontains=loc)
+
+    return render(request, 'user/view_internship.html', {
+        'internships': internships,
+        'user': user,
+        'searched': True,
+        'title': title,
+        'loc': loc
+    })'''
+
+def filter_internship(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+
+    title = request.GET.get('title', '')
+    loc = request.GET.get('loc', '')
+
+    internships = Internship.objects.all().order_by('-posted_at')
+
+    title_exists = False
+    location_exists = False
+    message = ''
+
+    if title:
+        title_exists = internships.filter(title__icontains=title).exists()
+
+    if loc:
+        location_exists = internships.filter(location__icontains=loc).exists()
+
+    if title:
+        internships = internships.filter(title__icontains=title)
+    if loc:
+        internships = internships.filter(location__icontains=loc)
+
+    if not internships.exists():
+        if title and loc:
+            if title_exists and not location_exists:
+                message = f'"{title}" is available but not found in "{loc}" location.'
+            elif location_exists and not title_exists:
+                message = f'internship in "{loc}" are available but no title matching "{title}".'
+            elif not title_exists and not location_exists:
+                message = f'No internships found for "{title}" in "{loc}".'
+
+    return render(request, 'user/view_internship.html', {
+        'internships': internships,
+        'user': user,
+        'searched': True,
+        'title': title,
+        'loc': loc,
+        'message': message
+    })
+
+

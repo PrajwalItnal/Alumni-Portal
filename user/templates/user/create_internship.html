@@ -1,0 +1,87 @@
+{% extends "user/user_base.html" %}
+
+{% block title %}Create Internship | Smart Alumni Portal{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    <h1>Create Internship</h1>
+    <div class="nav-left">
+        <span>Welcome, {{ user.username }}</span>
+    </div>
+    <ul class="nav-right">
+        <li><a href="{% url 'user:admin_home' %}">Home</a></li>
+        <li><a href="{% url 'user:logout' %}">Logout</a></li>
+    </ul>
+</div>
+
+{% if messages %}
+    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="main">
+    <div class="form-container">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="title">Internship Title</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="company_name">Company Name</label>
+                <input type="text" id="company_name" name="company_name" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stipend">Stipend (optional)</label>
+                <input type="text" id="stipend" name="stipend" class="form-control" placeholder="e.g. ₹10,000/month">
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Duration (optional)</label>
+                <input type="text" id="duration" name="duration" class="form-control" placeholder="e.g. 3 months">
+            </div>
+
+            <div class="form-group">
+                <label for="last_date">Last Date to Apply</label>
+                <input type="date" id="last_date" name="last_date" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="required_skills">Required Skills</label>
+                <textarea id="required_skills" name="required_skills" class="form-control" rows="2" required placeholder="e.g. Python, Django, SQL"></textarea>
+            </div>
+
+           
+            <div class="form-actions">
+                <button type="submit" class="action-btn">Post Internship</button>
+                <a href="{% url 'user:internship_list' %}" class="action-btn" style="background:#aaa; text-decoration:none;">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}
