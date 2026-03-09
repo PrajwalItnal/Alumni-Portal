@@ -38,7 +38,7 @@
         <div class="action-card">
             <h3>📅 View Events</h3>
             <p>Discover upcoming college events, alumni meetups, and special programs.</p>
-            <a href="/viewevents" class="action-btn">Explore Events</a>
+            <a href="{% url 'user:vi_event' %}" class="action-btn">Explore Events</a>
         </div>
 
         <div class="action-card">
@@ -52,19 +52,19 @@
         <div class="action-card">
             <h3>🏢 View Internship</h3>
             <p>Browse available internship opportunities.</p>
-            <a href="/internship" class="action-btn">View</a>
+            <a href="{% url 'user:internship_list' %}" class="action-btn">View</a>
         </div>
 
         <div class="action-card">
             <h3>💼 View Job</h3>
             <p>See job openings posted by alumni.</p>
-            <a href="/viewjob" class="action-btn">View</a>
+            <a href="{% url 'user:view_job' %}" class="action-btn">View</a>
         </div>
 
         <div class="action-card">
             <h3>🏆 View Achievements</h3>
             <p>Explore outstanding accomplishments, awards, and success stories of our students and alumni.</p>
-            <a href="/achievements" class="action-btn">Explore Achievements</a>
+            <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
         </div>
     </div>
 </div>
