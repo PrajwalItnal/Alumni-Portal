@@ -228,6 +228,7 @@ def filter_job(request):
 
 
 
+
 def internship_list(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -235,7 +236,6 @@ def internship_list(request):
     user = User.objects.get(register_id=register_id)
     internships = Internship.objects.all().order_by('-posted_at')
     return render(request, 'user/view_internship.html', {'internships': internships, 'user': user})
-
 
 def internship_create(request):
     register_id = request.session.get("register_id")
@@ -274,30 +274,6 @@ def internship_create(request):
         return redirect("user:internship_list")
 
     return render(request, "user/create_internship.html", {'user': user})
-'''
-def filter_internship(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
-        return redirect("login")
-    user = User.objects.get(register_id=register_id)
-
-    title = request.GET.get('title', '')
-    loc = request.GET.get('loc', '')
-
-    internships = Internship.objects.all().order_by('-posted_at')
-
-    if title:
-        internships = internships.filter(title__icontains=title)
-    if loc:
-        internships = internships.filter(location__icontains=loc)
-
-    return render(request, 'user/view_internship.html', {
-        'internships': internships,
-        'user': user,
-        'searched': True,
-        'title': title,
-        'loc': loc
-    })'''
 
 def filter_internship(request):
     register_id = request.session.get("register_id")
