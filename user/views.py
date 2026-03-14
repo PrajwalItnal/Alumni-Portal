@@ -322,7 +322,7 @@ def filter_internship(request):
 
 def college_list(request):
     if not College.objects.exists():
-        return render(request, )
+        return render(request, "user/college_create.html")
     register_id = request.session.get("register_id")
     if not register_id:
         return redirect("login")
