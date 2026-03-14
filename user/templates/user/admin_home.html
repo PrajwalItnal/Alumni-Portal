@@ -1,92 +1,236 @@
-{% extends 'user/user_base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | Smart Alumni Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}Admin Dashboard | Smart Alumni Portal{% endblock %}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f4f3f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
 
-{% block content %}
+    /* ── Navbar ── */
+    .navbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e4e0;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: -0.01em;
+    }
+    .navbar a {
+      font-size: 13px;
+      color: #555;
+      text-decoration: none;
+      border: 1px solid #d1d0cc;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .navbar a:hover { background: #f4f3f0; border-color: #aaa; }
 
-<div class="navbar">
+    /* ── Main ── */
+    .main {
+      padding: 2rem;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* ── Welcome box ── */
+    .welcome-box {
+      background: #fff;
+      border: 1px solid #e5e4e0;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .welcome-icon {
+      font-size: 24px;
+      width: 52px;
+      height: 52px;
+      background: #fef3e2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .welcome-box h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+    .welcome-box p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Cards grid ── */
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .break { display: none; }
+
+    /* ── Action card ── */
+    .action-card {
+      background: #fff;
+      border: 1px solid #e5e4e0;
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .action-card:hover {
+      border-color: #c0bfbb;
+      transform: translateY(-1px);
+    }
+    .action-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .action-card p {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.55;
+      flex: 1;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a6fdb;
+      text-decoration: none;
+      width: fit-content;
+    }
+    .action-btn::after { content: ' →'; }
+    .action-btn:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .main { padding: 1rem; }
+      .welcome-box { flex-direction: column; align-items: flex-start; }
+      .welcome-icon { display: none; }
+      .actions { grid-template-columns: 1fr; }
+      .navbar { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
     <h1>Admin Dashboard</h1>
+    <a href="{% url 'user:logout' %}">Logout</a>
+  </nav>
 
-    <ul class="nav-right">
-        {% comment %} <li><a href="{% url 'admin_home' %}">Home</a></li>
-        <li><a href="{% url 'change_password' %}">Change Password</a></li>
-        <li><a href="/logout">Logout</a></li> {% endcomment %}
-    </ul>
-        <a href="{% url 'user:logout' %}">Logout</a>
-</div>
-
-<!-- MAIN -->
-<div class="main">
+  <div class="main">
 
     <div class="welcome-box">
-        <h2>Welcome, {{ user.username | title }} 👋</h2>
-        <p>
-            Manage college details, departments, alumni connections,
-            job postings and donation records.
-        </p>
+      <div class="welcome-icon">🛡️</div>
+      <div>
+        <h2>Welcome, {{ user.username|title }} 👋</h2>
+        <p>Manage college details, departments, alumni connections, job postings and donation records.</p>
+      </div>
     </div>
+
+    <p class="section-label">Management</p>
 
     <div class="actions">
 
-        <div class="action-card">
-            <h3>🏫 College Detail</h3>
-            <p>View and manage college information.</p>
-            <a href="/collegedetail" class="action-btn">Open</a>
-        </div>
+      <div class="action-card">
+        <h3>🏫 College Detail</h3>
+        <p>View and manage college information.</p>
+        <a href="/collegedetail" class="action-btn">Open</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 View and Add Events</h3>
-            <p>View and add events for Students</p>
-            <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>📅 Events</h3>
+        <p>View and add events for students.</p>
+        <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💰 View and Add Donation</h3>
-            <p>Check alumni donation Details</p>
-            <a href="{% url 'user:donation_list' %}" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>💰 Donations</h3>
+        <p>Check and manage alumni donation details.</p>
+        <a href="{% url 'user:donation_list' %}" class="action-btn">View</a>
+      </div>
 
-        <!-- Break -->
-        <div class="break"></div>
+      <div class="action-card">
+        <h3>💼 Jobs</h3>
+        <p>View jobs posted by students and alumni.</p>
+        <a href="{% url 'user:view_job' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 View and Add Jobs Details</h3>
-            <p>View jobs posted by Students</p>
-            <a href="{% url 'user:view_job' %}" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>🏆 Achievements</h3>
+        <p>View and add achievements of students.</p>
+        <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 View and Add Achievements</h3>
-            <p>View achievements of Students.</p>
-            <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>🏢 Internships</h3>
+        <p>View and add internship details of students.</p>
+        <a href="{% url 'user:internship_list' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 View and Add Intership</h3>
-            <p>View and add intership details of Students.</p>
-            <a href="{% url 'user:internship_list' %}" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>🎓 Register Students</h3>
+        <p>Register new students in the system.</p>
+        <a href="/register_student" class="action-btn">Register</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 Register Students</h3>
-            <p>Register new students in the system.</p>
-            <a href="/register_student" class="action-btn">Register</a>
-        </div>
+      <div class="action-card">
+        <h3>🔄 Convert Alumni</h3>
+        <p>Convert existing students to alumni in the system.</p>
+        <a href="/convert_alumni" class="action-btn">Convert</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 Convert Alumni</h3>
-            <p>Convert students to alumni in the system.</p>
-            <a href="/convert_alumni" class="action-btn">Convert</a>
-        </div>
-
-        <div class="action-card">
-            <h3>💼 Get Student And Alumni Details</h3>
-            <p>View and manage student and alumni details.</p>
-            <a href="/view_student_alumni" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <h3>👥 Student & Alumni Details</h3>
+        <p>View and manage student and alumni records.</p>
+        <a href="/view_student_alumni" class="action-btn">View</a>
+      </div>
 
     </div>
+  </div>
 
-</div>
-
-{% endblock %}
+</body>
+</html>

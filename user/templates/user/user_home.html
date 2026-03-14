@@ -1,72 +1,248 @@
-{% extends 'user/user_base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome To Alumni Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %} Welcome To Alumni Portal {% endblock %}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f4f3f0;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
 
-{% block content %}
-<div class="navbar">
+    /* ── Navbar ── */
+    .navbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e4e0;
+      padding: 0 2rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .navbar h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      letter-spacing: -0.01em;
+    }
+    .nav-right a {
+      font-size: 13px;
+      color: #555;
+      text-decoration: none;
+      border: 1px solid #d1d0cc;
+      padding: 7px 16px;
+      border-radius: 8px;
+      transition: background 0.15s, border-color 0.15s;
+      font-weight: 500;
+    }
+    .nav-right a:hover { background: #f4f3f0; border-color: #aaa; }
+
+    /* ── Main ── */
+    .main {
+      padding: 2rem;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* ── Welcome box ── */
+    .welcome-box {
+      background: #fff;
+      border: 1px solid #e5e4e0;
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .welcome-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #e8f0fb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .welcome-text h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 5px;
+      letter-spacing: -0.01em;
+    }
+    .welcome-text p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #999;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Cards grid ── */
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    /* ── Action card ── */
+    .action-card {
+      background: #fff;
+      border: 1px solid #e5e4e0;
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: border-color 0.15s, transform 0.15s;
+      cursor: default;
+    }
+    .action-card:hover {
+      border-color: #c0bfbb;
+      transform: translateY(-1px);
+    }
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #f4f3f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .action-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .action-card p {
+      font-size: 13px;
+      color: #777;
+      line-height: 1.55;
+      flex: 1;
+    }
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a6fdb;
+      text-decoration: none;
+      width: fit-content;
+    }
+    .action-btn:hover { text-decoration: underline; }
+    .action-btn::after { content: '→'; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .main { padding: 1rem; }
+      .welcome-box { flex-direction: column; align-items: flex-start; }
+      .actions { grid-template-columns: 1fr; }
+      .navbar { padding: 0 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
     <h1>Student Dashboard</h1>
+    <div class="nav-right">
+      <a href="{% url 'user:logout' %}">Logout</a>
+    </div>
+  </nav>
 
-    <ul class="nav-right">
-    
-        <a href="{% url 'user:logout' %}">Logout</a>
-    </ul>
-</div>
+  <!-- Main Content -->
+  <div class="main">
 
-<div class="main">
-
+    <!-- Welcome -->
     <div class="welcome-box">
-        <h2>Welcome, {{user.username}} 👋</h2>
-        <p>
-            Explore alumni network, apply for internships,
-            request mentorship, and view career opportunities.
-        </p>
+      <div class="welcome-avatar">👋</div>
+      <div class="welcome-text">
+        <h2>Welcome, {{ user.username }}</h2>
+        <p>Explore alumni network, apply for internships, request mentorship, and view career opportunities.</p>
+      </div>
     </div>
 
+    <p class="section-label">Quick Actions</p>
+
+    <!-- Cards -->
     <div class="actions">
-        <div class="action-card">
-            <h3>🎓 View Alumni</h3>
-            <p>Explore registered alumni profiles.</p>
-            <a href="/alumnidetail" class="action-btn">View</a>
-        </div>
 
-        <div class="action-card">
-            <h3>👤 My Profile</h3>
-            <p>View and update your personal, academic, and career details.</p>
-            <a href="/viewprofile" class="action-btn">Open Profile</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">🎓</div>
+        <h3>View Alumni</h3>
+        <p>Explore registered alumni profiles and connect with the network.</p>
+        <a href="alumnidetail" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>📅 View Events</h3>
-            <p>Discover upcoming college events, alumni meetups, and special programs.</p>
-            <a href="/viewevents" class="action-btn">Explore Events</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">👤</div>
+        <h3>My Profile</h3>
+        <p>View and update your personal, academic, and career details.</p>
+        <a href="/viewprofile" class="action-btn">Open Profile</a>
+      </div>
 
-        <div class="action-card">
-            <h3>🏫 View College Details</h3>
-            <p>Explore complete information about the college, including address, contact details, departments, and facilities.</p>
-            <a href="/collegedetail" class="action-btn">View Details</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">📅</div>
+        <h3>View Events</h3>
+        <p>Discover upcoming college events, alumni meetups, and special programs.</p>
+        <a href="{% url 'user:vi_event' %}" class="action-btn">Explore events</a>
+      </div>
 
-        <div class="break"></div>
+      <div class="action-card">
+        <div class="card-icon">🏫</div>
+        <h3>College Details</h3>
+        <p>Explore information about departments, contact details, and facilities.</p>
+        <a href="/collegedetail" class="action-btn">View Details</a>
+      </div>
 
-        <div class="action-card">
-            <h3>🏢 View Internship</h3>
-            <p>Browse available internship opportunities.</p>
-            <a href="/internship" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">🏢</div>
+        <h3>View Internships</h3>
+        <p>Browse available internship opportunities posted by alumni.</p>
+        <a href="{% url 'user:internship_list' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>💼 View Job</h3>
-            <p>See job openings posted by alumni.</p>
-            <a href="/viewjob" class="action-btn">View</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">💼</div>
+        <h3>View Jobs</h3>
+        <p>See job openings posted by alumni and partner companies.</p>
+        <a href="{% url 'user:view_job' %}" class="action-btn">View</a>
+      </div>
 
-        <div class="action-card">
-            <h3>🏆 View Achievements</h3>
-            <p>Explore outstanding accomplishments, awards, and success stories of our students and alumni.</p>
-            <a href="/achievements" class="action-btn">Explore Achievements</a>
-        </div>
+      <div class="action-card">
+        <div class="card-icon">🏆</div>
+        <h3>Achievements</h3>
+        <p>Explore outstanding accomplishments and success stories of alumni.</p>
+        <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
+      </div>
+
     </div>
-</div>
+  </div>
 
-{% endblock %}
+</body>
+</html>

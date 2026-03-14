@@ -34,7 +34,7 @@ def vi_event(request):
         return redirect("login")
     else:
         user = User.objects.get(register_id=register_id)
-        today = datetime.datetime.now()
+        today = datetime.now()
         events = Event.objects.filter(date__gte = today).order_by("-created_at")
         return render(request, "user/vi_event.html", {"user": user, "events": events})
     
@@ -228,7 +228,6 @@ def filter_job(request):
 
 
 
-
 def internship_list(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -343,5 +342,3 @@ def filter_internship(request):
         'loc': loc,
         'message': message
     })
-
-
