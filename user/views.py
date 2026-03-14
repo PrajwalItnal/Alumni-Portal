@@ -10,7 +10,6 @@ from .models import Donation
 from .models import Internship
 
 
-# Create your views here.
 def home(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -95,7 +94,6 @@ def create_achievements(request):
     return render(request, "user/create_achievement.html")
 
 
-
 def create_donation(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -147,8 +145,7 @@ def add_job(request):
             return redirect("login")
         
         user = User.objects.filter(register_id=register_id).first()
-        
-        # Using .get('key', '') ensures we never get 'None'
+
         title = request.POST.get('title', '').strip()
         company_name = request.POST.get('c_name', '').strip()
         description = request.POST.get('description', '').strip()
@@ -157,12 +154,12 @@ def add_job(request):
         last_date = request.POST.get('last_date', '').strip()
         required_skills = request.POST.get('required_skills', '').strip()
 
-        # 1. Check if fields are empty before doing logic
+        
         if not all([title, company_name, description, location, last_date, required_skills]):
             messages.error(request, "❌ Please fill all required fields.")
             return redirect('user:add_job')
 
-        # 2. Validation Logic
+       
         if len(title) < 3:
             messages.error(request, "❌ Job title must be at least 3 characters.")
             return redirect('user:add_job')
@@ -184,7 +181,7 @@ def add_job(request):
             messages.error(request, "❌ Description must be at least 5 words.")
             return redirect('user:add_job')
 
-        # 3. Create the Job
+        
         Job.objects.create(
             posted_by=user,
             company_name=company_name,
