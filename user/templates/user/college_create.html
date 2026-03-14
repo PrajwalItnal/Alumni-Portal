@@ -1,0 +1,104 @@
+{% extends "user/user_base.html" %}
+{% block title %}Add College | Smart Alumni Portal{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+    <h1>Add College</h1>
+    <div class="nav-left">
+        <span>Welcome, {{ user.username }}</span>
+    </div>
+    <ul class="nav-right">
+        <li><a href="{% url 'user:admin_home' %}">Home</a></li>
+        <li><a href="{% url 'user:logout' %}">Logout</a></li>
+    </ul>
+</div>
+
+{% if messages %}
+    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+        {% for message in messages %}
+            <div class="alert"
+                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="main">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h2>🏫 Add College</h2>
+        <div>
+            <a href="{% url 'user:admin_home' %}" class="btn">🏠 Home</a>
+            <a href="{% url 'user:college_list' %}" class="btn">📄 View Colleges</a>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <form method="POST" action="{% url 'user:college_create' %}">
+            {% csrf_token %}
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold;">College Name <span style="color:red;">*</span></label>
+                <input type="text" name="name" required
+                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold;">Address <span style="color:red;">*</span></label>
+                <textarea name="address" required
+                          style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 80px;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-weight: bold;">City <span style="color:red;">*</span></label>
+                    <input type="text" name="city" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold;">State <span style="color:red;">*</span></label>
+                    <input type="text" name="state" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-weight: bold;">Email <span style="color:red;">*</span></label>
+                    <input type="email" name="email" required
+                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: bold;">Phone <span style="color:red;">*</span></label>
+                    <input type="text" name="phone" required maxlength="15"
+                           style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold;">Website</label>
+                <input type="url" name="website" placeholder="https://example.edu"
+                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: bold;">Established Year</label>
+                <input type="number" name="established_year" min="1800" max="2100"
+                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <button type="submit"
+                    style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+                🏫 Add College
+            </button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

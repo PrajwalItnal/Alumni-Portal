@@ -1,0 +1,62 @@
+{% for college in colleges %}
+<div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s;"
+     onmouseover="this.style.transform='translateY(-5px)'"
+     onmouseout="this.style.transform='translateY(0)'">
+
+    <!-- Card Header -->
+    <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; color: white;">
+        <div style="font-size: 2rem; margin-bottom: 8px;">🏫</div>
+        <h3 style="margin: 0; font-size: 1.2rem;">{{ college.name }}</h3>
+        <p style="margin: 5px 0 0 0; opacity: 0.85; font-size: 0.85rem;">
+            {{ college.city }}, {{ college.state }}
+        </p>
+    </div>
+
+    <!-- Card Body -->
+    <div style="padding: 15px;">
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: #444;">
+            <div style="display: flex; align-items: flex-start; gap: 8px;">
+                <span>📍</span>
+                <span>{{ college.address }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>📧</span>
+                <span>{{ college.email }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>📞</span>
+                <span>{{ college.phone }}</span>
+            </div>
+            {% if college.established_year %}
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span>📅</span>
+                <span>Est. {{ college.established_year }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Buttons -->
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            {% if college.website %}
+            <a href="{{ college.website }}" target="_blank"
+               style="background: #667eea; color: white; padding: 7px 16px;
+                      border-radius: 20px; text-decoration: none; font-size: 0.85rem;">
+                🌐 Visit Website
+            </a>
+            {% endif %}
+
+            <a href="{% url 'user:college_detail_update' college.id %}"
+               style="background: #ffc107; color: #333; padding: 7px 16px;
+                      border-radius: 20px; text-decoration: none; font-size: 0.85rem; font-weight: bold;">
+                ✏️ Update Detail
+            </a>
+        </div>
+    </div>
+
+</div>
+{% empty %}
+<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #888;">
+    <div style="font-size: 3rem;">🏫</div>
+    <p>No colleges registered yet. Please check back later!</p>
+</div>
+{% endfor %}

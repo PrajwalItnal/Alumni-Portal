@@ -20,5 +20,8 @@ urlpatterns = [
     path('jobs/add/', views.add_job, name='add_job'),
     path("internships/", views.internship_list, name="internship_list"),
     path("internships/create/", views.internship_create, name="internship_create"),
-    path("internships/filter/", views.filter_internship, name="filter_internship")
+    path("internships/filter/", views.filter_internship, name="filter_internship"),
+    path('college/create/', views.college_create, name='college_create'),
+    path('college/list/',   views.college_list,   name='college_list'),
+    path('college/detail/update/<int:college_id>/', views.college_detail_update, name='college_detail_update'),
 ]
