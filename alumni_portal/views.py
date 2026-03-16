@@ -45,7 +45,7 @@ def contact(request):
             subject,
             body,
             settings.EMAIL_HOST_USER,
-            ['junedfattekhan00@gmail.com'],  # Replace with your admin email
+            ['junedfattekhan00@gmail.com'],  
             fail_silently=False,
         )
 
@@ -74,7 +74,7 @@ def contact(request):
             user_subject,
             user_body,
             settings.EMAIL_HOST_USER,
-            [email],  # Send to user
+            [email],  
             fail_silently=False,
         )
         messages.success(request, "Your message has been sent successfully! We will get back to you soon.")
