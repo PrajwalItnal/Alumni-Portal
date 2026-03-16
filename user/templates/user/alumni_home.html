@@ -197,25 +197,25 @@
         <div class="action-card">
             <h3>💼 Add and view Jobs</h3>
             <p>Share or view job references.</p>
-            <a href="/jobreference" class="action-btn">Open</a>
+            <a href="{% url 'user:view_job' %} " class="action-btn">Open</a>
         </div>
 
         <div class="action-card">
             <h3>Create and View Intership</h3>
             <p>Explore alumni internship details.</p>
-            <a href="/internship" class="action-btn">View</a>
+            <a href="{% url 'user:internship_list' %} " class="action-btn">View</a>
         </div>
 
         <div class="action-card">
             <h3>Add and View Achievements</h3>
             <p>Explore alumni achievements details.</p>
-            <a href="/achievements" class="action-btn">View</a>
+            <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
         </div>
 
         <div class="action-card">
             <h3>Add and View Events</h3>
             <p>Explore alumni events details.</p>
-            <a href="/events" class="action-btn">View</a>
+            <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
         </div>
 
     </div>

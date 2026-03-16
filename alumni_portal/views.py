@@ -27,10 +27,10 @@ def contact(request):
         A new message has been submitted through the Alumni Portal Contact Form.
 
         Contact Details:
-        ----------------------------------------
+        
         Name  : {name}
         Email : {email}
-        ----------------------------------------
+       
 
         Message:
         {message}
@@ -60,9 +60,8 @@ def contact(request):
 
         For your reference, here is a copy of your message:
 
-        ----------------------------------------
         {message}
-        ----------------------------------------
+      
 
         If you have any additional information to share, feel free to reply to this email.
 
@@ -135,7 +134,7 @@ def send_otp(request):
             "Forget Password",
             "Forget password in alumni portal the OTP is " + str(otp),
             settings.EMAIL_HOST_USER,
-            [user.email],  # Send to user
+            [user.email], 
             fail_silently=False,
         )
         messages.success(request, "OTP sent successfully to your register email")

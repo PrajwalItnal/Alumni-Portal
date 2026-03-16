@@ -26,10 +26,6 @@ def home(request):
         else:
             return render(request, "user/user_home.html", {"user": user})
 
-def logout(request):
-    request.session.flush()
-    return redirect('home')
-
 def vi_event(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -208,7 +204,7 @@ def filter_job(request):
     jobs = Job.objects.all()
 
     title_query = request.GET.get("title", "").strip()
-    location_query = request.GET.get("loc", "").strip() # Matches name="loc"
+    location_query = request.GET.get("loc", "").strip() 
 
     if title_query:
         jobs = jobs.filter(title__icontains=title_query)
@@ -225,7 +221,9 @@ def filter_job(request):
     user = User.objects.filter(register_id=register_id).first()
     return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
 
-
+def logout(request):
+    request.session.flush()
+    return redirect('home')
 
 
 
