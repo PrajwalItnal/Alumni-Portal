@@ -3,7 +3,7 @@
      onmouseover="this.style.transform='translateY(-5px)'"
      onmouseout="this.style.transform='translateY(0)'">
 
-    <!-- Card Header -->
+
     <div style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; color: white;">
         <div style="font-size: 2rem; margin-bottom: 8px;">🏫</div>
         <h3 style="margin: 0; font-size: 1.2rem;">{{ college.name }}</h3>
@@ -12,7 +12,7 @@
         </p>
     </div>
 
-    <!-- Card Body -->
+
     <div style="padding: 15px;">
         <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem; color: #444;">
             <div style="display: flex; align-items: flex-start; gap: 8px;">
@@ -35,7 +35,7 @@
             {% endif %}
         </div>
 
-        <!-- Buttons -->
+
         <div style="margin-top: 15px; display: flex; gap: 10px;">
             {% if college.website %}
             <a href="{{ college.website }}" target="_blank"
