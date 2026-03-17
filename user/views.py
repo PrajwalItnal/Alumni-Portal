@@ -1,11 +1,7 @@
-from email.mime import message
-from unicodedata import name
-from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from user.models import Event, User, Achievement, Job
 from django.contrib import messages
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
 from .models import Donation
 from .models import Internship
 from .models import College
