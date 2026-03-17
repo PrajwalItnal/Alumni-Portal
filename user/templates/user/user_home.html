@@ -209,14 +209,14 @@
         <div class="action-card">
             <h3>📅 View Events</h3>
             <p>Discover upcoming college events, alumni meetups, and special programs.</p>
-            <a href="/viewevents" class="action-btn">Explore Events</a>
+            <a href="{% url 'user:vi_event' %}" class="action-btn">Explore Events</a>
         </div>
 
       <div class="action-card">
         <div class="card-icon">🏫</div>
         <h3>College Details</h3>
         <p>Explore information about departments, contact details, and facilities.</p>
-        <a href="/collegedetail" class="action-btn">View Details</a>
+        <a href="{% url 'user:college_list' %}" class="action-btn">View Details</a>
       </div>
 
         <div class="action-card">
@@ -234,7 +234,7 @@
         <div class="action-card">
             <h3>🏆 View Achievements</h3>
             <p>Explore outstanding accomplishments, awards, and success stories of our students and alumni.</p>
-            <a href="/achievements" class="action-btn">Explore Achievements</a>
+            <a href="{% url 'user:achievements_view' %}" class="action-btn">Explore Achievements</a>
         </div>
     </div>
   </div>

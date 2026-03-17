@@ -22,10 +22,6 @@ def home(request):
         else:
             return render(request, "user/user_home.html", {"user": user})
 
-def logout(request):
-    request.session.flush()
-    return redirect('home')
-
 def vi_event(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -155,29 +151,29 @@ def add_job(request):
 
         
         if not all([title, company_name, description, location, last_date, required_skills]):
-            messages.error(request, "❌ Please fill all required fields.")
+            messages.error(request, "Please fill all required fields.")
             return redirect('user:add_job')
 
        
         if len(title) < 3:
-            messages.error(request, "❌ Job title must be at least 3 characters.")
+            messages.error(request, "Job title must be at least 3 characters.")
             return redirect('user:add_job')
 
         try:
             last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
             if last_date_obj < datetime.today().date():
-                messages.error(request, "❌ Last date cannot be in the past.")
+                messages.error(request, "Last date cannot be in the past.")
                 return redirect('user:add_job')
         except ValueError:
-            messages.error(request, "❌ Invalid date format.")
+            messages.error(request, "Invalid date format.")
             return redirect('user:add_job')
 
         if salary and (not salary.isdigit() or int(salary) <= 0):
-            messages.error(request, "❌ Salary must be a valid number greater than 0.")
+            messages.error(request, "Salary must be a valid number greater than 0.")
             return redirect('user:add_job')
 
         if len(description.split()) < 5:
-            messages.error(request, "❌ Description must be at least 5 words.")
+            messages.error(request, "Description must be at least 5 words.")
             return redirect('user:add_job')
 
         
@@ -204,7 +200,7 @@ def filter_job(request):
     jobs = Job.objects.all()
 
     title_query = request.GET.get("title", "").strip()
-    location_query = request.GET.get("loc", "").strip() # Matches name="loc"
+    location_query = request.GET.get("loc", "").strip() 
 
     if title_query:
         jobs = jobs.filter(title__icontains=title_query)
@@ -221,7 +217,9 @@ def filter_job(request):
     user = User.objects.filter(register_id=register_id).first()
     return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
 
-
+def logout(request):
+    request.session.flush()
+    return redirect('home')
 
 
 
