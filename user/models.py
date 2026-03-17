@@ -73,16 +73,9 @@ class Alumni(models.Model):
         primary_key=True,
         related_name="alumni_profile"
     )
-
-    EMPLOYMENT_STATUS_CHOICES = [
-        ("Employed", "Employed"),
-        ("Unemployed", "Unemployed"),
-        ("Higher Studies", "Higher Studies"),
-    ]
-
+    
     employment_status = models.CharField(
-        max_length=20,
-        choices=EMPLOYMENT_STATUS_CHOICES
+        max_length=20
     )
 
     company_name = models.CharField(max_length=150, blank=True, null = True)
