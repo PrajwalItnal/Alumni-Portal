@@ -1,11 +1,17 @@
+from django.conf import settings
 from django.shortcuts import render,redirect
-from user.models import Event, User, Achievement, Job
+import user
+import user
+from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
 from datetime import datetime
 from .models import Donation
 from .models import Internship
 from .models import College
-
+import pandas as pd
+import random
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
 
 
 
@@ -415,3 +421,78 @@ def college_detail_update(request, college_id):
         "user": user,
         "college": college,
     })
+    
+def student_register(request):
+    if request.method == "POST":
+        file = request.FILES.get("file")
+        admission_year = request.POST.get("adm_year")
+        graduation_year = request.POST.get("grad_year")
+        department = request.POST.get("department")
+
+        if file.name.endswith('.csv'):
+            df = pd.read_csv(file)
+        else:
+            df = pd.read_excel(file)
+        
+        required_columns = ['register id', "name", "email", "phone", "gender"]
+
+        df.columns = df.columns.str.lower().str.strip()
+
+        for column in required_columns:
+            if column not in df.columns:
+                messages.error(request, f"Columns are not present in the file. Required columns: {', '.join(required_columns)}")
+                return redirect("user:student_register")
+        
+        print(df.head())
+        for row in df.iterrows():
+            register_id = row[1]['register id']
+            name = row[1]['name']
+            email = row[1]['email']
+            phone = str(row[1]['phone'])
+            gender = row[1]['gender']
+            
+            if User.objects.filter(register_id=register_id).exists() or User.objects.filter(email=email).exists():
+                print(f"User with register ID {register_id} or email {email} already exists. Skipping.")
+                continue
+            
+            password = random.randint(1000000000,9999999999)
+            print(f"Generated password for {register_id}: {password}")
+            user = User.objects.create(
+                register_id=register_id,
+                username = name.strip().title(),
+                email = email,
+                role = "Student",
+                password = make_password(str(password))
+            )
+
+            print(user)
+
+            send_email(
+                "Welcome to Alumni Portal",
+                f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
+                [email]
+            )
+
+            student = Student.objects.create(
+                user = user,
+                department = department,
+                admission_year = admission_year,
+                graduation_year = graduation_year,
+                phone = phone,
+                gender = gender.strip(),
+                dob = "2005-07-20"
+            )
+
+            user.save()
+            student.save()
+        return redirect("user:admin_home")
+    return render(request, "user/student_registration.html")
+
+def send_email(title, message, recipient_list):
+    send_mail(
+            title,
+            message,
+            settings.EMAIL_HOST_USER,
+            recipient_list,
+        )
+    return True

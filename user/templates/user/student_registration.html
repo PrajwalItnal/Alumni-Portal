@@ -1,0 +1,21 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %}Student Registration{% endblock %}
+
+{% block content %}
+    <h2>Student Registration</h2>
+    <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="file">Upload Excel Or CSV File:</label>
+            <input type="file" name="file" id="file" class="form-control" required>
+            <label for="adm_year">Admission Year:</label>
+            <input type="number" name="adm_year" id="adm_year" class="form-control" required>
+            <label for="grad_year">Graduation Year:</label>
+            <input type="number" name="grad_year" id="grad_year" class="form-control" required>
+            <label for="department">Department:</label>
+            <input type="text" name="department" id="department" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Register Students</button>
+    </form>
+{% endblock %}
