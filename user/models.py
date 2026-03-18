@@ -3,18 +3,12 @@ from email.mime import image
 from django.db import models
 
 class User(models.Model):
-    ROLE_CHOICES = [
-        ('ADMIN', 'Admin'),
-        ('STUDENT', 'Student'),
-        ('ALUMNI', 'Alumni'),
-    ]
-
     user_id = models.AutoField(primary_key=True)
     register_id = models.CharField(max_length=14, unique=True)
     username = models.CharField(max_length=25)
     password = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -35,16 +29,11 @@ class Student(models.Model):
     department = models.CharField(max_length=50)
     admission_year = models.IntegerField()
     graduation_year = models.IntegerField(blank=True, null=True)
-    phone = models.CharField(max_length=15)
-    GENDER_CHOICES = [
-        ("Male", "Male"),
-        ("Female", "Female"),
-        ("Other", "Other"),
-    ]
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    dob = models.DateField()
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    gender = models.CharField(max_length=10, blank=True, null=True)
+    dob = models.DateField(null = True, blank = True)
     city = models.CharField(max_length=20, blank=True)
-    permanent_address = models.TextField()
+    permanent_address = models.TextField(null = True, blank = True)
     photo = models.FileField(
         upload_to="student_photos/",
         blank=True,
@@ -75,7 +64,9 @@ class Alumni(models.Model):
     )
     
     employment_status = models.CharField(
-        max_length=20
+        max_length=20,
+        null=True,
+        blank=True
     )
 
     company_name = models.CharField(max_length=150, blank=True, null = True)

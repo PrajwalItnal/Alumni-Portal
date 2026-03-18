@@ -3,6 +3,22 @@
 {% block title %}Student Registration{% endblock %}
 
 {% block content %}
+
+{% if messages %}
+    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
     <h2>Student Registration</h2>
     <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -14,7 +30,14 @@
             <label for="grad_year">Graduation Year:</label>
             <input type="number" name="grad_year" id="grad_year" class="form-control" required>
             <label for="department">Department:</label>
-            <input type="text" name="department" id="department" class="form-control" required>
+            <select name="department" id="department" class="form-control" required>
+                <option value="">Select Department</option>
+                <option value="Bachelor of Computer Application">Bachelor of Computer Application</option>
+                <option value="Bachelor of Science">Bachelor of Science</option>
+                <option value="Bachelor of Arts">Bachelor of Arts</option>
+                <option value="Bachelor of Commerce">Bachelor of Commerce</option>
+                <option value="Bachelor of Business Administrator">Bachelor of Business Administrator</option>
+            </select>
         </div>
         <button type="submit" class="btn btn-primary">Register Students</button>
     </form>

@@ -12,6 +12,7 @@ import pandas as pd
 import random
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+import openpyxl
 
 
 
@@ -429,10 +430,14 @@ def student_register(request):
         graduation_year = request.POST.get("grad_year")
         department = request.POST.get("department")
 
-        if file.name.endswith('.csv'):
-            df = pd.read_csv(file)
-        else:
-            df = pd.read_excel(file)
+        try:
+            if file.name.endswith('.csv'):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file, engine='openpyxl')
+        except Exception as e:
+            messages.error(request, "Error reading file: " + str(e))
+            return redirect("user:student_register")
         
         required_columns = ['register id', "name", "email", "phone", "gender"]
 
@@ -443,7 +448,6 @@ def student_register(request):
                 messages.error(request, f"Columns are not present in the file. Required columns: {', '.join(required_columns)}")
                 return redirect("user:student_register")
         
-        print(df.head())
         for row in df.iterrows():
             register_id = row[1]['register id']
             name = row[1]['name']
@@ -453,6 +457,10 @@ def student_register(request):
             
             if User.objects.filter(register_id=register_id).exists() or User.objects.filter(email=email).exists():
                 print(f"User with register ID {register_id} or email {email} already exists. Skipping.")
+                continue
+
+            if "@gmail.com" not in email:
+                print(f"Invalid email {email} for register ID {register_id}. Skipping.")
                 continue
             
             password = random.randint(1000000000,9999999999)
@@ -479,12 +487,12 @@ def student_register(request):
                 admission_year = admission_year,
                 graduation_year = graduation_year,
                 phone = phone,
-                gender = gender.strip(),
-                dob = "2005-07-20"
+                gender = gender.strip()
             )
 
             user.save()
             student.save()
+        messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
         return redirect("user:admin_home")
     return render(request, "user/student_registration.html")
 
