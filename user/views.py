@@ -5,7 +5,7 @@ import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
 from datetime import datetime
-from .models import Donation
+from .models import Alumni, Donation
 from .models import Internship
 from .models import College
 import pandas as pd
@@ -497,10 +497,61 @@ def student_register(request):
     return render(request, "user/student_registration.html")
 
 def send_email(title, message, recipient_list):
-    send_mail(
-            title,
-            message,
-            settings.EMAIL_HOST_USER,
-            recipient_list,
+    try:
+        send_mail(
+                title,
+                message,
+                settings.EMAIL_HOST_USER,
+                recipient_list,
+            )
+        return True
+    except Exception as e:
+        print(e)
+
+def convert_alumni(request):
+    students = Student.objects.filter(graduation_year=datetime.now().year)
+    current_graduators = students.filter(user__role="Student")
+    if current_graduators.exists():
+        return render(request, "user/convert_alumni.html", {'convert': True, 'year': datetime.now().year, 'current_graduators': current_graduators})
+    else:
+        return render(request, "user/convert_alumni.html", {'convert': False, 'year': datetime.now().year})
+
+def convert_to_alumni(request):
+    users = User.objects.filter(
+        role = "Student",
+        student_profile__graduation_year = datetime.now().year
+    )
+    count = users.count()
+    for user in users:
+        user.role = "Alumni"
+        user.save()
+        Alumni.objects.get_or_create(
+            user = user
         )
-    return True
+
+        subject = "Welcome to Alumni Network 🎓"
+
+        message = f"""
+Dear {user.username},
+
+Congratulations! 🎉
+
+You have successfully graduated and are now part of our Alumni Network.
+
+We are excited to keep you connected with our institution and fellow graduates.
+You can now explore alumni features such as networking, job opportunities, and events.
+
+We wish you all the best for your future career!
+
+Best Regards,  
+Alumni Portal Team
+"""
+
+        send_email(
+            subject,
+            message,
+            [user.email]
+        )
+        
+    messages.success(request, f"Students converted to alumni successfully! Total converted: {count}")
+    return redirect("user:admin_home")

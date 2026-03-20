@@ -18,7 +18,7 @@
     </div>
 {% endif %}
 
-
+    <button onclick="window.history.back()">Back</button>
     <h2>Student Registration</h2>
     <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
         {% csrf_token %}

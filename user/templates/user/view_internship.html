@@ -3,6 +3,7 @@
 {% block title %}Create/View Internships | Smart Alumni Portal{% endblock %}
 
 {% block content %}
+<button onclick="window.history.back()">Back</button>
 
 <div class="navbar">
     {% if user.role == "Admin" or user.role == "Alumni" %}

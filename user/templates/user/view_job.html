@@ -13,6 +13,7 @@
         </div>
     {% endfor %}
 {% endif %}
+<button onclick="window.history.back()">Back</button>
 
 {% if user.role == "Admin" or user.role == "Alumni" %}
     <div style="background: #fdfd96; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
