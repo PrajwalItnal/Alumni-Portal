@@ -667,5 +667,31 @@ def alumni_update(request):
         return redirect("user:profile_view")
     return render(request, "user/alumni_track.html", {"alumni":alumni})
 
-
-
+def alumni_update(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    alumni = Alumni.objects.get(user = user)  
+    if request.method == "POST":
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        user = User.objects.get(register_id=register_id)
+        alumni = Alumni.objects.get(user = user)
+        alumni.employment_status = request.POST.get("employment_status")
+        alumni.job_title = request.POST.get("job_title")
+        if request.POST.get("experience_year"):
+            alumni.experience_year = int(request.POST.get("experience_year"))
+        else:
+            alumni.experience_year = None
+        alumni.pursuing_degree = request.POST.get("pursuing_degree")
+        alumni.university = request.POST.get("university")
+        if request.POST.get("available_for_referral"):
+            alumni.available_for_referral = True
+        else:
+            alumni.available_for_referral = False
+        alumni.save()
+        messages.success(request, "The Alumni Data Updated Sucessfully")
+        return redirect("user:profile_view")
+    return render(request, "user/alumni_track.html", {"alumni":alumni})
