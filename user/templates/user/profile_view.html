@@ -1,0 +1,99 @@
+{% extends "user/user_base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+
+  {% if messages %}
+    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<h2 style="text-align:center;">My Profile</h2>
+
+<div style="max-width:900px; margin:auto; padding:20px; border:1px solid #ddd; border-radius:10px; background:#fff;">
+
+    <!-- Profile Photo -->
+    <div style="text-align:center;">
+        {% if student and student.photo %}
+            <img src="{{ student.photo.url }}" width="120" style="border-radius:50%;">
+        {% else %}
+            <p>No Photo Uploaded</p>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <!-- Basic Info -->
+    <h3>Basic Information</h3>
+    <p><strong>Register ID:</strong> {{ user.register_id }}</p>
+    <p><strong>Name:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Role:</strong> {{ user.role }}</p>
+
+    <hr>
+
+    <!-- STUDENT -->
+    {% if student %}
+        <h3>Student Details</h3>
+        <p><strong>Department:</strong> {{ student.department }}</p>
+        <p><strong>Admission Year:</strong> {{ student.admission_year }}</p>
+        <p><strong>Graduation Year:</strong> {{ student.graduation_year }}</p>
+        <p><strong>Phone:</strong> {{ student.phone|default:"Not provided" }}</p>
+        <p><strong>Gender:</strong> {{ student.gender|default:"Not provided" }}</p>
+        <p><strong>DOB:</strong> {{ student.dob|default:"Not provided" }}</p>
+        <p><strong>City:</strong> {{ student.city|default:"Not provided" }}</p>
+        <p><strong>Address:</strong> {{ student.permanent_address|default:"Not provided" }}</p>
+        <p><strong>Bio:</strong> {{ student.bio|default:"Not provided" }}</p>
+
+        <h4>Resume</h4>
+        {% if student.resume %}
+            <a href="{{ student.resume.url }}" target="_blank">View Resume</a>
+        {% else %}
+            <p>No Resume Uploaded</p>
+        {% endif %}
+
+        <h4>Social Links</h4>
+        {% if student.github_url %}
+            <p>GitHub: <a href="{{ student.github_url }}" target="_blank">Profile</a></p>
+        {% endif %}
+        {% if student.linkedin_url %}
+            <p>LinkedIn: <a href="{{ student.linkedin_url }}" target="_blank">Profile</a></p>
+        {% endif %}
+    {% endif %}
+
+    <!-- ALUMNI -->
+    {% if alumni %}
+        <h3>Alumni Details</h3>
+        <p><strong>Employment Status:</strong> {{ alumni.employment_status|default:"Not provided" }}</p>
+        <p><strong>Company:</strong> {{ alumni.company_name|default:"Not provided" }}</p>
+        <p><strong>Job Title:</strong> {{ alumni.job_title|default:"Not provided" }}</p>
+        <p><strong>Experience (Years):</strong> {{ alumni.experience_year|default:"Not provided" }}</p>
+        <p><strong>Higher Study:</strong> {{ alumni.pursuing_degree|default:"Not provided" }}</p>
+        <p><strong>University:</strong> {{ alumni.university|default:"Not provided" }}</p>
+        <p><strong>Available for Referral:</strong> 
+            {% if alumni.available_for_referral %}Yes{% else %}No{% endif %}
+        </p>
+    {% endif %}
+
+    <hr>
+
+    <!-- Edit Button -->
+    <div style="text-align:center;">
+        <a href="{% url 'user:update_profile_std' %}">
+            <button>Edit Profile</button>
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
