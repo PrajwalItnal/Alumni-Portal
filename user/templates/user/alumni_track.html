@@ -1,0 +1,48 @@
+{% extends 'user/user_base.html' %}
+
+{% block title %}Alumni Portal | Alumni Track{% endblock %}
+
+{% block content %}
+
+<h2 style="text-align:center;">Update Alumni Profile</h2>
+
+<form method="POST" action="{% url 'user:alumni_update' %}" style="max-width:600px; margin:auto;">
+    {% csrf_token %}
+
+    <!-- Employment Status -->
+    <label for="emp_sts">Employment Status</label><br>
+    <select name="employment_status" id="emp_sts" required>
+        <option value="">Select</option>
+        <option value="WORKING" {% if alumni.employment_status == "WORKING" %}selected{% endif %}>Working 💼</option>
+        <option value="STUDYING" {% if alumni.employment_status == "STUDYING" %}selected{% endif %}>Higher Studies 🎓</option>
+        <option value="SEARCHING" {% if alumni.employment_status == "SEARCHING" %}selected{% endif %}>Looking for Job 🔍</option>
+        <option value="BUSINESS" {% if alumni.employment_status == "BUSINESS" %}selected{% endif %}>Entrepreneur 🚀</option>
+        <option value="NOT_WORKING" {% if alumni.employment_status == "NOT_WORKING" %}selected{% endif %}>Not Working ❌</option>
+    </select><br><br>
+
+    <label for="company">Company Name</label><br>
+    <input type="text" name="company_name" id="company" value="{{ alumni.company_name }}"><br><br>
+
+    <label for="job_title">Job Title</label><br>
+    <input type="text" name="job_title" id="job_title" value="{{ alumni.job_title }}"><br><br>
+
+    <label for="experience_year">Experience (Years)</label><br>
+    <input type="number" name="experience_year" id="experience_year" value="{{ alumni.experience_year }}"><br><br>
+
+    <label for="degree">Pursuing Degree</label><br>
+    <input type="text" name="pursuing_degree" id="degree" value="{{ alumni.pursuing_degree }}"><br><br>
+
+    <label for="university">University</label><br>
+    <input type="text" name="university" id="university" value="{{ alumni.university }}"><br><br>
+
+    <label>
+        <input type="checkbox" name="available_for_referral"
+        {% if alumni.available_for_referral %}checked{% endif %}>
+        Available for Referral
+    </label><br><br>
+
+    <button type="submit" style="padding:10px 20px;">Update Profile</button>
+
+</form>
+
+{% endblock %}
