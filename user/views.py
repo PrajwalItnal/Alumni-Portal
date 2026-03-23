@@ -564,6 +564,7 @@ def change_password(request):
     register_id = request.session.get("register_id")
     if not register_id:
         return redirect("login")
+
     user = User.objects.get(register_id=register_id)
 
     if request.method == "POST":
@@ -579,20 +580,26 @@ def change_password(request):
             return redirect("user:change_password")
 
         user.password = make_password(new_password)
-        user.save()
+        user.save(update_fields=["password"])
+
         messages.success(request, "Password changed successfully! Please log in again.")
         return redirect("login")
 
     return render(request, "user/change_password.html", {"user": user})
 
-
 def update_profile_std(request):
     register_id = request.session.get("register_id")
     if not register_id:
         return redirect("login")
+
     user = User.objects.get(register_id=register_id)
     print(user)
-    student = Student.objects.get(user=user) 
+
+    student = Student.objects.filter(user=user).first()
+    if not student:
+        messages.error(request, "Student profile not found.")
+        return redirect("user:profile_view")
+
     print(student.resume.url if student.resume else "No resume")
     print(student)
 
@@ -600,39 +607,42 @@ def update_profile_std(request):
         student.bio = request.POST.get("bio")
         student.phone = request.POST.get("phone")
         student.gender = request.POST.get("gender")
+
         if request.POST.get("dob"):
             student.dob = request.POST.get("dob")
         student.city = request.POST.get("city")
         student.permanent_address = request.POST.get("permanent_address")
+
         if request.FILES.get("photo"):
             photo = request.FILES.get("photo").name.split(".")[-1].lower()
             if photo not in ["jpg", "jpeg", "png"]:
                 messages.error(request, "Photo must be a JPG, JPEG, or PNG file.")
                 return redirect("user:update_profile_std")
-            else:
-                student.photo = request.FILES.get("photo")
+            student.photo = request.FILES.get("photo")
+
         if request.FILES.get("resume"):
             resume = request.FILES.get("resume").name.split(".")[-1].lower()
             if resume not in ["pdf", "doc", "docx"]:
                 messages.error(request, "Resume must be a PDF or Word document.")
                 return redirect("user:update_profile_std")
-            else:
-                student.resume = request.FILES.get("resume")
+            student.resume = request.FILES.get("resume")
+
         student.github_url = request.POST.get("github_url")
         student.linkedin_url = request.POST.get("linkedin_url")
+
         student.save()
         messages.success(request, "Profile updated successfully!")
         return redirect("user:profile_view")
-    return render(request, "user/update_profile.html", {"user": user, "student": student})
+
+    return render(request, "user/update_profile.html", {"user": user,"student": student})
 
 def profile_view(request):
     register_id = request.session.get("register_id")
     if not register_id:
         return redirect("login")
     user = User.objects.get(register_id=register_id)
-    student = Student.objects.get(user=user)
+    student = Student.objects.filter(user=user).first()
     alumni = None
     if user.role == "Alumni":
-        alumni = Alumni.objects.filter(user=user)
-        print(alumni)
-    return render(request, "user/profile_view.html", {"user": user, "student": student, "alumni": alumni})
+        alumni = Alumni.objects.filter(user=user).first()
+    return render(request, "user/profile_view.html", {"user": user,"student": student, "alumni": alumni})
