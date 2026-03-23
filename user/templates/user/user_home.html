@@ -210,14 +210,14 @@
         <div class="card-icon">🎓</div>
         <h3>View Alumni</h3>
         <p>Explore registered alumni profiles and connect with the network.</p>
-        <a href="alumnidetail" class="action-btn">View</a>
+        <a href="{% url 'user:profile_view' %}" class="action-btn">View</a>
       </div>
 
       <div class="action-card">
         <div class="card-icon">👤</div>
         <h3>My Profile</h3>
         <p>View and update your personal, academic, and career details.</p>
-        <a href="/viewprofile" class="action-btn">Open Profile</a>
+        <a href="{% url 'user:profile_view' %}" class="action-btn">Open Profile</a>
       </div>
 
         <div class="action-card">
