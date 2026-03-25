@@ -239,9 +239,15 @@
       </div>
 
       <div class="action-card">
-        <h3>👥 Student & Alumni Details</h3>
-        <p>View and manage student and alumni records.</p>
-        <a href="/view_student_alumni" class="action-btn">View</a>
+        <h3>👥 Student </h3>
+        <p>View and manage student records.</p>
+        <a href="{% url 'user:student_directory' %}" class="action-btn">View</a>
+      </div>
+
+      <div class="action-card">
+        <h3>👥 Alumni Details</h3>
+        <p>View alumni records.</p>
+        <a href="{% url 'user:alumni_directory' %}" class="action-btn">View</a>
       </div>
 
     </div>

@@ -724,3 +724,14 @@ def alumni_directory(request):
     user = User.objects.get(register_id=register_id)
     alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
     return render(request, "user/alumni_directory.html", { "user": user, "alumni_data": alumni_data})
+
+def student_directory(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    if user.role not in ["Admin", "Alumni"]:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect("user:home")
+    students = Student.objects.select_related('user').filter(user__role="Student")
+    return render(request, "user/student_directory.html", {"user": user, "students": students})

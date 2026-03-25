@@ -32,4 +32,6 @@ urlpatterns = [
     path('user/profile_view/', views.profile_view, name='profile_view'),
     path("user/alumni/update_alumni", views.alumni_update, name = "alumni_update"),
     path('alumni-directory/', views.alumni_directory, name='alumni_directory'),
+    path('student-directory/', views.student_directory, name='student_directory'),
+
 ]
