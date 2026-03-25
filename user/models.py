@@ -3,18 +3,12 @@ from email.mime import image
 from django.db import models
 
 class User(models.Model):
-    ROLE_CHOICES = [
-        ('ADMIN', 'Admin'),
-        ('STUDENT', 'Student'),
-        ('ALUMNI', 'Alumni'),
-    ]
-
     user_id = models.AutoField(primary_key=True)
     register_id = models.CharField(max_length=14, unique=True)
     username = models.CharField(max_length=25)
     password = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    role = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -36,12 +30,7 @@ class Student(models.Model):
     admission_year = models.IntegerField()
     graduation_year = models.IntegerField(blank=True, null=True)
     phone = models.CharField(max_length=15)
-    GENDER_CHOICES = [
-        ("Male", "Male"),
-        ("Female", "Female"),
-        ("Other", "Other"),
-    ]
-    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=10)
     dob = models.DateField()
     city = models.CharField(max_length=20, blank=True)
     permanent_address = models.TextField()
@@ -64,8 +53,6 @@ class Student(models.Model):
     def __str__(self):
         return self.user.username
 
-
-
 class Alumni(models.Model):
     user = models.OneToOneField(
         User,
@@ -74,15 +61,8 @@ class Alumni(models.Model):
         related_name="alumni_profile"
     )
 
-    EMPLOYMENT_STATUS_CHOICES = [
-        ("Employed", "Employed"),
-        ("Unemployed", "Unemployed"),
-        ("Higher Studies", "Higher Studies"),
-    ]
-
     employment_status = models.CharField(
-        max_length=20,
-        choices=EMPLOYMENT_STATUS_CHOICES
+        max_length=20
     )
 
     company_name = models.CharField(max_length=150, blank=True, null = True)
