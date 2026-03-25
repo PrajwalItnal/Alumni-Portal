@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.shortcuts import render,redirect
 import user
-import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
 from datetime import datetime
@@ -13,6 +12,7 @@ import random
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 import openpyxl
+
 
 
 
@@ -95,6 +95,26 @@ def create_achievements(request):
             return redirect('user:achievements_view')
     return render(request, "user/create_achievement.html")
 
+def create_achievements(request):
+    if request.method == 'POST':
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        else:
+            user = User.objects.filter(register_id = register_id).first()
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            certificate = request.FILES.get('certificate')
+            Achievement.objects.create(
+                achieved_by = user,
+                title = title,
+                description = description,
+                certificate = certificate
+            )
+            messages.success(request, "Achievement add successfully")
+            return redirect('user:achievements_view')
+    return render(request, "user/create_achievement.html")
+
 
 def create_donation(request):
     register_id = request.session.get("register_id")
@@ -130,6 +150,7 @@ def donation_list(request):
         user = User.objects.filter(register_id=register_id).first()
         donations = Donation.objects.all().order_by('-donated_at')
         return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
+
 
 def view_job(request):
     register_id = request.session.get("register_id")
