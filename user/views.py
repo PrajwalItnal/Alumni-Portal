@@ -716,3 +716,11 @@ def alumni_update(request):
         messages.success(request, "The Alumni Data Updated Sucessfully")
         return redirect("user:profile_view")
     return render(request, "user/alumni_track.html", {"alumni":alumni})
+
+def alumni_directory(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
+    return render(request, "user/alumni_directory.html", { "user": user, "alumni_data": alumni_data})

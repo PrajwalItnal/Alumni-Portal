@@ -30,5 +30,6 @@ urlpatterns = [
     path('user/change_password/', views.change_password, name='change_password'),
     path('user/profile_update/', views.update_profile_std, name='update_profile_std'),
     path('user/profile_view/', views.profile_view, name='profile_view'),
-    path("user/alumni/update_alumni", views.alumni_update, name = "alumni_update")
+    path("user/alumni/update_alumni", views.alumni_update, name = "alumni_update"),
+    path('alumni-directory/', views.alumni_directory, name='alumni_directory'),
 ]

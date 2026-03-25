@@ -1,5 +1,4 @@
 from email.mime import image
-
 from django.db import models
 
 class User(models.Model):
@@ -193,3 +192,5 @@ class College(models.Model):
     
     class Meta:
         db_table = "college"
+
+
