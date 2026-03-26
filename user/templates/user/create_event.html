@@ -5,81 +5,90 @@
 {% block content %}
 
 <style>
-    #toggleForm {
-        display: none;
+    body {
+        background: #f5f7fb;
     }
 
-    .create-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 55px;
-        height: 55px;
-        border-radius: 50%;
-        font-size: 26px;
+    .event-container {
+        max-width: 600px;
+        margin: 60px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .event-header {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 1000;
+        margin-bottom: 20px;
     }
 
-    .event-form {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        width: 90%;
-        max-width: 500px;
-        z-index: 1001;
+    .event-header h2 {
+        margin: 0;
+        font-weight: 600;
     }
 
-    #toggleForm:checked ~ .event-form {
-        display: block;
+    .form-control {
+        border-radius: 8px;
+        padding: 10px;
     }
 
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .submit-btn {
         width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.4);
-        z-index: 1000;
-    }
-
-    #toggleForm:checked ~ .overlay {
-        display: block;
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: 500;
     }
 </style>
 
-<input type="checkbox" id="toggleForm">
+<div class="event-container">
 
-<label for="toggleForm" class="btn btn-primary create-btn">+</label>
+    <div class="event-header">
+        <h2>Create Event</h2>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Back</a>
+    </div>
 
-<div class="overlay"></div>
-
-<div class="event-form">
-    <h3>Create Event</h3>
     <form method="post" enctype="multipart/form-data" action="{% url 'user:event_create' %}">
         {% csrf_token %}
 
-        <input type="text" name="title" placeholder="Title" class="form-control" required><br>
-        <textarea name="description" placeholder="Description" class="form-control" required></textarea><br>
-        <input type="text" name="event_type" placeholder="Event Type" class="form-control" required><br>
-        <input type="date" name="date" class="form-control" required><br>
-        <input type="time" name="event_time" class="form-control" required><br>
-        <input type="text" name="location" placeholder="Location" class="form-control" required><br>
-        <input type="file" name="image" class="form-control"><br>
+        <div class="form-group">
+            <input type="text" name="title" placeholder="Event Title" class="form-control" required>
+        </div>
 
-        <button type="submit" class="btn btn-success">Submit</button>
-        <label for="toggleForm" class="btn btn-secondary">Close</label>
+        <div class="form-group">
+            <textarea name="description" placeholder="Event Description" class="form-control" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="event_type" placeholder="Event Type (Workshop, Seminar...)" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <input type="date" name="date" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <input type="time" name="event_time" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="location" placeholder="Event Location" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <input type="file" name="image" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn">
+            Create Event
+        </button>
+
     </form>
 </div>
 
