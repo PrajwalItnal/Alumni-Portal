@@ -1,81 +1,257 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Create/View Events | Smart Alumni Portal{% endblock %}
+{% block title %}Events | Smart Alumni Portal{% endblock %}
 
 {% block content %}
 
+<style>
+
+
+body {
+    background: #f4f6f9;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2c3e50;
+    padding: 15px 30px;
+    color: #fff;
+}
+
+.navbar h1 {
+    font-size: 22px;
+}
+
+.nav-left {
+    font-size: 14px;
+}
+
+.nav-right {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-right a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav-right a:hover {
+    text-decoration: underline;
+}
+
+
+.main {
+    padding: 30px;
+}
+
+
+.actions {
+    margin-bottom: 30px;
+}
+
+.action-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 260px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.action-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    background: #2980b9;
+}
+
+.event-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+
+.event-card {
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+}
+
+
+.event-image-wrapper {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.event-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   
+    display: block;
+}
+
+.no-image {
+    width: 100%;
+    height: 100%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.event-body {
+    padding: 18px;
+}
+
+.event-body h2 {
+    margin: 10px 0;
+    font-size: 20px;
+}
+
+.badge {
+    background: #6c5ce7;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.event-details {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    color: #555;
+    font-size: 14px;
+}
+
+.organizer {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #777;
+}
+
+
+.alert {
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+</style>
+
 <div class="navbar">
-    
+
     {% if user.role == "Admin" or user.role == "Alumni" %}
-        <h1>Create and View Events</h1>
+        <h1>Create & Manage Events</h1>
     {% else %}
         <h1>View Events</h1>
     {% endif %}
-        <div class="nav-left">
-            <span>Welcome, {{ user.username }}</span>
-        </div>
+
+    <div class="nav-left">
+        Welcome, {{ user.username }}
+    </div>
+
     <ul class="nav-right">
         <li><a href="{% url 'user:admin_home' %}">Home</a></li>
         <li><a href="{% url 'user:logout' %}">Logout</a></li>
     </ul>
 </div>
 
-{% if messages %}
-    <div class="messages-container" style="padding: 20px 20px 0 20px;">
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
-                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; 
-                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
-                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
-                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    </div>
-{% endif %}
-<button onclick="window.history.back()">Back</button>
-
 <div class="main">
 
-    {% if user.role == "Admin" or user.role == "Alumni" %}
-    <div class="actions">
-        <form action="{% url 'user:event_create' %}">
-            <div class="action-card">
-                <h3>➕ Create Event</h3>
-                <p>Create new events for students to attend.</p>
-                <button type="submit" class="action-btn">Create</button>
-            </div>
-        </form>
-    {% endif %}
-        <div class="event-list">
-            {% for event in events %}
-                <div class="event-card">
-                {% if event.image %}
-                    <img src="{{ event.image.url }}" class="event-image" alt="{{ event.title }}">
-                {% else %}
-                    <div class="event-image" style="background:#ddd; display:flex; align-items:center; justify-content:center;">
-                        <span>No Image</span>
-                    </div>
-                {% endif %}
-               <div class="event-content">
-                <span class="event-type-badge">{{ event.event_type }}</span>
-                <h3 style="margin: 0 0 10px 0;">{{ event.title }}</h3>
-                <p style="color: #444; font-size: 0.95rem;">{{ event.description|truncatewords:20 }}</p>
-                
-                <div class="event-meta">
-                    <div>📅 <strong>Date:</strong> {{ event.date|date:"M d, Y" }}</div>
-                    <div>⏰ <strong>Time:</strong> {{ event.event_time|time:"g:i A" }}</div>
-                    <div>📍 <strong>Location:</strong> {{ event.location }}</div>
-                    <div style="margin-top:5px; font-style: italic;">
-                        👤 Organized by: {{ event.organized_by.username }}
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-                <p>No upcoming events at the moment. Please check back later!</p>
-            {% endfor %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
         </div>
+    {% endfor %}
+{% endif %}
+
+{% if user.role == "Admin" or user.role == "Alumni" %}
+<div class="actions">
+    <form action="{% url 'user:event_create' %}">
+        <div class="action-card">
+            <h3>➕ Create Event</h3>
+            <p>Create and manage alumni or student events.</p>
+            <button type="submit" class="action-btn">Create Event</button>
+        </div>
+    </form>
+</div>
+{% endif %}
+
+
+<div class="event-list">
+
+    {% for event in events %}
+    <div class="event-card">
+
+        <div class="event-image-wrapper">
+            {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}">
+            {% else %}
+                <div class="no-image">No Image</div>
+            {% endif %}
+        </div>
+
+        <!-- CONTENT -->
+        <div class="event-body">
+
+            <span class="badge">{{ event.event_type }}</span>
+
+            <h2>{{ event.title }}</h2>
+
+            <p>{{ event.description|truncatewords:15 }}</p>
+
+            <div class="event-details">
+                <span>📅 {{ event.date|date:"M d, Y" }}</span>
+                <span>⏰ {{ event.event_time|time:"g:i A" }}</span>
+                <span>📍 {{ event.location }}</span>
+            </div>
+
+            <div class="organizer">
+                👤 Organized by {{ event.organized_by.username }}
+            </div>
+
+        </div>
+
     </div>
+
+    {% empty %}
+        <p>No events available right now.</p>
+    {% endfor %}
+
+</div>
+
 </div>
 
 {% endblock %}
