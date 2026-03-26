@@ -3,26 +3,84 @@
 {% block title %}Create Event{% endblock %}
 
 {% block content %}
-<h1>Create Event</h1>
-<button onclick="window.history.back()">Back</button>
-<form method="post" enctype="multipart/form-data", action="{% url 'user:event_create' %}">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="id_title">Title:</label>
-        <input type="text" name="title" id="id_title" class="form-control" required><br>
-        <label for="id_description">Description:</label>
-        <textarea name="description" id="id_description" class="form-control" required></textarea><br>
-        <label for="id_event_type">Event Type:</label>
-        <input type="text" name="event_type" id="id_event_type" class="form-control" required><br>
-        <label for="id_date">Date:</label>
-        <input type="date" name="date" id="id_date" class="form-control" required><br>
-        <label for="id_event_time">Time:</label>
-        <input type="time" name="event_time" id="id_event_time" class="form-control" required><br>
-        <label for="id_location">Location:</label>
-        <input type="text" name="location" id="id_location" class="form-control" required><br>
-        <label for="id_image">Image:</label>
-        <input type="file" name="image" id="id_image" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-primary">Create Event</button><br>
-</form>
+
+<style>
+    #toggleForm {
+        display: none;
+    }
+
+    .create-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        font-size: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1000;
+    }
+
+    .event-form {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 500px;
+        z-index: 1001;
+    }
+
+    #toggleForm:checked ~ .event-form {
+        display: block;
+    }
+
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 1000;
+    }
+
+    #toggleForm:checked ~ .overlay {
+        display: block;
+    }
+</style>
+
+<input type="checkbox" id="toggleForm">
+
+<label for="toggleForm" class="btn btn-primary create-btn">+</label>
+
+<div class="overlay"></div>
+
+<div class="event-form">
+    <h3>Create Event</h3>
+    <form method="post" enctype="multipart/form-data" action="{% url 'user:event_create' %}">
+        {% csrf_token %}
+
+        <input type="text" name="title" placeholder="Title" class="form-control" required><br>
+        <textarea name="description" placeholder="Description" class="form-control" required></textarea><br>
+        <input type="text" name="event_type" placeholder="Event Type" class="form-control" required><br>
+        <input type="date" name="date" class="form-control" required><br>
+        <input type="time" name="event_time" class="form-control" required><br>
+        <input type="text" name="location" placeholder="Location" class="form-control" required><br>
+        <input type="file" name="image" class="form-control"><br>
+
+        <button type="submit" class="btn btn-success">Submit</button>
+        <label for="toggleForm" class="btn btn-secondary">Close</label>
+    </form>
+</div>
+
 {% endblock %}
