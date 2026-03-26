@@ -1,60 +1,84 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Achievements{% endblock %}
+{% block title %}Achievements | Smart Alumni Portal{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2>🏆 Achievements</h2>
+
+<div style="max-width:1100px; margin:0 auto; padding:32px 24px 64px; font-family:'Segoe UI',sans-serif;">
+
+    <button onclick="window.history.back()" 
+        style="background:#fff; border:1px solid #ddd; padding:8px 18px; border-radius:8px; cursor:pointer; font-size:0.85rem; margin-bottom:24px;">
+        ← Back
+    </button>
 
     {% if messages %}
         {% for message in messages %}
-            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
-                background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
-                color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+            <div style="padding:13px 18px; border-radius:8px; margin-bottom:12px; font-size:0.9rem; font-weight:500;
+                border-left:4px solid {% if message.tags == 'error' %}#c45c3a{% else %}#4a7c59{% endif %};
+                background:{% if message.tags == 'error' %}#fdf1ef{% else %}#edf7f0{% endif %};
+                color:{% if message.tags == 'error' %}#8b2a17{% else %}#2d5c3c{% endif %};">
                 {{ message }}
             </div>
         {% endfor %}
     {% endif %}
-    <button onclick="window.history.back()">Back</button>
 
-    {% if user.role == "Admin" or user.role == "Alumni" %}
-        <div style="background: #fdfd96; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <p>Have a new success to share?</p>
-            <a href="{% url 'user:create_achievement' %}" class="btn">Post New Achievement</a>
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:16px; padding-bottom:24px; margin-bottom:32px; border-bottom:2px solid #ede9e0;">
+        <div>
+            <h2 style="font-size:1.9rem; font-weight:700; color:#0f1117; margin:0;">🏆 Achievements</h2>
+            <p style="color:#7a7469; font-size:0.9rem; margin-top:6px;">Celebrating the success of our alumni community</p>
         </div>
-    {% endif %}
+        {% if user.role == "Admin" or user.role == "Alumni" %}
+            <a href="{% url 'user:create_achievement' %}"
+                style="background:#0f1117; color:#fff; text-decoration:none; padding:11px 22px; border-radius:8px; font-size:0.88rem; font-weight:600;">
+                ＋ Post Achievement
+            </a>
+        {% endif %}
+    </div>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-        
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:24px;">
+
         {% for achievement in achievements %}
-            <div style="border: 1px solid #ddd; border-radius: 10px; width: 300px; background: #fff;">
-                
-                <div style="background: #eee; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
-                    🏅
-                </div>
+        <div style="background:#fff; border-radius:12px; border:1px solid rgba(0,0,0,0.07); box-shadow:0 2px 16px rgba(0,0,0,0.07); overflow:hidden; display:flex; flex-direction:column;">
 
-                <div style="padding: 15px;">
-                    <h3>{{ achievement.title }}</h3>
-                    <p>{{ achievement.description|truncatewords:20 }}</p>
-                    <hr>
-                    <small>By: <b>{{ achievement.achieved_by.username }}</b></small><br>
-                    <small>Date: {{ achievement.created_at|date:"d M Y" }}</small>
-                </div>
+            <div style="height:100px; background:linear-gradient(135deg,#1a1d26,#2e3245); display:flex; align-items:center; justify-content:center; font-size:2.5rem;">
+                🏅
+            </div>
 
-                <div style="padding: 10px; border-top: 1px solid #eee; text-align: center;">
-                    {% if achievement.certificate %}
-                        <a href="{{ achievement.certificate.url }}" target="_blank" style="color: blue; text-decoration: none; font-weight: bold;">
-                           📄 View Certificate
-                        </a>
-                    {% else %}
-                        <span style="color: gray;">No Certificate</span>
-                    {% endif %}
+            <div style="padding:18px 20px; flex:1; display:flex; flex-direction:column;">
+                <h3 style="font-size:1.05rem; font-weight:700; color:#0f1117; margin:0 0 8px 0;">{{ achievement.title }}</h3>
+                <p style="font-size:0.875rem; color:#7a7469; line-height:1.6; flex:1; margin:0 0 16px 0;">{{ achievement.description|truncatewords:20 }}</p>
+
+                <div style="border-top:1px solid #ede9e0; padding-top:12px; display:flex; flex-direction:column; gap:5px;">
+                    <span style="font-size:0.82rem; color:#555;">
+                        👤 <b style="color:#0f1117;">By:</b> {{ achievement.achieved_by.username }}
+                    </span>
+                    <span style="font-size:0.82rem; color:#555;">
+                        📅 <b style="color:#0f1117;">Date:</b> {{ achievement.created_at|date:"d M Y" }}
+                    </span>
                 </div>
             </div>
+
+            <div style="padding:12px 20px; border-top:1px solid #ede9e0; text-align:center;">
+                {% if achievement.certificate %}
+                    <a href="{{ achievement.certificate.url }}" target="_blank"
+                        style="color:#c9a84c; text-decoration:none; font-size:0.85rem; font-weight:600; padding:6px 14px; border:1.5px solid #e8d080; border-radius:6px; background:#fdf9ee;">
+                        📄 View Certificate
+                    </a>
+                {% else %}
+                    <span style="color:#aaa; font-size:0.83rem; font-style:italic;">No certificate attached</span>
+                {% endif %}
+            </div>
+
+        </div>
         {% empty %}
-            <p>No achievements found yet.</p>
+            <div style="grid-column:1/-1; text-align:center; padding:64px 24px; color:#aaa;">
+                <div style="font-size:2.5rem; margin-bottom:12px; opacity:0.4;">🏆</div>
+                <h4 style="font-size:1.1rem; color:#bbb; margin-bottom:6px;">No achievements yet</h4>
+                <p style="font-size:0.88rem;">Be the first to share a success story!</p>
+            </div>
         {% endfor %}
 
     </div>
 </div>
+
 {% endblock %}

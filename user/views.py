@@ -622,10 +622,13 @@ def update_profile_std(request):
         student.bio = request.POST.get("bio")
         student.phone = request.POST.get("phone")
         student.gender = request.POST.get("gender")
-        if request.POST.get("dob"):
-            student.dob = request.POST.get("dob")
+        student.github_url = request.POST.get("github_url")
+        student.linkedin_url = request.POST.get("linkedin_url")
         student.city = request.POST.get("city")
         student.permanent_address = request.POST.get("permanent_address")
+        if request.POST.get("dob"):
+            student.dob = request.POST.get("dob")
+
         if request.FILES.get("photo"):
             photo = request.FILES.get("photo").name.split(".")[-1].lower()
             if photo not in ["jpg", "jpeg", "png"]:
@@ -633,6 +636,7 @@ def update_profile_std(request):
                 return redirect("user:update_profile_std")
             else:
                 student.photo = request.FILES.get("photo")
+
         if request.FILES.get("resume"):
             resume = request.FILES.get("resume").name.split(".")[-1].lower()
             if resume not in ["pdf", "doc", "docx"]:
@@ -640,8 +644,7 @@ def update_profile_std(request):
                 return redirect("user:update_profile_std")
             else:
                 student.resume = request.FILES.get("resume")
-        student.github_url = request.POST.get("github_url")
-        student.linkedin_url = request.POST.get("linkedin_url")
+                       
         student.save()
         messages.success(request, "Profile updated successfully!")
         return redirect("user:profile_view")
