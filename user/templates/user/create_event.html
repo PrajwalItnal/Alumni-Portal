@@ -4,6 +4,7 @@
 
 {% block content %}
 <h1>Create Event</h1>
+<button onclick="window.history.back()">Back</button>
 <form method="post" enctype="multipart/form-data", action="{% url 'user:event_create' %}">
     {% csrf_token %}
     <div class="form-group">

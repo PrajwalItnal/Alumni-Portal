@@ -1,14 +1,18 @@
-from email.mime import message
-from unicodedata import name
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
-from user.models import Event, User, Achievement, Job
+import user
+from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
 from datetime import datetime
-from django.contrib.auth.decorators import login_required
-from .models import Donation
+from .models import Alumni, Donation
 from .models import Internship
 from .models import College
+import pandas as pd
+import random
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+import openpyxl
 
 
 
@@ -92,6 +96,26 @@ def create_achievements(request):
             return redirect('user:achievements_view')
     return render(request, "user/create_achievement.html")
 
+def create_achievements(request):
+    if request.method == 'POST':
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        else:
+            user = User.objects.filter(register_id = register_id).first()
+            title = request.POST.get('title')
+            description = request.POST.get('description')
+            certificate = request.FILES.get('certificate')
+            Achievement.objects.create(
+                achieved_by = user,
+                title = title,
+                description = description,
+                certificate = certificate
+            )
+            messages.success(request, "Achievement add successfully")
+            return redirect('user:achievements_view')
+    return render(request, "user/create_achievement.html")
+
 
 def create_donation(request):
     register_id = request.session.get("register_id")
@@ -127,6 +151,7 @@ def donation_list(request):
         user = User.objects.filter(register_id=register_id).first()
         donations = Donation.objects.all().order_by('-donated_at')
         return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
+
 
 def view_job(request):
     register_id = request.session.get("register_id")
@@ -419,3 +444,368 @@ def college_detail_update(request, college_id):
         "user": user,
         "college": college,
     })
+    
+def student_register(request):
+    if request.method == "POST":
+        file = request.FILES.get("file")
+        admission_year = request.POST.get("adm_year")
+        graduation_year = request.POST.get("grad_year")
+        department = request.POST.get("department")
+
+        try:
+            if file.name.endswith('.csv'):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file, engine='openpyxl')
+        except Exception as e:
+            messages.error(request, "Error reading file: " + str(e))
+            return redirect("user:student_register")
+
+        if admission_year >= graduation_year:
+            messages.error(request, "Admission year must be less than graduation year.")
+            return redirect("user:student_register")
+        
+        required_columns = ['register id', "name", "email", "phone", "gender"]
+
+        df.columns = df.columns.str.lower().str.strip()
+
+        for column in required_columns:
+            if column not in df.columns:
+                messages.error(request, f"Columns are not present in the file. Required columns: {', '.join(required_columns)}")
+                return redirect("user:student_register")
+        
+        for row in df.iterrows():
+            register_id = row[1]['register id']
+            name = row[1]['name']
+            email = row[1]['email']
+            phone = str(row[1]['phone'])
+            gender = row[1]['gender']
+            
+            if User.objects.filter(register_id=register_id).exists() or User.objects.filter(email=email).exists():
+                print(f"User with register ID {register_id} or email {email} already exists. Skipping.")
+                continue
+
+            if "@gmail.com" not in email:
+                print(f"Invalid email {email} for register ID {register_id}. Skipping.")
+                continue
+            
+            password = random.randint(1000000000,9999999999)
+            print(f"Generated password for {register_id}: {password}")
+            user = User.objects.create(
+                register_id=register_id,
+                username = name.strip().title(),
+                email = email,
+                role = "Student",
+                password = make_password(str(password))
+            )
+
+            print(user)
+
+            send_email(
+                "Welcome to Alumni Portal",
+                f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
+                [email]
+            )
+
+            student = Student.objects.create(
+                user = user,
+                department = department,
+                admission_year = admission_year,
+                graduation_year = graduation_year,
+                phone = phone,
+                gender = gender.strip()
+            )
+
+            user.save()
+            student.save()
+        messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
+        return redirect("user:admin_home")
+    return render(request, "user/student_registration.html")
+
+def send_email(title, message, recipient_list):
+    try:
+        send_mail(
+                title,
+                message,
+                settings.EMAIL_HOST_USER,
+                recipient_list,
+            )
+        return True
+    except Exception as e:
+        print(e)
+
+def convert_alumni(request):
+    students = Student.objects.filter(graduation_year=datetime.now().year)
+    current_graduators = students.filter(user__role="Student")
+    if current_graduators.exists():
+        return render(request, "user/convert_alumni.html", {'convert': True, 'year': datetime.now().year, 'current_graduators': current_graduators})
+    else:
+        return render(request, "user/convert_alumni.html", {'convert': False, 'year': datetime.now().year})
+
+def convert_to_alumni(request):
+    users = User.objects.filter(
+        role = "Student",
+        student_profile__graduation_year = datetime.now().year
+    )
+    count = users.count()
+    for user in users:
+        user.role = "Alumni"
+        user.save()
+        Alumni.objects.get_or_create(
+            user = user
+        )
+
+        subject = "Welcome to Alumni Network 🎓"
+
+        message = f"""
+Dear {user.username},
+
+Congratulations! 🎉
+
+You have successfully graduated and are now part of our Alumni Network.
+
+We are excited to keep you connected with our institution and fellow graduates.
+You can now explore alumni features such as networking, job opportunities, and events.
+
+We wish you all the best for your future career!
+
+Best Regards,  
+Alumni Portal Team
+"""
+
+        send_email(
+            subject,
+            message,
+            [user.email]
+        )
+
+    messages.success(request, f"Students converted to alumni successfully! Total converted: {count}")
+    return redirect("user:admin_home")
+
+def change_password(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+
+    user = User.objects.get(register_id=register_id)
+
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if new_password != confirm_password:
+            messages.error(request, "New password and confirm password do not match.")
+            return redirect("user:change_password")
+
+        if len(new_password) < 8:
+            messages.error(request, "New password must be at least 8 characters long.")
+            return redirect("user:change_password")
+
+        user.password = make_password(new_password)
+        user.save(update_fields=["password"])
+
+        messages.success(request, "Password changed successfully! Please log in again.")
+        return redirect("login")
+
+    return render(request, "user/change_password.html", {"user": user})
+
+def update_profile_std(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    print(user)
+    student = Student.objects.get(user=user) 
+    print(student.resume.url if student.resume else "No resume")
+    print(student)
+
+    if request.method == "POST":
+        student.bio = request.POST.get("bio")
+        student.phone = request.POST.get("phone")
+        student.gender = request.POST.get("gender")
+        student.github_url = request.POST.get("github_url")
+        student.linkedin_url = request.POST.get("linkedin_url")
+        student.city = request.POST.get("city")
+        student.permanent_address = request.POST.get("permanent_address")
+        if request.POST.get("dob"):
+            student.dob = request.POST.get("dob")
+
+        if request.FILES.get("photo"):
+            photo = request.FILES.get("photo").name.split(".")[-1].lower()
+            if photo not in ["jpg", "jpeg", "png"]:
+                messages.error(request, "Photo must be a JPG, JPEG, or PNG file.")
+                return redirect("user:update_profile_std")
+            else:
+                student.photo = request.FILES.get("photo")
+
+        if request.FILES.get("resume"):
+            resume = request.FILES.get("resume").name.split(".")[-1].lower()
+            if resume not in ["pdf", "doc", "docx"]:
+                messages.error(request, "Resume must be a PDF or Word document.")
+                return redirect("user:update_profile_std")
+            else:
+                student.resume = request.FILES.get("resume")
+                       
+        student.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect("user:profile_view")
+    return render(request, "user/update_profile.html", {"user": user, "student": student})
+
+
+def profile_view(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    student = Student.objects.get(user=user)
+    alumni = None
+    if user.role == "Alumni":
+        alumni = Alumni.objects.get(user=user)
+    return render(request, "user/profile_view.html", {"user": user, "student": student, "alumni": alumni})
+
+def alumni_update(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    alumni = Alumni.objects.get(user = user)  
+    if request.method == "POST":
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        user = User.objects.get(register_id=register_id)
+        alumni = Alumni.objects.get(user = user)
+        alumni.employment_status = request.POST.get("employment_status")
+        alumni.job_title = request.POST.get("job_title")
+        if request.POST.get("experience_year"):
+            alumni.experience_year = int(request.POST.get("experience_year"))
+        else:
+            alumni.experience_year = None
+        alumni.pursuing_degree = request.POST.get("pursuing_degree")
+        alumni.university = request.POST.get("university")
+        if request.POST.get("available_for_referral"):
+            alumni.available_for_referral = True
+        else:
+            alumni.available_for_referral = False
+        alumni.save()
+        messages.success(request, "The Alumni Data Updated Sucessfully")
+        return redirect("user:profile_view")
+    return render(request, "user/alumni_track.html", {"alumni":alumni})
+
+def alumni_update(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    alumni = Alumni.objects.get(user = user)  
+    if request.method == "POST":
+        register_id = request.session.get("register_id")
+        if not register_id:
+            return redirect("login")
+        user = User.objects.get(register_id=register_id)
+        alumni = Alumni.objects.get(user = user)
+        alumni.employment_status = request.POST.get("employment_status")
+        alumni.job_title = request.POST.get("job_title")
+        if request.POST.get("experience_year"):
+            alumni.experience_year = int(request.POST.get("experience_year"))
+        else:
+            alumni.experience_year = None
+        alumni.pursuing_degree = request.POST.get("pursuing_degree")
+        alumni.university = request.POST.get("university")
+        if request.POST.get("available_for_referral"):
+            alumni.available_for_referral = True
+        else:
+            alumni.available_for_referral = False
+        alumni.save()
+        messages.success(request, "The Alumni Data Updated Sucessfully")
+        return redirect("user:profile_view")
+    return render(request, "user/alumni_track.html", {"alumni":alumni})
+
+def alumni_directory(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
+    return render(request, "user/alumni_directory.html", { "user": user, "alumni_data": alumni_data})
+
+def student_directory(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+    if user.role not in ["Admin", "Alumni"]:
+        messages.error(request, "You are not authorized to view this page.")
+        return redirect("user:home")
+    students = Student.objects.select_related('user').filter(user__role="Student")
+    return render(request, "user/student_directory.html", {"user": user, "students": students})
+
+def alumni_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    if 'query' in request.session:
+        del request.session['query']
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    print(alumni)
+    return render(request, "user/alumni_career_track.html", {'alumni' : alumni})
+
+def search_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    query = request.POST.get('q',"").strip()
+    request.session['query'] = query
+    print(query)
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
+        company_name__icontains = query
+        ) | alumni.filter(
+            job_title__icontains = query
+            ) | alumni.filter(
+                user__student_profile__graduation_year__icontains = query
+                ) | alumni.filter(
+                    pursuing_degree__icontains = query
+                    )
+    return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
+
+def download_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    query = ""
+    if 'query' in request.session:
+        query = request.session['query']
+    print(query)
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    if query:
+        alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
+            company_name__icontains = query
+            ) | alumni.filter(
+                job_title__icontains = query
+                ) | alumni.filter(
+                    user__student_profile__graduation_year__icontains = query
+                    ) | alumni.filter(
+                        pursuing_degree__icontains = query
+                        )
+    data = []
+    for a in alumni:
+        data.append({
+            'RegNo' : a.user.register_id,
+            'Name': a.user.username,
+            'Company': a.company_name or "-",
+            'Job Role': a.job_title or "-",
+            'Experience': a.experience_year or 0,
+            'Higher Studies': a.pursuing_degree or "-",
+            'University': a.university or "-",
+            'Referral': "Available" if a.available_for_referral else "Not Available"
+        })
+
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="alumni_report.csv"'
+
+    df.to_csv(path_or_buf=response, index=False)
+
+    return response

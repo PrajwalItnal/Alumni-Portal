@@ -6,13 +6,11 @@
 
 <style>
 
-/* ===== BODY ===== */
 body {
     background: #f4f6f9;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* ===== NAVBAR ===== */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -45,12 +43,10 @@ body {
     text-decoration: underline;
 }
 
-/* ===== MAIN ===== */
 .main {
     padding: 30px;
 }
 
-/* ===== CREATE EVENT CARD ===== */
 .actions {
     margin-bottom: 30px;
 }
@@ -76,14 +72,12 @@ body {
     background: #2980b9;
 }
 
-/* ===== GRID ===== */
 .event-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 25px;
 }
 
-/* ===== CARD ===== */
 .event-card {
     background: #fff;
     border-radius: 15px;
@@ -96,7 +90,6 @@ body {
     transform: translateY(-8px);
 }
 
-/* ===== IMAGE FIX (IMPORTANT) ===== */
 .event-image-wrapper {
     width: 100%;
     height: 200px;
@@ -106,7 +99,7 @@ body {
 .event-image-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: cover;   /* 🔥 prevents stretching */
+    object-fit: cover;
     display: block;
 }
 
@@ -119,7 +112,6 @@ body {
     justify-content: center;
 }
 
-/* ===== CONTENT ===== */
 .event-body {
     padding: 18px;
 }
@@ -129,7 +121,6 @@ body {
     font-size: 20px;
 }
 
-/* ===== BADGE ===== */
 .badge {
     background: #6c5ce7;
     color: #fff;
@@ -138,7 +129,6 @@ body {
     font-size: 12px;
 }
 
-/* ===== DETAILS ===== */
 .event-details {
     margin-top: 10px;
     display: flex;
@@ -148,21 +138,18 @@ body {
     font-size: 14px;
 }
 
-/* ===== ORGANIZER ===== */
 .organizer {
     margin-top: 10px;
     font-size: 13px;
     color: #777;
 }
 
-/* ===== ALERT ===== */
 .alert {
     padding: 12px;
     margin-bottom: 15px;
     border-radius: 6px;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 600px) {
     .navbar {
         flex-direction: column;
@@ -173,7 +160,6 @@ body {
 
 </style>
 
-<!-- ===== NAVBAR ===== -->
 <div class="navbar">
 
     {% if user.role == "Admin" or user.role == "Alumni" %}
@@ -194,7 +180,6 @@ body {
 
 <div class="main">
 
-<!-- ===== MESSAGES ===== -->
 {% if messages %}
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }}">
@@ -203,7 +188,6 @@ body {
     {% endfor %}
 {% endif %}
 
-<!-- ===== CREATE EVENT ===== -->
 {% if user.role == "Admin" or user.role == "Alumni" %}
 <div class="actions">
     <form action="{% url 'user:event_create' %}">
@@ -215,7 +199,6 @@ body {
     </form>
 </div>
 {% endif %}
-
 
 <div class="event-list">
 
@@ -230,7 +213,6 @@ body {
             {% endif %}
         </div>
 
-        <!-- CONTENT -->
         <div class="event-body">
 
             <span class="badge">{{ event.event_type }}</span>

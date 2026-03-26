@@ -1,0 +1,71 @@
+{% extends "user/user_base.html" %}
+
+{% block title %}Update Profile{% endblock %}
+
+{% block content %}
+
+  {% if messages %}
+    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
+                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
+                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<h2>Update Profile</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label>Bio:</label><br>
+    <textarea name="bio" id="bio">{{ student.bio }}</textarea><br><br>
+
+    <label>Phone:</label><br>
+    <input type="text" name="phone" value="{{ student.phone }}"><br><br>
+
+    <label>Gender:</label><br>
+    <select name="gender">
+        <option value="">Select</option>
+        <option value="Male" {% if student.gender == "Male" %}selected{% endif %}>Male</option>
+        <option value="Female" {% if student.gender == "Female" %}selected{% endif %}>Female</option>
+    </select><br><br>
+
+    <label>Date of Birth:</label><br>
+    <input type="date" name="dob" value="{{ student.dob }}"><br><br>
+
+    <label>City:</label><br>
+    <input type="text" name="city" value="{{ student.city }}"><br><br>
+
+    <label>Permanent Address:</label><br>
+    <textarea name="permanent_address">{{ student.permanent_address }}</textarea><br><br>
+
+    <label>Photo:</label><br>
+    <input type="file" name="photo"><br>
+    {% if student.photo %}
+        <p>Current: {{ student.photo.url }}</p>
+    {% endif %}
+    <br>
+
+    <label>Resume:</label><br>
+    <input type="file" name="resume"><br>
+    {% if student.resume %}
+        <p>Current: {{ student.resume.url }}</p>
+    {% endif %}
+    <br>
+
+    <label>GitHub URL:</label><br>
+    <input type="url" name="github_url" value="{{ student.github_url }}" ><br><br>
+
+    <label>LinkedIn URL:</label><br>
+    <input type="url" name="linkedin_url" value="{{ student.linkedin_url }}"><br><br>
+
+    <button type="submit">Update Profile</button>
+</form>
+
+{% endblock %}

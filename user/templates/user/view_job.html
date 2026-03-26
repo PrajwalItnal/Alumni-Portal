@@ -4,54 +4,127 @@
 
 {% block content %}
 
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.post-box {
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.btn {
+    background: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
+
+.search-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.job-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 5px solid #007bff;
+}
+
+.job-card h3 {
+    margin: 5px 0;
+}
+
+.job-card p {
+    margin: 3px 0;
+    font-size: 14px;
+}
+</style>
+
+<div class="container">
+
 {% if messages %}
     {% for message in messages %}
-        <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
-            background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
-            color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+        <div class="alert"
+            style="background-color:{% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
+                   color:{% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
             {{ message }}
         </div>
     {% endfor %}
 {% endif %}
 
 {% if user.role == "Admin" or user.role == "Alumni" %}
-    <div style="background: #fdfd96; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+    <div class="post-box">
         <p>Have a new job opportunity to share?</p>
         <a href="{% url 'user:add_job' %}" class="btn">Post New Job</a>
+        <a href="{% url 'user:admin_home' %}">Home</a>
+        \<a href="{% url 'user:logout' %}">Logout</a>
+        
     </div>
 {% endif %}
 
 <h2>Job Listings</h2>
 
+<div class="search-box">
 <form action="{% url 'user:filter_job' %}" method="get">
-    <label for="title">Title:</label>
-    <input type="text" id="title" name="title" value="{{ request.GET.title }}">
+    <label>Title:</label>
+    <input type="text" name="title" value="{{ request.GET.title }}">
     
-    <label for="loc">Location:</label>
-    <input type="text" id="loc" name="loc" value="{{ request.GET.loc }}">
+    <label>Location:</label>
+    <input type="text" name="loc" value="{{ request.GET.loc }}">
     
-    <button type="submit">Search Jobs</button>
+    <button type="submit" class="btn">Search</button>
     
-    <a href="{% url 'user:view_job' %}" style="margin-left:10px; text-decoration:none; color:gray;">Clear</a>
+    <a href="{% url 'user:view_job' %}" style="margin-left:10px;">Clear</a>
 </form>
+</div>
 
 {% if jobs %}
-    <ul>
-        {% for job in jobs %}
-            <li>
-                <p>{{job.posted_by.username}}</p>
-                <h3>{{ job.company_name }}</h3>
-                <p><strong>Title:</strong> {{ job.title }}</p>
-                <p><strong>Description:</strong> {{ job.description }}</p>
-                <p><strong>Location:</strong> {{ job.location }}</p>
-                <p><strong>Salary:</strong> {{ job.salary }}</p>
-                <p><strong>Last Date to Apply:</strong> {{ job.last_date }}</p>
-                <p><strong>Required Skills:</strong> {{ job.required_skills }}</p>
-            </li>
-        {% endfor %}
-    </ul>
+    {% for job in jobs %}
+        <div class="job-card">
+            <p>{{ job.posted_by.username }}</p>
+            <h3>{{ job.company_name }}</h3>
+            <p><strong>Title:</strong> {{ job.title }}</p>
+            <p><strong>Description:</strong> {{ job.description }}</p>
+            <p><strong>Location:</strong> {{ job.location }}</p>
+            <p><strong>Salary:</strong> {{ job.salary }}</p>
+            <p><strong>Last Date:</strong> {{ job.last_date }}</p>
+            <p><strong>Skills:</strong> {{ job.required_skills }}</p>
+        </div>
+    {% endfor %}
 {% else %}
-    <p>No job listings available at the moment.</p>
+    <p>No job listings available.</p>
 {% endif %}
+
+</div>
 
 {% endblock %}

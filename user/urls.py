@@ -24,4 +24,17 @@ urlpatterns = [
     path('college/create/', views.college_create, name='college_create'),
     path('college/list/',   views.college_list,   name='college_list'),
     path('college/detail/update/<int:college_id>/', views.college_detail_update, name='college_detail_update'),
+    path('college/student/register/', views.student_register, name='student_register'),
+    path('user/convert_alumni/', views.convert_alumni, name='convert_alumni'),
+    path('user/convert_to_alumni/', views.convert_to_alumni, name='convert_to_alumni'),
+    path('user/change_password/', views.change_password, name='change_password'),
+    path('user/profile_update/', views.update_profile_std, name='update_profile_std'),
+    path('user/profile_view/', views.profile_view, name='profile_view'),
+    path("user/alumni/update_alumni", views.alumni_update, name = "alumni_update"),
+    path('alumni-directory/', views.alumni_directory, name='alumni_directory'),
+    path('student-directory/', views.student_directory, name='student_directory'),
+    path('alumn/alumni_career_track', views.alumni_career_track, name='alumni_career_track'),
+    path('alumn/search_career_track', views.search_career_track, name='search_career_track'),
+    path('alumn/download_career_track', views.download_career_track, name='download_career_track'),
+
 ]

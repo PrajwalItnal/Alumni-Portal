@@ -6,7 +6,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.shortcuts import render, redirect
 import random
-
+from django.contrib.auth.hashers import check_password, make_password
 
 def home(request):
     return render(request, "home.html")
@@ -86,12 +86,17 @@ def login(request):
     if request.method == "POST":
         register_id = request.POST.get("register_id")
         password = request.POST.get("password")
-        user = None
-        try:
-            user = User.objects.get(register_id=register_id, password=password)
+        user = User.objects.filter(register_id=register_id).first()
+        print(user)
+        print(password)
+        print(check_password(password, user.password))
+        if user is None:
+            messages.error(request, "Invalid register ID or password.")
+            return redirect('login')
+        if check_password(password, user.password):
             request.session["register_id"] = user.register_id
             return redirect('user:home')
-        except User.DoesNotExist:
+        else:
             messages.error(request, "Invalid register ID or password.")
             return redirect('login')
     return render(request, "login.html")
@@ -108,7 +113,7 @@ def reset_password(request):
 
             if new_password == confirm_password:
 
-                User.objects.filter(register_id=register_id).update(password=new_password)
+                User.objects.filter(register_id=register_id).update(password=make_password(str(new_password)))
 
                 messages.success(request, "Password reset successfully")
                 return redirect("login")

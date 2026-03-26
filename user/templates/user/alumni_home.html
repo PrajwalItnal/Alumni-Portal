@@ -160,7 +160,7 @@
 
   <nav class="navbar">
     <h1>Alumni Dashboard</h1>
-    <li><a href="/logout">Logout</a></li>
+    <li><a href="{% url 'user:logout' %}">Logout</a></li>
   </nav>
 
   <div class="main">
@@ -179,7 +179,7 @@
       <div class="action-card">
         <h3>👤 View Profiles</h3>
         <p>View alumni and student profile information.</p>
-        <a href="/alumnidetail" class="action-btn">View</a>
+        <a href="{% url 'user:profile_view' %}" class="action-btn">View</a>
       </div>
 
       <div class="action-card">
@@ -218,8 +218,12 @@
             <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
         </div>
 
-    </div>
-  </div>
+        <div class="action-card">
+          <h3>👥 Student Details</h3>
+          <p>View Student records.</p>
+          <a href="{% url 'user:student_directory' %}" class="action-btn">View</a>
+      </div>
 
+  
 </body>
 </html>

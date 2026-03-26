@@ -1,0 +1,72 @@
+{% extends "user/user_base.html" %}
+
+{% block title %}Convert Alumni{% endblock %}
+
+{% block content %}
+    <h1>Alumni Conversion</h1>
+    <button onclick="window.history.back()">Back</button>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
+                background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
+                color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if convert %}
+        <p>
+            The following students have successfully completed their academic year {{ year }} 
+            and are eligible for conversion to alumni status. Please review the details below 
+            and confirm the conversion.
+        </p>
+
+        <div style="overflow-x:auto;">
+            <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+                <thead style="background-color: #f2f2f2;">
+                    <tr>
+                        <th>S.No</th>
+                        <th>Register ID</th>
+                        <th>Student Name</th>
+                        <th>Email Address</th>
+                        <th>Department</th>
+                        <th>Admission Year</th>
+                        <th>Graduation Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for graduator in current_graduators %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ graduator.user.register_id }}</td>
+                            <td>{{ graduator.user.username }}</td>
+                            <td>{{ graduator.user.email }}</td>
+                            <td>{{ graduator.department }}</td>
+                            <td>{{ graduator.admission_year }}</td>
+                            <td>{{ graduator.graduation_year }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <br>
+
+        <form method="post" action="{% url 'user:convert_to_alumni' %}">
+            {% csrf_token %}
+            <button type="submit" 
+                style="padding:10px 20px; background-color: green; color: white; border: none; border-radius: 5px;">
+                Confirm Conversion to Alumni
+            </button>
+        </form>
+
+    {% else %}
+        <p>
+            All eligible students for the academic year {{ year }} have already been converted 
+            to alumni, or there are no students available for conversion at this time.
+        </p>
+    {% endif %}
+
+{% endblock %}

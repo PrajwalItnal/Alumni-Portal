@@ -1,5 +1,4 @@
 from email.mime import image
-
 from django.db import models
 
 class User(models.Model):
@@ -30,10 +29,15 @@ class Student(models.Model):
     admission_year = models.IntegerField()
     graduation_year = models.IntegerField(blank=True, null=True)
     phone = models.CharField(max_length=15)
-    gender = models.CharField(max_length=10)
+    GENDER_CHOICES = [
+        ("Male", "Male"),
+        ("Female", "Female"),
+        ("Other", "Other"),
+    ]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
     dob = models.DateField()
     city = models.CharField(max_length=20, blank=True)
-    permanent_address = models.TextField()
+    permanent_address = models.TextField(null = True, blank = True)
     photo = models.FileField(
         upload_to="student_photos/",
         blank=True,
@@ -61,8 +65,15 @@ class Alumni(models.Model):
         related_name="alumni_profile"
     )
 
+    EMPLOYMENT_STATUS_CHOICES = [
+        ("Employed", "Employed"),
+        ("Unemployed", "Unemployed"),
+        ("Higher Studies", "Higher Studies"),
+    ]
+
     employment_status = models.CharField(
-        max_length=20
+        max_length=20,
+        choices=EMPLOYMENT_STATUS_CHOICES
     )
 
     company_name = models.CharField(max_length=150, blank=True, null = True)
@@ -189,3 +200,5 @@ class College(models.Model):
     
     class Meta:
         db_table = "college"
+
+
