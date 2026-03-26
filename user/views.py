@@ -738,3 +738,29 @@ def student_directory(request):
         return redirect("user:home")
     students = Student.objects.select_related('user').filter(user__role="Student")
     return render(request, "user/student_directory.html", {"user": user, "students": students})
+
+def alumni_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    print(alumni)
+    return render(request, "user/alumni_career_track.html", {'alumni' : alumni})
+
+def search_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    query = request.POST.get('q',"").strip()
+    print(query)
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
+        company_name__icontains = query
+        ) | alumni.filter(
+            job_title__icontains = query
+            ) | alumni.filter(
+                user__student_profile__graduation_year__icontains = query
+                ) | alumni.filter(
+                    pursuing_degree__icontains = query
+                    )
+    return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
