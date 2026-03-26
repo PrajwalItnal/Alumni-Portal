@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import render,redirect
 import user
 from user.models import Event, User, Achievement, Job, Student
@@ -740,6 +741,8 @@ def alumni_career_track(request):
     register_id = request.session.get("register_id")
     if not register_id:
         return redirect("login")
+    if 'query' in request.session:
+        del request.session['query']
     alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
     print(alumni)
     return render(request, "user/alumni_career_track.html", {'alumni' : alumni})
@@ -749,6 +752,7 @@ def search_career_track(request):
     if not register_id:
         return redirect("login")
     query = request.POST.get('q',"").strip()
+    request.session['query'] = query
     print(query)
     alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
     alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
@@ -761,3 +765,44 @@ def search_career_track(request):
                     pursuing_degree__icontains = query
                     )
     return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
+
+def download_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    query = ""
+    if 'query' in request.session:
+        query = request.session['query']
+    print(query)
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    if query:
+        alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
+            company_name__icontains = query
+            ) | alumni.filter(
+                job_title__icontains = query
+                ) | alumni.filter(
+                    user__student_profile__graduation_year__icontains = query
+                    ) | alumni.filter(
+                        pursuing_degree__icontains = query
+                        )
+    data = []
+    for a in alumni:
+        data.append({
+            'RegNo' : a.user.register_id,
+            'Name': a.user.username,
+            'Company': a.company_name or "-",
+            'Job Role': a.job_title or "-",
+            'Experience': a.experience_year or 0,
+            'Higher Studies': a.pursuing_degree or "-",
+            'University': a.university or "-",
+            'Referral': "Available" if a.available_for_referral else "Not Available"
+        })
+
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="alumni_report.csv"'
+
+    df.to_csv(path_or_buf=response, index=False)
+
+    return response
