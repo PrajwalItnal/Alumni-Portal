@@ -182,22 +182,3 @@ class Achievement(models.Model):
 
     class Meta:
         db_table = "achievements"
-
-class College(models.Model):
-    name = models.CharField(max_length=200)
-    address = models.TextField()
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
-    website = models.URLField(blank=True, null=True)
-    established_year = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        db_table = "college"
-
-
