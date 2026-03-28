@@ -35,6 +35,5 @@ urlpatterns = [
     path('student-directory/', views.student_directory, name='student_directory'),
     path('alumn/alumni_career_track', views.alumni_career_track, name='alumni_career_track'),
     path('alumn/search_career_track', views.search_career_track, name='search_career_track'),
-    path('alumn/download_career_track', views.download_career_track, name='download_career_track'),
 
 ]

@@ -252,7 +252,9 @@
           <span>Not provided</span>
         {% endif %}
       </div>
+      
     </div>
+    <a href="{% url 'user:update_profile_std' %}" class="btn btn-blue">Edit Profile</a>
   </div>
   {% endif %}
 
@@ -268,11 +270,12 @@
       <div class="info-item"><span>University</span><span>{{ alumni.university|default:"Not provided" }}</span></div>
       <div class="info-item"><span>Available for Referral</span><span>{% if alumni.available_for_referral %}Yes{% else %}No{% endif %}</span></div>
     </div>
+     <a href="{% url 'user:alumni_update' %}" class="btn btn-blue"> Profile</a>
   </div>
   {% endif %}
 
   <div class="btn-row single-line">
-    <a href="{% url 'user:update_profile_std' %}" class="btn btn-blue">Edit Profile</a>
+    
     <a href="{% url 'user:change_password' %}" class="btn btn-blue-outline">Change Password</a>
     <button class="btn btn-blue-outline" onclick="window.history.back()">← Back</button>
   </div>

@@ -15,8 +15,6 @@ from django.core.mail import send_mail
 import openpyxl
 
 
-
-
 def home(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -95,27 +93,6 @@ def create_achievements(request):
             messages.success(request, "Achievement add successfully")
             return redirect('user:achievements_view')
     return render(request, "user/create_achievement.html")
-
-def create_achievements(request):
-    if request.method == 'POST':
-        register_id = request.session.get("register_id")
-        if not register_id:
-            return redirect("login")
-        else:
-            user = User.objects.filter(register_id = register_id).first()
-            title = request.POST.get('title')
-            description = request.POST.get('description')
-            certificate = request.FILES.get('certificate')
-            Achievement.objects.create(
-                achieved_by = user,
-                title = title,
-                description = description,
-                certificate = certificate
-            )
-            messages.success(request, "Achievement add successfully")
-            return redirect('user:achievements_view')
-    return render(request, "user/create_achievement.html")
-
 
 def create_donation(request):
     register_id = request.session.get("register_id")
@@ -692,34 +669,6 @@ def alumni_update(request):
         return redirect("user:profile_view")
     return render(request, "user/alumni_track.html", {"alumni":alumni})
 
-def alumni_update(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
-        return redirect("login")
-    user = User.objects.get(register_id=register_id)
-    alumni = Alumni.objects.get(user = user)  
-    if request.method == "POST":
-        register_id = request.session.get("register_id")
-        if not register_id:
-            return redirect("login")
-        user = User.objects.get(register_id=register_id)
-        alumni = Alumni.objects.get(user = user)
-        alumni.employment_status = request.POST.get("employment_status")
-        alumni.job_title = request.POST.get("job_title")
-        if request.POST.get("experience_year"):
-            alumni.experience_year = int(request.POST.get("experience_year"))
-        else:
-            alumni.experience_year = None
-        alumni.pursuing_degree = request.POST.get("pursuing_degree")
-        alumni.university = request.POST.get("university")
-        if request.POST.get("available_for_referral"):
-            alumni.available_for_referral = True
-        else:
-            alumni.available_for_referral = False
-        alumni.save()
-        messages.success(request, "The Alumni Data Updated Sucessfully")
-        return redirect("user:profile_view")
-    return render(request, "user/alumni_track.html", {"alumni":alumni})
 
 def alumni_directory(request):
     register_id = request.session.get("register_id")
@@ -769,43 +718,3 @@ def search_career_track(request):
                     )
     return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
 
-def download_career_track(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
-        return redirect("login")
-    query = ""
-    if 'query' in request.session:
-        query = request.session['query']
-    print(query)
-    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
-    if query:
-        alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
-            company_name__icontains = query
-            ) | alumni.filter(
-                job_title__icontains = query
-                ) | alumni.filter(
-                    user__student_profile__graduation_year__icontains = query
-                    ) | alumni.filter(
-                        pursuing_degree__icontains = query
-                        )
-    data = []
-    for a in alumni:
-        data.append({
-            'RegNo' : a.user.register_id,
-            'Name': a.user.username,
-            'Company': a.company_name or "-",
-            'Job Role': a.job_title or "-",
-            'Experience': a.experience_year or 0,
-            'Higher Studies': a.pursuing_degree or "-",
-            'University': a.university or "-",
-            'Referral': "Available" if a.available_for_referral else "Not Available"
-        })
-
-    df = pd.DataFrame(data)
-
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="alumni_report.csv"'
-
-    df.to_csv(path_or_buf=response, index=False)
-
-    return response

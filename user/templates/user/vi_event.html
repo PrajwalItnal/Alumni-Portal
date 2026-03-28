@@ -51,13 +51,6 @@ body {
     margin-bottom: 30px;
 }
 
-.action-card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 260px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-}
 
 .action-btn {
     background: #3498db;
@@ -192,8 +185,6 @@ body {
 <div class="actions">
     <form action="{% url 'user:event_create' %}">
         <div class="action-card">
-            <h3>➕ Create Event</h3>
-            <p>Create and manage alumni or student events.</p>
             <button type="submit" class="action-btn">Create Event</button>
         </div>
     </form>
