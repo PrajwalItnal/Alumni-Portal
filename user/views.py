@@ -4,7 +4,7 @@ from django.shortcuts import render,redirect
 import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
-from datetime import datetime
+from datetime import datetime, timedelta
 from .models import Alumni, Donation
 from .models import Internship
 from .models import College
@@ -149,8 +149,15 @@ def add_job(request):
 
         title = request.POST.get('title', '').strip()
         company_name = request.POST.get('c_name', '').strip()
+        if not company_name.isalpha():
+            messages.error(request, "Please don't fill the except alphabets.")
+            return redirect('user:add_job')
+
         description = request.POST.get('description', '').strip()
         location = request.POST.get('location', '').strip()
+        if not location.isalpha():
+            messages.error(request, "Please don't fill the except alphabets.")
+            return redirect('user:add_job')
         salary = request.POST.get('salary', '').strip()
         last_date = request.POST.get('last_date', '').strip()
         required_skills = request.POST.get('required_skills', '').strip()
@@ -170,6 +177,9 @@ def add_job(request):
             if last_date_obj < datetime.today().date():
                 messages.error(request, "Last date cannot be in the past.")
                 return redirect('user:add_job')
+            if last_date_obj > datetime.today().date() + timedelta(days=60):
+                messages.error(request, "Last date must be within 2 months from today.")
+                return redirect('user:add_job')
         except ValueError:
             messages.error(request, "Invalid date format.")
             return redirect('user:add_job')
@@ -182,7 +192,6 @@ def add_job(request):
             messages.error(request, "Description must be at least 5 words.")
             return redirect('user:add_job')
 
-        
         Job.objects.create(
             posted_by=user,
             company_name=company_name,
@@ -465,6 +474,12 @@ def student_register(request):
             if "@gmail.com" not in email:
                 print(f"Invalid email {email} for register ID {register_id}. Skipping.")
                 continue
+
+            if gender.lower().lower() in ['male', 'female']:
+                print(f"Invalid gender: {gender}")
+                continue
+
+            
             
             password = random.randint(1000000000,9999999999)
             print(f"Generated password for {register_id}: {password}")
@@ -490,7 +505,7 @@ def student_register(request):
                 admission_year = admission_year,
                 graduation_year = graduation_year,
                 phone = phone,
-                gender = gender.strip()
+                gender = gender.lower().strip()
             )
 
             user.save()
