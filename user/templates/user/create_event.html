@@ -3,26 +3,229 @@
 {% block title %}Create Event{% endblock %}
 
 {% block content %}
-<h1>Create Event</h1>
-<button onclick="window.history.back()">Back</button>
-<form method="post" enctype="multipart/form-data", action="{% url 'user:event_create' %}">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="id_title">Title:</label>
-        <input type="text" name="title" id="id_title" class="form-control" required><br>
-        <label for="id_description">Description:</label>
-        <textarea name="description" id="id_description" class="form-control" required></textarea><br>
-        <label for="id_event_type">Event Type:</label>
-        <input type="text" name="event_type" id="id_event_type" class="form-control" required><br>
-        <label for="id_date">Date:</label>
-        <input type="date" name="date" id="id_date" class="form-control" required><br>
-        <label for="id_event_time">Time:</label>
-        <input type="time" name="event_time" id="id_event_time" class="form-control" required><br>
-        <label for="id_location">Location:</label>
-        <input type="text" name="location" id="id_location" class="form-control" required><br>
-        <label for="id_image">Image:</label>
-        <input type="file" name="image" id="id_image" class="form-control">
+
+<style>
+  body {
+    background-color: #f3f4f6;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+  }
+
+  .wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 28px 40px;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .card-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .card-logo .icon {
+    width: 36px;
+    height: 36px;
+    background: #3b82f6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .card-logo span {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #111;
+  }
+
+  .btn-back {
+    margin-left: auto;
+    background: none;
+    border: 1.5px solid #e5e7eb;
+    color: #6b7280;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+
+  .btn-back:hover {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  .card h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111;
+    margin: 0 0 2px;
+  }
+
+  .card .subtitle {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+  }
+
+  /* Two equal columns for all fields */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+  }
+
+  /* Title and Description span full width */
+  .full {
+    grid-column: 1 / -1;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 5px;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea {
+    padding: 9px 12px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    color: #111;
+    background: #f9fafb;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    background: #fff;
+  }
+
+  textarea {
+    min-height: 70px;
+    resize: none;
+  }
+
+  input[type="file"] {
+    padding: 8px 12px;
+    border: 1.5px dashed #d1d5db;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    background: #f9fafb;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .btn-submit {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-submit:hover {
+    background: #2563eb;
+  }
+</style>
+
+<div class="wrapper">
+  <div class="card">
+
+    <!-- Logo Row -->
+    <div class="card-logo">
+      <div class="icon">🎓</div>
+      <span>Alumni Portal</span>
+      <button class="btn-back" onclick="window.history.back()">← Back</button>
     </div>
-    <button type="submit" class="btn btn-primary">Create Event</button><br>
-</form>
+
+    <!-- Heading -->
+    <h1>Create Event</h1>
+    <p class="subtitle">Fill in the details to publish a new alumni event</p>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" action="{% url 'user:event_create' %}">
+      {% csrf_token %}
+
+      <div class="form-grid">
+
+        <div class="field full">
+          <label for="id_title">Title</label>
+          <input type="text" name="title" id="id_title" placeholder="Event title" required>
+        </div>
+
+        <div class="field full">
+          <label for="id_description">Description</label>
+          <textarea name="description" id="id_description" placeholder="What is this event about?" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="id_event_type">Event Type</label>
+          <input type="text" name="event_type" id="id_event_type" placeholder="e.g. Reunion">
+        </div>
+
+        <div class="field">
+          <label for="id_location">Location</label>
+          <input type="text" name="location" id="id_location" placeholder="Venue or city" required>
+        </div>
+
+        <div class="field">
+          <label for="id_date">Date</label>
+          <input type="date" name="date" id="id_date" required>
+        </div>
+
+        <div class="field">
+          <label for="id_event_time">Time</label>
+          <input type="time" name="event_time" id="id_event_time" required>
+        </div>
+
+        <div class="field full">
+          <label for="id_image">Cover Image</label>
+          <input type="file" name="image" id="id_image" accept="image/*">
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn-submit">Create Event</button>
+    </form>
+
+  </div>
+</div>
+
 {% endblock %}

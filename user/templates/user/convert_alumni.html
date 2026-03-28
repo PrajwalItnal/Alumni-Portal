@@ -3,14 +3,120 @@
 {% block title %}Convert Alumni{% endblock %}
 
 {% block content %}
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 26px;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 8px;
+    }
+
+    .back-btn {
+        padding: 8px 16px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .back-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .message {
+        padding: 12px 16px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .message.success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    p {
+        font-size: 15px;
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        background-color: white;
+    }
+
+    thead {
+        background-color: #2c3e50;
+        color: white;
+    }
+
+    th, td {
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 14px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover {
+        background-color: #f0f4ff;
+    }
+
+    .confirm-btn {
+        margin-top: 20px;
+        padding: 10px 24px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    .confirm-btn:hover {
+        background-color: #219150;
+    }
+
+    .empty-msg {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 15px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+</style>
+
     <h1>Alumni Conversion</h1>
-    <button onclick="window.history.back()">Back</button>
-    
+    <button class="back-btn" onclick="window.history.back()">← Back</button>
+
     {% if messages %}
         {% for message in messages %}
-            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
-                background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
-                color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
+            <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
                 {{ message }}
             </div>
         {% endfor %}
@@ -18,14 +124,14 @@
 
     {% if convert %}
         <p>
-            The following students have successfully completed their academic year {{ year }} 
-            and are eligible for conversion to alumni status. Please review the details below 
+            The following students have successfully completed their academic year {{ year }}
+            and are eligible for conversion to alumni status. Please review the details below
             and confirm the conversion.
         </p>
 
-        <div style="overflow-x:auto;">
-            <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-                <thead style="background-color: #f2f2f2;">
+        <div class="table-wrapper">
+            <table>
+                <thead>
                     <tr>
                         <th>S.No</th>
                         <th>Register ID</th>
@@ -52,21 +158,16 @@
             </table>
         </div>
 
-        <br>
-
         <form method="post" action="{% url 'user:convert_to_alumni' %}">
             {% csrf_token %}
-            <button type="submit" 
-                style="padding:10px 20px; background-color: green; color: white; border: none; border-radius: 5px;">
-                Confirm Conversion to Alumni
-            </button>
+            <button type="submit" class="confirm-btn">Confirm Conversion to Alumni</button>
         </form>
 
     {% else %}
-        <p>
-            All eligible students for the academic year {{ year }} have already been converted 
+        <div class="empty-msg">
+            All eligible students for the academic year {{ year }} have already been converted
             to alumni, or there are no students available for conversion at this time.
-        </p>
+        </div>
     {% endif %}
 
 {% endblock %}
