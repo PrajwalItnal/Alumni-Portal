@@ -7,7 +7,6 @@ from django.contrib import messages
 from datetime import datetime, timedelta
 from .models import Alumni, Donation
 from .models import Internship
-from .models import College
 import pandas as pd
 import random
 from django.contrib.auth.hashers import make_password
