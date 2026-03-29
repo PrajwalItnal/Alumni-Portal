@@ -1,6 +1,8 @@
+from io import BytesIO
+
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import get_object_or_404, render,redirect
 import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
@@ -414,61 +416,98 @@ def student_register(request):
 
         df.columns = df.columns.str.lower().str.strip()
 
+
+
         for column in required_columns:
             if column not in df.columns:
                 messages.error(request, f"Columns are not present in the file. Required columns: {', '.join(required_columns)}")
                 return redirect("user:student_register")
         
-        for row in df.iterrows():
-            register_id = row[1]['register id']
-            name = row[1]['name']
-            email = row[1]['email']
-            phone = str(row[1]['phone'])
-            gender = row[1]['gender']
+        failed_rows = []
+        success_count = 0
+        for index, row in df.iterrows():
+            register_id = row['register id']
+            name = row['name']
+            email = row['email']
+            phone = str(row['phone'])
+            gender = row['gender']
+
+            error_reason = None
             
-            if User.objects.filter(register_id=register_id).exists() or User.objects.filter(email=email).exists():
-                print(f"User with register ID {register_id} or email {email} already exists. Skipping.")
-                continue
-
-            if "@gmail.com" not in email:
-                print(f"Invalid email {email} for register ID {register_id}. Skipping.")
-                continue
-
-            if gender.lower().lower() in ['male', 'female']:
-                print(f"Invalid gender: {gender}")
-                continue
+            if User.objects.filter(register_id=register_id).exists():
+                error_reason = "Register ID already exists"
+            elif User.objects.filter(email=email).exists():
+                error_reason = "Email already exists"
+            elif not email.endswith("@gmail.com"):
+                error_reason = "Invalid email domain (must be @gmail.com)"
+            elif gender not in ['male', 'female']:
+                error_reason = f"Invalid gender: {gender}"
+            elif not phone.isdigit() or len(phone) != 10:
+                error_reason = f"Invalid phone number: {phone}"
+            
+            if error_reason:
+                error_data = df.iloc[index].to_dict()
+                error_data['error_reason'] = error_reason
+                failed_rows.append(error_data)
+                continue  
 
             password = random.randint(1000000000,9999999999)
             print(f"Generated password for {register_id}: {password}")
-            user = User.objects.create(
-                register_id=register_id,
-                username = name.strip().title(),
-                email = email,
-                role = "Student",
-                password = make_password(str(password))
+            
+            try:
+                send_mail(
+                    "Welcome to Alumni Portal",
+                    f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                user = User.objects.create(
+                    register_id=register_id,
+                    username = name.strip().title(),
+                    email = email,
+                    role = "Student",
+                    password = make_password(str(password))
+                )
+                
+                student = Student.objects.create(
+                    user = user,
+                    department = department,
+                    admission_year = datetime.now().year,
+                    graduation_year = datetime.now().year + course_duration,
+                    phone = phone,
+                    gender = gender.lower().strip()
+                )
+                user.save()
+                student.save()
+                success_count += 1
+            except Exception as e:
+                error_reason = str(e)
+            
+            if error_reason:
+                if error_reason:
+                    error_data = df.iloc[index].to_dict()
+                    error_data['error_reason'] = error_reason
+                    failed_rows.append(error_data)
+                    continue
+        if failed_rows:
+            error_df = pd.DataFrame(failed_rows)
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
+                error_df.to_excel(writer, index=False, sheet_name='Errors')
+            
+            output.seek(0)
+            
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             )
-
-            print(user)
-
-            send_email(
-                "Welcome to Alumni Portal",
-                f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
-                [email]
-            )
-
-            student = Student.objects.create(
-                user = user,
-                department = department,
-                admission_year = datetime.now().year - course_duration,
-                graduation_year = datetime.now().year,
-                phone = phone,
-                gender = gender.lower().strip()
-            )
-
-            user.save()
-            student.save()
+            response['Content-Disposition'] = f'attachment; filename="registration_errors_{datetime.now()}.xlsx"'
+            
+            messages.warning(request, f"{success_count} students registered. Downloaded errors for {len(failed_rows)} rows.")
+            return response
         messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
-        return redirect("user:admin_home")
+        return redirect("user:student_register")
     return render(request, "user/student_registration.html", {"departments": departments})
 
 def send_email(title, message, recipient_list):
@@ -798,3 +837,35 @@ def student_directory_search(request):
         "query": query
     }
     return render(request, "user/student_directory.html", context)
+
+def department_list(request):
+    departments = Department.objects.all()
+    return render(request, 'user/department_list.html', {'departments': departments})
+
+def add_department(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        if name:
+            Department.objects.create(name=name)
+            messages.success(request, f"Department '{name}' added successfully!")
+    return redirect('user:department_list')
+
+def edit_department(request, dept_id):
+    dept = get_object_or_404(Department, dept_id=dept_id)
+    students = Student.objects.filter(department=dept.name)
+    if request.method == "POST":
+        new_name = request.POST.get('name')
+        if new_name:
+            dept.name = new_name
+            students.update(department=new_name)
+            students.save()
+            dept.save()
+            messages.success(request, "Department updated successfully.")
+    return redirect('user:department_list')
+
+def delete_department(request, dept_id):
+    dept = get_object_or_404(Department, dept_id=dept_id)
+    if request.method == "POST":
+        dept.delete()
+        messages.success(request, "Department deleted successfully.")
+    return redirect('user:department_list')

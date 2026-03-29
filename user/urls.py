@@ -35,5 +35,9 @@ urlpatterns = [
     path('alumni/career_track/download/', views.download_career_track, name='download_career_track'),
     path('alumni_directory/search/', views.alumni_directory_search, name='alumni_directory_search'),
     path('student_directory/search/', views.student_directory_search, name='student_directory_search'),
+    path('departments/', views.department_list, name='department_list'),
+    path('departments/add/', views.add_department, name='add_department'),
+    path('departments/edit/<int:dept_id>/', views.edit_department, name='edit_department'),
+    path('departments/delete/<int:dept_id>/', views.delete_department, name='delete_department'),
 
 ]
