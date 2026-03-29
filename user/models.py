@@ -1,4 +1,3 @@
-from email.mime import image
 from django.db import models
 
 class User(models.Model):
@@ -164,7 +163,6 @@ class Internship(models.Model):
     required_skills = models.TextField(default=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     duration = models.CharField(max_length=100, blank=True, null=True)
-    status = models.CharField(max_length=20, default="Open")
 
 
     class Meta:
@@ -182,3 +180,13 @@ class Achievement(models.Model):
 
     class Meta:
         db_table = "achievements"
+
+class Department(models.Model):
+    dept_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = "department"
+
+    def __str__(self):
+        return self.name

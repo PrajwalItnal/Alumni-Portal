@@ -2,6 +2,13 @@
 {% block title %}Add Achievement{% endblock %}
 
 {% block content %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
     <h2>🏆 Add Achievement </h2>
     <div>

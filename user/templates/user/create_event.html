@@ -167,6 +167,13 @@
 
 <div class="wrapper">
   <div class="card">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <!-- Logo Row -->
     <div class="card-logo">

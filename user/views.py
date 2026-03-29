@@ -5,7 +5,7 @@ import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
 from datetime import datetime, timedelta
-from .models import Alumni, Donation
+from .models import Alumni, Department, Donation
 from .models import Internship
 import pandas as pd
 import random
@@ -51,7 +51,31 @@ def create_event(request):
             time = request.POST.get("event_time")
             location = request.POST.get("location")
             image = request.FILES.get("image")
-            date = request.POST.get("date")
+
+            try:
+                event_date = datetime.strptime(date, "%Y-%m-%d").date()
+                today = datetime.now().date()
+                max_limit = today + timedelta(days=60)
+
+                if event_date <= today or event_date > max_limit:
+                    messages.error(request, f"Select a date between tomorrow and {max_limit}.")
+                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+            except (ValueError, TypeError):
+                messages.error(request, "Please enter a valid date.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+            if image:
+                if image.size > 2 * 1024 * 1024:
+                    messages.error(request, "Image size should not exceed 2MB.")
+                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+            
+                if image and not image.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                    messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
+                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+            
+                check_fields = [title, description, event_type, location]
+                if not all(x.replace(" ", "").isalpha() for x in check_fields):
+                    messages.error(request, "Please use only alphabets and spaces for text fields.")
+                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
             Event.objects.create(title=title, 
                                 description=description, 
                                 event_type=event_type, 
@@ -83,6 +107,20 @@ def create_achievements(request):
             title = request.POST.get('title')
             description = request.POST.get('description')
             certificate = request.FILES.get('certificate')
+
+            if not all(x.replace(" ", "").isalpha() for x in [title, description]):
+                messages.error(request, "Title and Description should only contain letters.")
+                return render(request, "user/create_achievement.html", {"data": request.POST})
+            
+            if certificate:
+                if certificate.size > 5 * 1024 * 1024:
+                    messages.error(request, "Certificate file size should not exceed 5MB.")
+                    return render(request, "user/create_achievement.html", {"data": request.POST})
+                
+                valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
+                if not certificate.name.lower().endswith(valid_extensions):
+                    messages.error(request, "Invalid format: Only PDF, JPG, JPEG, PNG, DOC, and DOCX are allowed.")
+                    return render(request, "user/create_achievement.html", {"data": request.POST})
             Achievement.objects.create(
                 achieved_by = user,
                 title = title,
@@ -105,9 +143,9 @@ def create_donation(request):
         payment_method = request.POST.get('payment_method')
         description = request.POST.get('description')
 
-        if not amount or not payment_method:
-            messages.error(request, "❌ Amount and Payment Method are required.")
-            return redirect('user:create_donation')
+        if int(amount) < 0 or int(amount) < 1000:
+            messages.error(request, "Amount must be a positive number and greater than 1000.")
+            return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         Donation.objects.create(
             donated_by=user,
@@ -264,7 +302,33 @@ def internship_create(request):
         duration = request.POST.get("duration")
         last_date = request.POST.get("last_date")
         required_skills = request.POST.get("required_skills")
-        status = request.POST.get("status", "Open")
+
+        try:
+            last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
+            if last_date <= datetime.now().date():
+                messages.error(request, "The application deadline must be a future date.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+            if last_date > datetime.now().date() + timedelta(days=60):
+                messages.error(request, "The application deadline must be within 2 months from today.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid date format. Please use the date picker.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+        
+        text_check = {"Title": title, "Company": company_name, "Location": location}
+        for field, value in text_check.items():
+            if not value.replace(" ", "").isalpha():
+                messages.error(request, f"{field} should only contain letters and spaces.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+            
+        if stipend:
+            try:
+                if float(stipend) < 0:
+                    messages.error(request, "Stipend cannot be negative.")
+                    return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+            except ValueError:
+                messages.error(request, "Stipend must be a valid number.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
 
         Internship.objects.create(
             posted_by=user,
@@ -276,7 +340,6 @@ def internship_create(request):
             duration=duration or None,
             last_date=last_date,
             required_skills=required_skills,
-            status=status,
         )
         messages.success(request, "Internship posted successfully!")
         return redirect("user:internship_list")
@@ -328,10 +391,10 @@ def filter_internship(request):
     })
     
 def student_register(request):
+    departments = Department.objects.all()
     if request.method == "POST":
         file = request.FILES.get("file")
-        admission_year = request.POST.get("adm_year")
-        graduation_year = request.POST.get("grad_year")
+        course_duration = int(request.POST.get("duration"))
         department = request.POST.get("department")
 
         try:
@@ -343,8 +406,8 @@ def student_register(request):
             messages.error(request, "Error reading file: " + str(e))
             return redirect("user:student_register")
 
-        if admission_year >= graduation_year:
-            messages.error(request, "Admission year must be less than graduation year.")
+        if course_duration >= 5:
+            messages.error(request, "Course duration must be less than 5 years.")
             return redirect("user:student_register")
         
         required_columns = ['register id', "name", "email", "phone", "gender"]
@@ -375,8 +438,6 @@ def student_register(request):
                 print(f"Invalid gender: {gender}")
                 continue
 
-            
-            
             password = random.randint(1000000000,9999999999)
             print(f"Generated password for {register_id}: {password}")
             user = User.objects.create(
@@ -398,8 +459,8 @@ def student_register(request):
             student = Student.objects.create(
                 user = user,
                 department = department,
-                admission_year = admission_year,
-                graduation_year = graduation_year,
+                admission_year = datetime.now().year - course_duration,
+                graduation_year = datetime.now().year,
                 phone = phone,
                 gender = gender.lower().strip()
             )
@@ -408,7 +469,7 @@ def student_register(request):
             student.save()
         messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
         return redirect("user:admin_home")
-    return render(request, "user/student_registration.html")
+    return render(request, "user/student_registration.html", {"departments": departments})
 
 def send_email(title, message, recipient_list):
     try:
@@ -629,3 +690,111 @@ def search_career_track(request):
                     )
     return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
 
+def download_career_track(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    query = ""
+    if 'query' in request.session:
+        query = request.session['query']
+    print(query)
+    alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
+    if query:
+        alumni = alumni.filter(user__username__icontains = query) | alumni.filter(
+            company_name__icontains = query
+            ) | alumni.filter(
+                job_title__icontains = query
+                ) | alumni.filter(
+                    user__student_profile__graduation_year__icontains = query
+                    ) | alumni.filter(
+                        pursuing_degree__icontains = query
+                        )
+    data = []
+    for a in alumni:
+        data.append({
+            'RegNo' : a.user.register_id,
+            'Name': a.user.username,
+            'Company': a.company_name or "-",
+            'Job Role': a.job_title or "-",
+            'Experience': a.experience_year or 0,
+            'Higher Studies': a.pursuing_degree or "-",
+            'University': a.university or "-",
+            'Referral': "Available" if a.available_for_referral else "Not Available"
+        })
+
+    df = pd.DataFrame(data)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="alumni_report.csv"'
+
+    df.to_csv(path_or_buf=response, index=False)
+
+    return response
+def alumni_directory_search(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.get(register_id=register_id)
+    query = request.GET.get('q', '').strip()
+
+    if query:
+        alumni_data = Alumni.objects.select_related('user', 'user__student_profile').filter(
+            user__username__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            user__student_profile__department__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            user__student_profile__admission_year__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            user__student_profile__graduation_year__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            pursuing_degree__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            university__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            company_name__icontains=query  
+        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+            job_title__icontains=query 
+        )
+        alumni_data = alumni_data.distinct()
+    else:
+        alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
+
+    context = {
+        "user": user, 
+        "alumni_data": alumni_data,
+        "query": query  
+    }
+    return render(request, "user/alumni_directory.html", context)
+
+def student_directory_search(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.get(register_id=register_id)
+    query = request.GET.get('q', '').strip()
+
+    if query:
+        students = Student.objects.select_related('user').filter(
+            user__username__icontains=query  
+        ) | Student.objects.select_related('user').filter(
+            user__register_id__icontains=query  
+        ) | Student.objects.select_related('user').filter(
+            department__icontains=query  
+        ) | Student.objects.select_related('user').filter(
+            admission_year__icontains=query  
+        ) | Student.objects.select_related('user').filter(
+            graduation_year__icontains=query  
+        )
+        
+        students = students.distinct()
+    else:
+        students = Student.objects.select_related('user').all()
+
+    context = {
+        "user": user,
+        "students": students,
+        "query": query
+    }
+    return render(request, "user/student_directory.html", context)

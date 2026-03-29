@@ -25,18 +25,14 @@
         <div class="form-group">
             <label for="file">Upload Excel Or CSV File:</label>
             <input type="file" name="file" id="file" class="form-control" required>
-            <label for="adm_year">Admission Year:</label>
-            <input type="number" name="adm_year" id="adm_year" class="form-control" required>
-            <label for="grad_year">Graduation Year:</label>
-            <input type="number" name="grad_year" id="grad_year" class="form-control" required>
+            <label for="duration">Course Duration (in years):</label>
+                <input type="number" name="duration" id="duration" class="form-control" required>
             <label for="department">Department:</label>
             <select name="department" id="department" class="form-control" required>
                 <option value="">Select Department</option>
-                <option value="Bachelor of Computer Application">Bachelor of Computer Application</option>
-                <option value="Bachelor of Science">Bachelor of Science</option>
-                <option value="Bachelor of Arts">Bachelor of Arts</option>
-                <option value="Bachelor of Commerce">Bachelor of Commerce</option>
-                <option value="Bachelor of Business Administrator">Bachelor of Business Administrator</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.name }}">{{ dept.name }}</option>
+                {% endfor %}
             </select>
         </div>
         <button type="submit" class="btn btn-primary">Register Students</button>
