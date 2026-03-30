@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from django.conf import settings
+from django.forms import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render,redirect
 import user
@@ -14,6 +15,7 @@ import random
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 import openpyxl
+from django.core.validators import URLValidator
 
 
 def home(request):
@@ -89,6 +91,56 @@ def create_event(request):
             messages.success(request, "Event created successfully!")
             return redirect("user:vi_event")
         return render(request, "user/create_event.html", {"user": user})
+    
+def delete_event(request, event_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = get_object_or_404(User, register_id=register_id)
+    event = get_object_or_404(Event, id=event_id)
+
+    if event.organized_by == user or user.role == "Admin":
+        event.delete()
+        messages.success(request, "Event deleted successfully.")
+    else:
+        messages.error(request, "You do not have permission to delete this event.")
+    
+    return redirect("user:vi_event")
+
+def edit_event(request, event_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.get(register_id=register_id)
+    event = get_object_or_404(Event, id=event_id)
+
+    # Security: Only owner or Admin can edit
+    if event.organized_by != user and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect("user:vi_event")
+
+    if request.method == "POST":
+        # Get data from form
+        event.title = request.POST.get("title")
+        event.description = request.POST.get("description")
+        event.event_type = request.POST.get("event_type")
+        event.location = request.POST.get("location")
+        event.date = request.POST.get("date")
+        event.event_time = request.POST.get("event_time")
+        
+        # Check if a new image was uploaded
+        new_image = request.FILES.get("image")
+        if new_image:
+            event.image = new_image
+        
+        event.save()
+        messages.success(request, "Event updated successfully!")
+        return redirect("user:vi_event")
+
+    # For GET request, we send the event object as 'data' to fill the form
+    return render(request, "user/create_event.html", {"user": user, "data": event})
 
 def view_achievements(request):
     register_id = request.session.get("register_id")
@@ -133,6 +185,58 @@ def create_achievements(request):
             return redirect('user:achievements_view')
     return render(request, "user/create_achievement.html")
 
+def edit_achievement(request, achievement_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    achievement = get_object_or_404(Achievement, id=achievement_id)
+
+    # Permission Check: Only the person who achieved it or Admin can edit
+    if achievement.achieved_by != user and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this achievement.")
+        return redirect("user:achievements_view")
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        certificate = request.FILES.get('certificate')
+
+        # Validation logic (same as create)
+        if not all(x.replace(" ", "").isalpha() for x in [title, description]):
+            messages.error(request, "Title and Description should only contain letters.")
+            return render(request, "user/create_achievement.html", {"data": achievement})
+
+        achievement.title = title
+        achievement.description = description
+        
+        if certificate:
+            achievement.certificate = certificate
+        
+        achievement.save()
+        messages.success(request, "Achievement updated successfully!")
+        return redirect('user:achievements_view')
+
+    # Pass existing achievement as 'data' to pre-fill the form
+    return render(request, "user/create_achievement.html", {"data": achievement})
+
+def delete_achievement(request, achievement_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    achievement = get_object_or_404(Achievement, id=achievement_id)
+
+    if achievement.achieved_by == user or user.role == "Admin":
+        achievement.delete()
+        messages.success(request, "Achievement deleted successfully.")
+    else:
+        messages.error(request, "Unauthorized action.")
+        
+    return redirect("user:achievements_view")
+
 def create_donation(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -168,6 +272,53 @@ def donation_list(request):
         donations = Donation.objects.all().order_by('-donated_at')
         return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
 
+def edit_donation(request, donation_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    donation = get_object_or_404(Donation, id=donation_id)
+
+    # Permission Check: Only owner or Admin
+    if donation.donated_by != user and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this donation.")
+        return redirect("user:donation_list")
+
+    if request.method == "POST":
+        amount = request.POST.get("amount")
+        
+        # Validation
+        if int(amount) < 1000:
+            messages.error(request, "Amount must be at least 1000.")
+            return render(request, 'user/add_donation.html', {"user": user, "data": donation})
+
+        donation.amount = amount
+        donation.payment_method = request.POST.get("payment_method")
+        donation.description = request.POST.get("description")
+        donation.save()
+        
+        messages.success(request, "Donation updated successfully!")
+        return redirect("user:donation_list")
+
+    # Send the existing donation as 'data' to pre-fill the form
+    return render(request, "user/add_donation.html", {"user": user, "data": donation})
+
+def delete_donation(request, donation_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    donation = get_object_or_404(Donation, id=donation_id)
+
+    if donation.donated_by == user or user.role == "Admin":
+        donation.delete()
+        messages.success(request, "Donation record deleted.")
+    else:
+        messages.error(request, "Unauthorized action.")
+        
+    return redirect("user:donation_list")
 
 def view_job(request):
     register_id = request.session.get("register_id")
@@ -200,6 +351,7 @@ def add_job(request):
         salary = request.POST.get('salary', '').strip()
         last_date = request.POST.get('last_date', '').strip()
         required_skills = request.POST.get('required_skills', '').strip()
+        apply_link = request.POST.get('apply_link', '').strip()
 
         
         if not all([title, company_name, description, location, last_date, required_skills]):
@@ -230,6 +382,13 @@ def add_job(request):
         if len(description.split()) < 5:
             messages.error(request, "Description must be at least 5 words.")
             return redirect('user:add_job')
+        
+        validate = URLValidator()
+        try:
+            validate(apply_link)
+        except ValidationError:
+            messages.error(request, "Please enter a valid URL for the Apply Link (e.g., https://...)")
+            return render(request, "user/add_job.html", {"data": request.POST})
 
         Job.objects.create(
             posted_by=user,
@@ -239,7 +398,8 @@ def add_job(request):
             location=location,
             salary=salary,
             last_date=last_date,
-            required_skills=required_skills
+            required_skills=required_skills,
+            application_link=apply_link
         )
         messages.success(request, "Job posted successfully!")
         return redirect('user:view_job')
@@ -270,6 +430,74 @@ def filter_job(request):
 
     user = User.objects.filter(register_id=register_id).first()
     return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
+
+def edit_job(request, job_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    job = get_object_or_404(Job, id=job_id)
+
+    # Permission Check
+    if job.posted_by != user and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this job.")
+        return redirect("user:view_job")
+
+    if request.method == 'POST':
+        # Get data
+        title = request.POST.get('title', '').strip()
+        company_name = request.POST.get('c_name', '').strip()
+        location = request.POST.get('location', '').strip()
+        salary = request.POST.get('salary', '').strip()
+        last_date = request.POST.get('last_date', '').strip()
+        apply_link = request.POST.get('apply_link', '').strip()
+        
+        # Basic Validation (Alphabet check)
+        if not (company_name.replace(" ","").isalpha() and location.replace(" ","").isalpha()):
+            messages.error(request, "Company name and Location should only contain alphabets.")
+            return render(request, "user/add_job.html", {"data": job})
+
+        validate = URLValidator()
+        try:
+            if not apply_link: raise ValidationError("Required")
+            validate(apply_link)
+        except ValidationError:
+            messages.error(request, "A valid Apply Link is compulsory.")
+            return render(request, "user/add_job.html", {"data": job})
+
+        # Update fields
+        job.title = title
+        job.company_name = company_name
+        job.description = request.POST.get('description', '').strip()
+        job.location = location
+        job.salary = salary
+        job.last_date = last_date
+        job.required_skills = request.POST.get('required_skills', '').strip(),
+        job.application_link = apply_link
+
+        
+        job.save()
+        messages.success(request, "Job updated successfully!")
+        return redirect('user:view_job')
+
+    return render(request, "user/add_job.html", {"data": job})
+
+def delete_job(request, job_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
+    job = get_object_or_404(Job, id=job_id)
+
+    if job.posted_by == user or user.role == "Admin":
+        job.delete()
+        messages.success(request, "Job listing deleted.")
+    else:
+        messages.error(request, "Unauthorized action.")
+        
+    return redirect("user:view_job")
 
 def logout(request):
     request.session.flush()
@@ -347,6 +575,60 @@ def internship_create(request):
         return redirect("user:internship_list")
 
     return render(request, "user/create_internship.html", {'user': user})
+
+def internship_edit(request, internship_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.get(register_id=register_id)
+    internship = get_object_or_404(Internship, id=internship_id)
+
+    # Permission Check
+    if internship.posted_by != user and user.role != "Admin":
+        messages.error(request, "You are not authorized to edit this internship.")
+        return redirect("user:internship_list")
+
+    if request.method == "POST":
+        # Get data from POST
+        internship.title = request.POST.get("title")
+        internship.company_name = request.POST.get("company_name")
+        internship.description = request.POST.get("description")
+        internship.location = request.POST.get("location")
+        internship.stipend = request.POST.get("stipend")
+        internship.duration = request.POST.get("duration")
+        internship.last_date = request.POST.get("last_date")
+        internship.required_skills = request.POST.get("required_skills")
+
+        # Basic Validation (Alphabet check for key fields)
+        text_check = {"Title": internship.title, "Company": internship.company_name, "Location": internship.location}
+        for field, value in text_check.items():
+            if not value.replace(" ", "").isalpha():
+                messages.error(request, f"{field} should only contain letters.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+        internship.save()
+        messages.success(request, "Internship updated successfully!")
+        return redirect("user:internship_list")
+
+    return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+def internship_delete(request, internship_id):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.get(register_id=register_id)
+    internship = get_object_or_404(Internship, id=internship_id)
+
+    # Permission Check
+    if internship.posted_by == user or user.role == "Admin":
+        internship.delete()
+        messages.success(request, "Internship deleted successfully.")
+    else:
+        messages.error(request, "You are not authorized to delete this.")
+        
+    return redirect("user:internship_list")
 
 def filter_internship(request):
     register_id = request.session.get("register_id")

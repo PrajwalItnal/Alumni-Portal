@@ -1,237 +1,291 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Events | Smart Alumni Portal{% endblock %}
+{% block title %}All Events{% endblock %}
 
 {% block content %}
 
 <style>
+  body {
+    background-color: #f3f4f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+  }
 
-body {
-    background: #f4f6f9;
-    font-family: 'Segoe UI', sans-serif;
-}
+  .container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
 
-.navbar {
+  .header-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #2c3e50;
-    padding: 15px 30px;
-    color: #fff;
-}
-
-.navbar h1 {
-    font-size: 22px;
-}
-
-.nav-left {
-    font-size: 14px;
-}
-
-.nav-right {
-    list-style: none;
-    display: flex;
-    gap: 20px;
-}
-
-.nav-right a {
-    color: #fff;
-    text-decoration: none;
-}
-
-.nav-right a:hover {
-    text-decoration: underline;
-}
-
-.main {
-    padding: 30px;
-}
-
-.actions {
     margin-bottom: 30px;
-}
-
-
-.action-btn {
-    background: #3498db;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.action-btn:hover {
-    background: #2980b9;
-}
-
-.event-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 25px;
-}
-
-.event-card {
     background: #fff;
-    border-radius: 15px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .header-section h1 {
+    font-size: 1.6rem;
+    color: #1f2937;
+    margin: 0;
+  }
+
+  .btn-create {
+    background: #3b82f6;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .btn-create:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+  }
+
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+  }
+
+  .event-card {
+    background: #fff;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    transition: 0.3s;
-}
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
+    border: 1px solid #f1f5f9;
+  }
 
-.event-card:hover {
+  .event-card:hover {
     transform: translateY(-8px);
-}
+  }
 
-.event-image-wrapper {
+  .image-container {
+    position: relative;
     width: 100%;
     height: 200px;
-    overflow: hidden;
-}
+    background: #f8fafc;
+  }
 
-.event-image-wrapper img {
+  .event-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-}
+  }
 
-.no-image {
-    width: 100%;
-    height: 100%;
-    background: #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.event-body {
-    padding: 18px;
-}
-
-.event-body h2 {
-    margin: 10px 0;
-    font-size: 20px;
-}
-
-.badge {
-    background: #6c5ce7;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-}
-
-.event-details {
-    margin-top: 10px;
+  .no-image-placeholder {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    color: #555;
-    font-size: 14px;
-}
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94a3b8;
+    background: #f1f5f9;
+  }
 
-.organizer {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #777;
-}
+  .event-content {
+    padding: 24px;
+    flex-grow: 1;
+  }
 
-.alert {
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-}
+  .badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    background: #dbeafe;
+    color: #1e40af;
+  }
 
-@media (max-width: 600px) {
-    .navbar {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-    }
-}
+  .event-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 12px 0;
+    line-height: 1.3;
+  }
 
+  .event-desc {
+    font-size: 0.9rem;
+    color: #4b5563;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+
+  .event-footer {
+    padding: 16px 24px;
+    background: #f9fafb;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .organizer-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .organizer-label {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+  }
+
+  .organizer-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  /* Modify/Edit Button */
+  .btn-modify {
+    padding: 8px 16px;
+    background-color: #eff6ff;
+    color: #2563eb;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-modify:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+  }
+
+  /* Delete Action */
+  .btn-delete {
+    padding: 8px 16px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-delete:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+  }
+
+  .messages { margin-bottom: 20px; }
+  .msg { padding: 14px; border-radius: 10px; margin-bottom: 10px; font-weight: 500; }
+  .success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+  .error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 </style>
 
-<div class="navbar">
-
-    {% if user.role == "Admin" or user.role == "Alumni" %}
-        <h1>Create & Manage Events</h1>
-    {% else %}
-        <h1>View Events</h1>
-    {% endif %}
-
-    <div class="nav-left">
-        Welcome, {{ user.username }}
+<div class="container">
+  
+  {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+        <div class="msg {{ message.tags }}">
+          {{ message }}
+        </div>
+      {% endfor %}
     </div>
+  {% endif %}
 
-    <ul class="nav-right">
-        <li><a href="{% url 'user:admin_home' %}">Home</a></li>
-        <li><a href="{% url 'user:logout' %}">Logout</a></li>
-    </ul>
-</div>
+  <div class="header-section">
+    <div>
+      <h1>Create & Manage Events</h1>
+      <p style="margin: 5px 0 0; color: #6b7280; font-size: 0.9rem;">Welcome, {{ user.name }}</p>
+    </div>
+    <a href="{% url 'user:event_create' %}" class="btn-create">+ Create Event</a>
+  </div>
 
-<div class="main">
-
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
-        </div>
-    {% endfor %}
-{% endif %}
-
-{% if user.role == "Admin" or user.role == "Alumni" %}
-<div class="actions">
-    <form action="{% url 'user:event_create' %}">
-        <div class="action-card">
-            <button type="submit" class="action-btn">Create Event</button>
-        </div>
-    </form>
-</div>
-{% endif %}
-
-<div class="event-list">
-
+  <div class="event-grid">
     {% for event in events %}
-    <div class="event-card">
-
-        <div class="event-image-wrapper">
-            {% if event.image %}
-                <img src="{{ event.image.url }}" alt="{{ event.title }}">
-            {% else %}
-                <div class="no-image">No Image</div>
-            {% endif %}
+      <div class="event-card">
+        <div class="image-container">
+          {% if event.image %}
+            <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-image">
+          {% else %}
+            <div class="no-image-placeholder">
+              <span style="font-size: 2.5rem; opacity: 0.5;">🖼️</span>
+              <span style="font-size: 0.8rem; font-weight: 600; margin-top: 8px;">No Image Available</span>
+            </div>
+          {% endif %}
         </div>
 
-        <div class="event-body">
-
-            <span class="badge">{{ event.event_type }}</span>
-
-            <h2>{{ event.title }}</h2>
-
-            <p>{{ event.description|truncatewords:15 }}</p>
-
-            <div class="event-details">
-                <span>📅 {{ event.date|date:"M d, Y" }}</span>
-                <span>⏰ {{ event.event_time|time:"g:i A" }}</span>
-                <span>📍 {{ event.location }}</span>
-            </div>
-
-            <div class="organizer">
-                👤 Organized by {{ event.organized_by.username }}
-            </div>
-
+        <div class="event-content">
+          <span class="badge">{{ event.event_type }}</span>
+          <h2 class="event-title">{{ event.title }}</h2>
+          <p class="event-desc">{{ event.description }}</p>
+          
+          <div class="info-row"><span>📅</span> {{ event.date }}</div>
+          <div class="info-row"><span>⏰</span> {{ event.event_time }}</div>
+          <div class="info-row"><span>📍</span> {{ event.location }}</div>
         </div>
 
-    </div>
+        <div class="event-footer">
+          <div class="organizer-info">
+            <span class="organizer-label">Organized By</span>
+            <span class="organizer-name">{{ event.organized_by.username }}</span>
+          </div>
+          
+          <div class="action-buttons">
+            {% with owner_id=event.organized_by.register_id|stringformat:"s" current_id=user.register_id|stringformat:"s" %}
+              {% if owner_id == current_id or user.role|lower == "admin" %}
+                
+                <a href="{% url 'user:edit_event' event.id %}" class="btn-modify">
+                   Modify
+                </a>
 
+                <a href="{% url 'user:delete_event' event.id %}" 
+                   class="btn-delete"
+                   onclick="return confirm('Are you sure you want to delete this event?');">
+                   Delete
+                </a>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
     {% empty %}
-        <p>No events available right now.</p>
+      <div style="grid-column: 1/-1; text-align: center; padding: 100px 20px; background: #fff; border-radius: 20px;">
+        <p style="color: #94a3b8; font-size: 1.1rem;">No upcoming events found.</p>
+        <a href="{% url 'user:event_create' %}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Create the first one →</a>
+      </div>
     {% endfor %}
-
-</div>
-
+  </div>
 </div>
 
 {% endblock %}

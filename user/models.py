@@ -101,7 +101,7 @@ class Job(models.Model):
     last_date = models.DateField()
     required_skills = models.TextField(default=True)
     posted_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default="Open")
+    application_link = models.URLField(blank=True, null=True)
     
     class Meta:
         db_table = "Jobs"
@@ -163,7 +163,7 @@ class Internship(models.Model):
     required_skills = models.TextField(default=True)
     posted_at = models.DateTimeField(auto_now_add=True)
     duration = models.CharField(max_length=100, blank=True, null=True)
-
+    application_link = models.URLField(blank=True, null=True)
 
     class Meta:
         db_table = "Internships"

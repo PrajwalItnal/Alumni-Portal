@@ -1,6 +1,6 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Create Event{% endblock %}
+{% block title %}{% if data.id %}Edit{% else %}Create{% endif %} Event{% endblock %}
 
 {% block content %}
 
@@ -61,6 +61,7 @@
     border-radius: 8px;
     font-size: 0.82rem;
     cursor: pointer;
+    text-decoration: none;
   }
 
   .btn-back:hover {
@@ -81,14 +82,12 @@
     margin-bottom: 16px;
   }
 
-  /* Two equal columns for all fields */
   .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px 20px;
   }
 
-  /* Title and Description span full width */
   .full {
     grid-column: 1 / -1;
   }
@@ -163,6 +162,21 @@
   .btn-submit:hover {
     background: #2563eb;
   }
+
+  .message {
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+  }
+  .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+  .success { background-color: #d1fae5; color: #065f46; border: 1px solid #bbf7d0; }
+  
+  .current-img-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 4px;
+  }
 </style>
 
 <div class="wrapper">
@@ -175,61 +189,65 @@
         {% endfor %}
     {% endif %}
 
-    <!-- Logo Row -->
     <div class="card-logo">
       <div class="icon">🎓</div>
       <span>Alumni Portal</span>
-      <button class="btn-back" onclick="window.history.back()">← Back</button>
+      <a href="{% url 'user:vi_event' %}" class="btn-back">← Back</a>
     </div>
 
-    <!-- Heading -->
-    <h1>Create Event</h1>
-    <p class="subtitle">Fill in the details to publish a new alumni event</p>
+    <h1>{% if data.id %}Edit{% else %}Create{% endif %} Event</h1>
+    <p class="subtitle">
+        {% if data.id %}Modify the details below to update your event{% else %}Fill in the details to publish a new alumni event{% endif %}
+    </p>
 
-    <!-- Form -->
-    <form method="post" enctype="multipart/form-data" action="{% url 'user:event_create' %}">
+    <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
       <div class="form-grid">
 
         <div class="field full">
           <label for="id_title">Title</label>
-          <input type="text" name="title" id="id_title" placeholder="Event title" required>
+          <input type="text" name="title" id="id_title" value="{{ data.title }}" placeholder="Event title" required>
         </div>
 
         <div class="field full">
           <label for="id_description">Description</label>
-          <textarea name="description" id="id_description" placeholder="What is this event about?" required></textarea>
+          <textarea name="description" id="id_description" placeholder="What is this event about?" required>{{ data.description }}</textarea>
         </div>
 
         <div class="field">
           <label for="id_event_type">Event Type</label>
-          <input type="text" name="event_type" id="id_event_type" placeholder="e.g. Reunion">
+          <input type="text" name="event_type" id="id_event_type" value="{{ data.event_type }}" placeholder="e.g. Reunion">
         </div>
 
         <div class="field">
           <label for="id_location">Location</label>
-          <input type="text" name="location" id="id_location" placeholder="Venue or city" required>
+          <input type="text" name="location" id="id_location" value="{{ data.location }}" placeholder="Venue or city" required>
         </div>
 
         <div class="field">
           <label for="id_date">Date</label>
-          <input type="date" name="date" id="id_date" required>
+          <input type="date" name="date" id="id_date" value="{{ data.date|date:'Y-m-d' }}" required>
         </div>
 
         <div class="field">
           <label for="id_event_time">Time</label>
-          <input type="time" name="event_time" id="id_event_time" required>
+          <input type="time" name="event_time" id="id_event_time" value="{{ data.event_time|time:'H:i' }}" required>
         </div>
 
         <div class="field full">
           <label for="id_image">Cover Image</label>
           <input type="file" name="image" id="id_image" accept="image/*">
+          {% if data.image %}
+            <p class="current-img-info">Current: <a href="{{ data.image.url }}" target="_blank">View existing image</a></p>
+          {% endif %}
         </div>
 
       </div>
 
-      <button type="submit" class="btn-submit">Create Event</button>
+      <button type="submit" class="btn-submit">
+        {% if data.id %}Update Event{% else %}Create Event{% endif %}
+      </button>
     </form>
 
   </div>

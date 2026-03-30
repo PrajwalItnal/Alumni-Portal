@@ -1,40 +1,74 @@
 {% extends 'user/user_base.html' %}
 
-{% block title %}Add Job | Smart Alumni Portal{% endblock %}
+{% block title %}{% if data %}Edit{% else %}Add{% endif %} Job | Portal{% endblock %}
 
 {% block content %}
+<style>
+    .form-container { max-width: 600px; margin: 40px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
+    input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+    .btn-save { background: #28a745; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+</style>
 
-{% if messages %}
-    {% for message in messages %}
-        <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
-            background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
-            color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
-            {{ message }}
+<div class="form-container">
+    <h2>{% if data %}Modify{% else %}Add New{% endif %} Job Listing</h2>
+    <hr>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; background-color: #f8d7da; color: #721c24;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Job Title</label>
+            <input type="text" name="title" value="{{ data.title }}" required>
         </div>
-    {% endfor %}
-{% endif %}
 
-<h2>Add Job</h2>
-<button onclick="window.history.back()">Back</button>
+        <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" name="c_name" value="{{ data.company_name }}" required>
+        </div>
 
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" value="{{ data.location }}" required>
+        </div>
 
-<form action="{% url 'user:add_job' %}" method="post">
-    {% csrf_token %}
-    <label for="title">Title:</label>
-    <input type="text" id="title" name="title" required><br>
-    <label for="c_name">Company Name:</label>
-    <input type="text" id="c_name" name="c_name" required><br>
-    <label for="description">Description:</label>
-    <input type="text" id="description" name="description" required><br>
-    <label for="location">Location:</label>
-    <input type="text" id="location" name="location" required><br>
-    <label for="salary">Salary</label>
-    <input type="text" id="salary" name="salary" required><br>
-    <label for="last_date">Last Date:</label>
-    <input type="date" id="last_date" name="last_date" required><br>
-    <label for="required_skill">Required Skills</label>
-    <input type="text" id="required_skills" name="required_skills" required><br>
-    <button type="submit">Add Job</button>
-</form>
+        <div class="form-group">
+            <label>Salary (Annual/Monthly)</label>
+            <input type="text" name="salary" value="{{ data.salary }}" required>
+        </div>
 
+        <div class="form-group">
+            <label>Last Date to Apply</label>
+            <input type="date" name="last_date" value="{{ data.last_date|date:'Y-m-d' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Required Skills</label>
+            <input type="text" name="required_skills" value="{{ data.required_skills }}" placeholder="e.g. Python, SQL, Java" required>
+        </div>
+
+        <div class="form-group">
+            <label>Job Description</label>
+            <textarea name="description" rows="4" required>{{ data.description }}</textarea>
+        </div>
+        
+        <div class="form-group">
+    <label>Application Link (URL) <span style="color:red;">*</span></label>
+    <input type="url" name="apply_link" value="{{ data.application_link }}" 
+           placeholder="https://company.com/careers/apply" required>
+    <small style="color: #666;">Provide the direct link where candidates can apply.</small>
+</div>
+
+        <button type="submit" class="btn-save">{% if data %}Update Job Listing{% else %}Post Job{% endif %}</button>
+        <a href="{% url 'user:view_job' %}" style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">Cancel</a>
+    </form>
+</div>
 {% endblock %}
