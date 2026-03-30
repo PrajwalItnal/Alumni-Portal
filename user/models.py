@@ -48,6 +48,7 @@ class Student(models.Model):
     )
     github_url = models.URLField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
+    skills = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "student"

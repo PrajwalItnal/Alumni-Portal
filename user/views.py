@@ -899,6 +899,7 @@ def update_profile_std(request):
         student.permanent_address = request.POST.get("permanent_address")
         if request.POST.get("dob"):
             student.dob = request.POST.get("dob")
+        student.skills = request.POST.get("skills")
 
         if request.FILES.get("photo"):
             photo = request.FILES.get("photo").name.split(".")[-1].lower()
@@ -931,7 +932,7 @@ def profile_view(request):
     alumni = None
     if user.role == "Alumni":
         alumni = Alumni.objects.get(user=user)
-    return render(request, "user/profile_view.html", {"user": user, "student": student, "alumni": alumni})
+    return render(request, "user/profile_view.html", {"user": user, "student": student, "alumni": alumni, "skills_list": student.skills.split(",") if student.skills else []})
 
 def alumni_update(request):
     register_id = request.session.get("register_id")

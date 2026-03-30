@@ -4,10 +4,10 @@
 
 {% block content %}
 
-  {% if messages %}
+{% if messages %}
     <div class="messages-container" style="padding: 20px 20px 0 20px;">
         {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
+            <div class="alert alert-{{ message.tags }}"
                  style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
                         {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
                         {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
@@ -24,7 +24,10 @@
     {% csrf_token %}
 
     <label>Bio:</label><br>
-    <textarea name="bio" id="bio">{{ student.bio }}</textarea><br><br>
+    <textarea name="bio" id="bio" style="width:100%; height:80px;">{{ student.bio }}</textarea><br><br>
+
+    <label>Skills (Comma separated):</label><br>
+    <textarea name="skills" id="skills" placeholder="e.g. Python, Django, SQL, Machine Learning" style="width:100%; height:60px;">{{ student.skills }}</textarea><br><br>
 
     <label>Phone:</label><br>
     <input type="text" name="phone" value="{{ student.phone }}"><br><br>
@@ -37,35 +40,29 @@
     </select><br><br>
 
     <label>Date of Birth:</label><br>
-    <input type="date" name="dob" value="{{ student.dob }}"><br><br>
+    <input type="date" name="dob" value="{{ student.dob|date:'Y-m-d' }}"><br><br>
 
     <label>City:</label><br>
     <input type="text" name="city" value="{{ student.city }}"><br><br>
 
     <label>Permanent Address:</label><br>
-    <textarea name="permanent_address">{{ student.permanent_address }}</textarea><br><br>
+    <textarea name="permanent_address" style="width:100%;">{{ student.permanent_address }}</textarea><br><br>
 
     <label>Photo:</label><br>
     <input type="file" name="photo"><br>
-    {% if student.photo %}
-        <p>Current: {{ student.photo.url }}</p>
-    {% endif %}
-    <br>
+    {% if student.photo %}<p>Current: {{ student.photo.url }}</p>{% endif %}<br>
 
     <label>Resume:</label><br>
     <input type="file" name="resume"><br>
-    {% if student.resume %}
-        <p>Current: {{ student.resume.url }}</p>
-    {% endif %}
-    <br>
+    {% if student.resume %}<p>Current: {{ student.resume.url }}</p>{% endif %}<br>
 
     <label>GitHub URL:</label><br>
-    <input type="url" name="github_url" value="{{ student.github_url }}" ><br><br>
+    <input type="url" name="github_url" value="{{ student.github_url }}"><br><br>
 
     <label>LinkedIn URL:</label><br>
     <input type="url" name="linkedin_url" value="{{ student.linkedin_url }}"><br><br>
 
-    <button type="submit">Update Profile</button>
+    <button type="submit" style="padding: 10px 20px; background: #1e3a5f; color: white; border: none; border-radius: 5px; cursor: pointer;">Update Profile</button>
 </form>
 
 {% endblock %}
