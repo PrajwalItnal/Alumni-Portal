@@ -6,7 +6,82 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<div class="row mb-4">
+<style>
+    .student-directory-wrap {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .directory-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .directory-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        color: #111827;
+    }
+
+    .directory-header .btn-back {
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        color: #111827;
+        border-radius: 10px;
+        padding: 10px 18px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .directory-header .btn-back:hover {
+        background: #e5e7eb;
+    }
+
+    .student-card {
+        border-radius: 18px;
+        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .student-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    .student-card .card-body {
+        padding: 28px;
+    }
+
+    .student-card .text-muted {
+        color: #6b7280 !important;
+    }
+
+    .student-card hr {
+        border-color: #e5e7eb;
+    }
+
+    .student-empty {
+        padding: 60px 30px;
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .search-form .form-control {
+        min-width: 300px;
+        border-radius: 12px;
+    }
+</style>
+
+<div class="student-directory-wrap">
+<div class="row mb-4 search-form">
     <div class="col-md-8 mx-auto">
         <form method="GET" action="{% url 'user:student_directory_search' %}" class="d-flex gap-2">
             <input type="text" 
@@ -22,10 +97,13 @@
             {% endif %}
         </form>
     </div>
+</div>
 
 <div class="container mt-5">
-    <button onclick="window.history.back()">Back</button>
-    <h2 class="mb-4">📚 Student Directory</h2>
+    <div class="directory-header">
+        <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="btn-back">Home</a>
+        <h2>📚 Student Directory</h2>
+    </div>
 
 
     <div class="row">
@@ -78,6 +156,7 @@
         </div>
         {% endfor %}
     </div>
+</div>
 </div>
 
 {% endblock %}
