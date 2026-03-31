@@ -3,46 +3,72 @@
 {% block title %}Alumni Portal | Alumni Track{% endblock %}
 
 {% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <button class="btn btn-outline-secondary mb-3" onclick="window.history.back()">← Back</button>
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="card-body p-4">
+                    <h2 class="fw-bold mb-4 text-center">Update Alumni Profile</h2>
 
-<h2 style="text-align:center;">Update Alumni Profile</h2>
+                    <form method="POST" action="{% url 'user:alumni_update' %}">
+                        {% csrf_token %}
 
-<form method="POST" action="{% url 'user:alumni_update' %}" style="max-width:600px; margin:auto;">
-    {% csrf_token %}
+                        <!-- Employment Status -->
+                        <div class="mb-3">
+                            <label for="emp_sts" class="form-label fw-bold">Employment Status</label>
+                            <select name="employment_status" id="emp_sts" class="form-select" required>
+                                <option value="">Select Status</option>
+                                <option value="WORKING" {% if alumni.employment_status == "WORKING" %}selected{% endif %}>Working 💼</option>
+                                <option value="STUDYING" {% if alumni.employment_status == "STUDYING" %}selected{% endif %}>Higher Studies 🎓</option>
+                                <option value="SEARCHING" {% if alumni.employment_status == "SEARCHING" %}selected{% endif %}>Looking for Job 🔍</option>
+                                <option value="BUSINESS" {% if alumni.employment_status == "BUSINESS" %}selected{% endif %}>Entrepreneur 🚀</option>
+                                <option value="NOT_WORKING" {% if alumni.employment_status == "NOT_WORKING" %}selected{% endif %}>Not Working ❌</option>
+                            </select>
+                        </div>
 
-    <!-- Employment Status -->
-    <label for="emp_sts">Employment Status</label><br>
-    <select name="employment_status" id="emp_sts" required>
-        <option value="">Select</option>
-        <option value="WORKING" {% if alumni.employment_status == "WORKING" %}selected{% endif %}>Working 💼</option>
-        <option value="STUDYING" {% if alumni.employment_status == "STUDYING" %}selected{% endif %}>Higher Studies 🎓</option>
-        <option value="SEARCHING" {% if alumni.employment_status == "SEARCHING" %}selected{% endif %}>Looking for Job 🔍</option>
-        <option value="BUSINESS" {% if alumni.employment_status == "BUSINESS" %}selected{% endif %}>Entrepreneur 🚀</option>
-        <option value="NOT_WORKING" {% if alumni.employment_status == "NOT_WORKING" %}selected{% endif %}>Not Working ❌</option>
-    </select><br><br>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="company" class="form-label fw-bold">Company Name</label>
+                                <input type="text" name="company_name" id="company" class="form-control" value="{{ alumni.company_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="job_title" class="form-label fw-bold">Job Title</label>
+                                <input type="text" name="job_title" id="job_title" class="form-control" value="{{ alumni.job_title }}">
+                            </div>
+                        </div>
 
-    <label for="company">Company Name</label><br>
-    <input type="text" name="company_name" id="company" value="{{ alumni.company_name }}"><br><br>
+                        <div class="mb-3">
+                            <label for="experience_year" class="form-label fw-bold">Experience (Years)</label>
+                            <input type="number" name="experience_year" id="experience_year" class="form-control" value="{{ alumni.experience_year }}">
+                        </div>
 
-    <label for="job_title">Job Title</label><br>
-    <input type="text" name="job_title" id="job_title" value="{{ alumni.job_title }}"><br><br>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="degree" class="form-label fw-bold">Pursuing Degree</label>
+                                <input type="text" name="pursuing_degree" id="degree" class="form-control" value="{{ alumni.pursuing_degree }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="university" class="form-label fw-bold">University</label>
+                                <input type="text" name="university" id="university" class="form-control" value="{{ alumni.university }}">
+                            </div>
+                        </div>
 
-    <label for="experience_year">Experience (Years)</label><br>
-    <input type="number" name="experience_year" id="experience_year" value="{{ alumni.experience_year }}"><br><br>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" name="available_for_referral" id="referralCheckbox" {% if alumni.available_for_referral %}checked{% endif %}>
+                            <label class="form-check-label fw-bold" for="referralCheckbox">
+                                Available for Referral
+                            </label>
+                        </div>
 
-    <label for="degree">Pursuing Degree</label><br>
-    <input type="text" name="pursuing_degree" id="degree" value="{{ alumni.pursuing_degree }}"><br><br>
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
+                        </div>
 
-    <label for="university">University</label><br>
-    <input type="text" name="university" id="university" value="{{ alumni.university }}"><br><br>
-
-    <label>
-        <input type="checkbox" name="available_for_referral"
-        {% if alumni.available_for_referral %}checked{% endif %}>
-        Available for Referral
-    </label><br><br>
-
-    <button type="submit" style="padding:10px 20px;">Update Profile</button>
-
-</form>
-
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

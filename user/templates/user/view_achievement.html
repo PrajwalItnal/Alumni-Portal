@@ -4,11 +4,14 @@
 {% block content %}
 <style>
   .ach-wrap{max-width:1100px;margin:0 auto;padding:32px 24px 64px;font-family:'Segoe UI',sans-serif}
-  .ach-back{background:#fff;border:1px solid #ddd;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;margin-bottom:24px}
   .ach-msg{padding:13px 18px;border-radius:8px;margin-bottom:12px;font-size:.9rem;font-weight:500}
   .ach-msg.error{border-left:4px solid #c45c3a;background:#fdf1ef;color:#8b2a17}
   .ach-msg.success{border-left:4px solid #4a7c59;background:#edf7f0;color:#2d5c3c}
-  .ach-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;padding-bottom:24px;margin-bottom:32px;border-bottom:2px solid #ede9e0}
+  .ach-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;padding-bottom:24px;margin-bottom:32px;border-bottom:2px solid #ede9e0}
+  .ach-header-left{display:flex;flex-direction:column;gap:14px;}
+  .ach-header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .ach-home{background:#fff;border:1px solid #ddd;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;text-decoration:none;color:#111;}
+  .ach-home:hover{background:#f3f4f6;}
   .ach-header h2{font-size:1.9rem;font-weight:700;color:#0f1117;margin:0}
   .ach-btn{background:#0f1117;color:#fff;text-decoration:none;padding:11px 22px;border-radius:8px;font-size:.88rem;font-weight:600}
   .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
@@ -26,8 +29,6 @@
 </style>
 
 <div class="ach-wrap">
-  <button onclick="window.history.back()" class="ach-back">← Back</button>
-
   {% if messages %}
     {% for message in messages %}
       <div class="ach-msg {% if message.tags == 'error' %}error{% else %}success{% endif %}">{{ message }}</div>
@@ -35,8 +36,11 @@
   {% endif %}
 
   <div class="ach-header">
-    <div>
-      <h2>🏆 Achievements</h2>
+    <div class="ach-header-left">
+      <div class="ach-header-top">
+        <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="ach-home">Home</a>
+        <h2>🏆 Achievements</h2>
+      </div>
       <p>Celebrating the success of our alumni community</p>
     </div>
     {% if user.role == "Admin" or user.role == "Alumni" %}

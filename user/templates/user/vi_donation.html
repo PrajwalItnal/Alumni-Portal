@@ -9,6 +9,8 @@
     .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
     .header-row h1 { font-size: 1.8rem; color: #111827; margin: 0; }
     
+    .btn-home { background: #f3f4f6; color: #1f2937; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #d1d5db; transition: 0.2s; margin-right: 12px; }
+    .btn-home:hover { background: #e5e7eb; }
     .btn-add { background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.2s; }
     .btn-add:hover { background: #059669; }
 
@@ -36,7 +38,10 @@
 <div class="wrapper">
     <div class="header-row">
         <h1>🤝 Donations & Contributions</h1>
-        <a href="{% url 'user:create_donation' %}" class="btn-add">+ Donate Now</a>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="btn-home">Home</a>
+            <a href="{% url 'user:create_donation' %}" class="btn-add">+ Donate Now</a>
+        </div>
     </div>
 
     {% if messages %}
