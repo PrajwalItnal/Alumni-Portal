@@ -326,7 +326,18 @@ def view_job(request):
         return redirect("login")
     else:
         user = User.objects.filter(register_id=register_id).first()
-        jobs = Job.objects.all().order_by('-posted_at')
+        jobs = list(Job.objects.all().order_by('-posted_at'))
+        
+        if user.role == "Student":
+            user_skills = [s.strip().lower() for s in user.student_profile.skills.split(",")] if user.student_profile.skills else []
+            for job in jobs:
+                job_skills = [j.strip().lower() for j in job.required_skills.split(",")] if job.required_skills else []
+
+                job.matched_skills = len(set(user_skills) & set(job_skills))
+
+            jobs.sort(key=lambda x: x.matched_skills, reverse=True)
+            return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
+
         return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
     
 def add_job(request):
