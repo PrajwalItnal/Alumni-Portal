@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render,redirect
 import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from .models import Alumni, Department, Donation
 from .models import Internship
 import pandas as pd
@@ -43,10 +43,14 @@ def vi_event(request):
     
 def create_event(request):
     register_id = request.session.get("register_id")
+    
     if not register_id:
         return redirect("login")
     else:
         user = User.objects.get(register_id=register_id)
+        if user.role != "Alumni" and user.role != "Admin":
+            messages.error(request, "You do not have permission to edit this event.")
+            return redirect("user:vi_event")
         if request.method == "POST":
             title = request.POST.get("title")
             description = request.POST.get("description")
@@ -76,8 +80,11 @@ def create_event(request):
                     messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
                     return render(request, "user/create_event.html", {"user": user, "data": request.POST})
             
-                check_fields = [title, description, event_type, location]
-                if not all(x.replace(" ", "").isalpha() for x in check_fields):
+            check_fields = [title, description, event_type, location]
+            for field in check_fields:
+                clean_text = field.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+            
+                if not clean_text.isalpha():
                     messages.error(request, "Please use only alphabets and spaces for text fields.")
                     return render(request, "user/create_event.html", {"user": user, "data": request.POST})
             Event.objects.create(title=title, 
@@ -116,30 +123,45 @@ def edit_event(request, event_id):
     user = User.objects.get(register_id=register_id)
     event = get_object_or_404(Event, id=event_id)
 
-    # Security: Only owner or Admin can edit
     if event.organized_by != user and user.role != "Admin":
         messages.error(request, "You do not have permission to edit this event.")
         return redirect("user:vi_event")
 
     if request.method == "POST":
-        # Get data from form
         event.title = request.POST.get("title")
         event.description = request.POST.get("description")
         event.event_type = request.POST.get("event_type")
         event.location = request.POST.get("location")
         event.date = request.POST.get("date")
         event.event_time = request.POST.get("event_time")
+
+        try:
+            event_date = datetime.strptime(event.date, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            max_limit = today + timedelta(days=60)
+            if event_date <= today or event_date > max_limit:
+                messages.error(request, f"Select a date between tomorrow and {max_limit}.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter a valid date.")
+            return render(request, "user/create_event.html", {"user": user, "data": request.POST})
         
-        # Check if a new image was uploaded
         new_image = request.FILES.get("image")
         if new_image:
             event.image = new_image
+
+        check_fields = [event.title, event.description, event.event_type, event.location]
+        for field in check_fields:
+            clean_text = field.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+        
+            if not clean_text.isalpha():
+                messages.error(request, "Please use only alphabets and spaces for text fields.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
         
         event.save()
         messages.success(request, "Event updated successfully!")
         return redirect("user:vi_event")
 
-    # For GET request, we send the event object as 'data' to fill the form
     return render(request, "user/create_event.html", {"user": user, "data": event})
 
 def view_achievements(request):
@@ -158,6 +180,9 @@ def create_achievements(request):
             return redirect("login")
         else:
             user = User.objects.filter(register_id = register_id).first()
+            if user.role != "Alumni" and user.role != "Admin":
+                messages.error(request, "You do not have permission to edit this event.")
+                return redirect("user:donation_list")
             title = request.POST.get('title')
             description = request.POST.get('description')
             certificate = request.FILES.get('certificate')
@@ -166,6 +191,14 @@ def create_achievements(request):
                 messages.error(request, "Title and Description should only contain letters.")
                 return render(request, "user/create_achievement.html", {"data": request.POST})
             
+            if not title or not description:
+                messages.error(request, "Title and Description cannot be empty.")
+                return render(request, "user/create_achievement.html", {"data": request.POST})
+            
+            if len(description.split()) < 5:
+                messages.error(request, "Description must be at least 5 words.")
+                return render(request, "user/create_achievement.html", {"data": request.POST})
+
             if certificate:
                 if certificate.size > 5 * 1024 * 1024:
                     messages.error(request, "Certificate file size should not exceed 5MB.")
@@ -183,6 +216,13 @@ def create_achievements(request):
             )
             messages.success(request, "Achievement add successfully")
             return redirect('user:achievements_view')
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.filter(register_id=register_id).first()
+    if user.role != "Alumni" and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect("user:donation_list")
     return render(request, "user/create_achievement.html")
 
 def edit_achievement(request, achievement_id):
@@ -193,33 +233,51 @@ def edit_achievement(request, achievement_id):
     user = User.objects.filter(register_id=register_id).first()
     achievement = get_object_or_404(Achievement, id=achievement_id)
 
-    # Permission Check: Only the person who achieved it or Admin can edit
     if achievement.achieved_by != user and user.role != "Admin":
         messages.error(request, "You do not have permission to edit this achievement.")
         return redirect("user:achievements_view")
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
+        title = request.POST.get('title', '').strip()
+        description = request.POST.get('description', '').strip()
         certificate = request.FILES.get('certificate')
 
-        # Validation logic (same as create)
-        if not all(x.replace(" ", "").isalpha() for x in [title, description]):
-            messages.error(request, "Title and Description should only contain letters.")
-            return render(request, "user/create_achievement.html", {"data": achievement})
+        clean_title = title.replace(" ", "")
+        clean_desc = description.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+
+        if not clean_title.isalpha() or not clean_desc.isalpha():
+            messages.error(request, "Title and Description should only contain letters and spaces.")
+            return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+
+        if certificate:
+            if certificate.size > 5 * 1024 * 1024:
+                messages.error(request, "Certificate file size should not exceed 5MB.")
+                return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+            
+            valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
+            if not certificate.name.lower().endswith(valid_extensions):
+                messages.error(request, "Invalid format: Only PDF, JPG, JPEG, PNG, DOC, and DOCX are allowed.")
+                return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+            
+            achievement.certificate = certificate
+
+        if not title or not description:
+                messages.error(request, "Title and Description cannot be empty.")
+                return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+            
+        if len(description.split()) < 5:
+            messages.error(request, "Description must be at least 5 words.")
+            return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+
 
         achievement.title = title
         achievement.description = description
-        
-        if certificate:
-            achievement.certificate = certificate
-        
         achievement.save()
+        
         messages.success(request, "Achievement updated successfully!")
         return redirect('user:achievements_view')
 
-    # Pass existing achievement as 'data' to pre-fill the form
-    return render(request, "user/create_achievement.html", {"data": achievement})
+    return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
 
 def delete_achievement(request, achievement_id):
     register_id = request.session.get("register_id")
@@ -243,6 +301,9 @@ def create_donation(request):
         return redirect("login")
 
     user = User.objects.filter(register_id=register_id).first()
+    if user.role != "Alumni" and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect("user:donation_list")
 
     if request.method == 'POST':
         amount = request.POST.get('amount')
@@ -251,6 +312,12 @@ def create_donation(request):
 
         if int(amount) < 0 or int(amount) < 1000:
             messages.error(request, "Amount must be a positive number and greater than 1000.")
+            return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
+        
+        clean_desc = description.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+        
+        if not clean_desc.isalpha():
+            messages.error(request, "Description should only contain alphabets and spaces.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         Donation.objects.create(
@@ -280,18 +347,28 @@ def edit_donation(request, donation_id):
     user = User.objects.filter(register_id=register_id).first()
     donation = get_object_or_404(Donation, id=donation_id)
 
-    # Permission Check: Only owner or Admin
     if donation.donated_by != user and user.role != "Admin":
         messages.error(request, "You do not have permission to edit this donation.")
         return redirect("user:donation_list")
 
     if request.method == "POST":
-        amount = request.POST.get("amount")
-        
-        # Validation
-        if int(amount) < 1000:
-            messages.error(request, "Amount must be at least 1000.")
+        amount_raw = request.POST.get("amount")
+
+        try:
+            amount = int(float(amount_raw))
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter a valid numeric amount.")
             return render(request, 'user/add_donation.html', {"user": user, "data": donation})
+        
+        if int(amount) < 1000 or int(amount) > 100000:
+            messages.error(request, "Amount must be at least 1000. and less then 100000")
+            return render(request, 'user/add_donation.html', {"user": user, "data": donation})
+
+        clean_desc = request.POST.get("description").replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+        
+        if not clean_desc.isalpha():
+            messages.error(request, "Description should only contain alphabets and spaces.")
+            return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         donation.amount = amount
         donation.payment_method = request.POST.get("payment_method")
@@ -301,7 +378,6 @@ def edit_donation(request, donation_id):
         messages.success(request, "Donation updated successfully!")
         return redirect("user:donation_list")
 
-    # Send the existing donation as 'data' to pre-fill the form
     return render(request, "user/add_donation.html", {"user": user, "data": donation})
 
 def delete_donation(request, donation_id):
@@ -341,65 +417,68 @@ def view_job(request):
         return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
     
 def add_job(request):
-    if request.method == 'POST':
-        register_id = request.session.get("register_id")
-        if not register_id:
-            return redirect("login")
-        
-        user = User.objects.filter(register_id=register_id).first()
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    
+    user = User.objects.filter(register_id=register_id).first()
 
+    if user.role != "Alumni" and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect("user:view_job")
+
+    if request.method == 'POST':
         title = request.POST.get('title', '').strip()
         company_name = request.POST.get('c_name', '').strip()
-        if not company_name.isalpha():
-            messages.error(request, "Please don't fill the except alphabets.")
-            return redirect('user:add_job')
-
         description = request.POST.get('description', '').strip()
         location = request.POST.get('location', '').strip()
-        if not location.isalpha():
-            messages.error(request, "Please don't fill the except alphabets.")
-            return redirect('user:add_job')
         salary = request.POST.get('salary', '').strip()
         last_date = request.POST.get('last_date', '').strip()
         required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
 
+        if not company_name.isalpha():
+            messages.error(request, "Please don't fill the except alphabets.")
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
+
+        if not location.isalpha():
+            messages.error(request, "Please don't fill the except alphabets.")
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         
         if not all([title, company_name, description, location, last_date, required_skills]):
             messages.error(request, "Please fill all required fields.")
-            return redirect('user:add_job')
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
-       
         if len(title) < 3:
             messages.error(request, "Job title must be at least 3 characters.")
-            return redirect('user:add_job')
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         try:
             last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
             if last_date_obj < datetime.today().date():
                 messages.error(request, "Last date cannot be in the past.")
-                return redirect('user:add_job')
+                return render(request, "user/add_job.html", {"user": user, "data": request.POST})
             if last_date_obj > datetime.today().date() + timedelta(days=60):
                 messages.error(request, "Last date must be within 2 months from today.")
-                return redirect('user:add_job')
+                return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         except ValueError:
             messages.error(request, "Invalid date format.")
-            return redirect('user:add_job')
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         if salary and (not salary.isdigit() or int(salary) <= 0):
             messages.error(request, "Salary must be a valid number greater than 0.")
-            return redirect('user:add_job')
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         if len(description.split()) < 5:
             messages.error(request, "Description must be at least 5 words.")
-            return redirect('user:add_job')
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         
         validate = URLValidator()
         try:
             validate(apply_link)
         except ValidationError:
             messages.error(request, "Please enter a valid URL for the Apply Link (e.g., https://...)")
-            return render(request, "user/add_job.html", {"data": request.POST})
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         Job.objects.create(
             posted_by=user,
@@ -415,7 +494,7 @@ def add_job(request):
         messages.success(request, "Job posted successfully!")
         return redirect('user:view_job')
 
-    return render(request, "user/add_job.html")
+    return render(request, "user/add_job.html", {"user": user})
 
 def filter_job(request):
     register_id = request.session.get("register_id")
@@ -450,43 +529,71 @@ def edit_job(request, job_id):
     user = User.objects.filter(register_id=register_id).first()
     job = get_object_or_404(Job, id=job_id)
 
-    # Permission Check
     if job.posted_by != user and user.role != "Admin":
         messages.error(request, "You do not have permission to edit this job.")
         return redirect("user:view_job")
 
     if request.method == 'POST':
-        # Get data
         title = request.POST.get('title', '').strip()
         company_name = request.POST.get('c_name', '').strip()
+        description = request.POST.get('description', '').strip()
         location = request.POST.get('location', '').strip()
         salary = request.POST.get('salary', '').strip()
         last_date = request.POST.get('last_date', '').strip()
+        required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
-        
-        # Basic Validation (Alphabet check)
-        if not (company_name.replace(" ","").isalpha() and location.replace(" ","").isalpha()):
+
+        error_context = {"user": user, "data": request.POST.dict()}
+
+        if not all([title, company_name, description, location, last_date, required_skills]):
+            messages.error(request, "Please fill all required fields.")
+            return render(request, "user/add_job.html", error_context)
+
+        if not (company_name.replace(" ", "").isalpha() and location.replace(" ", "").isalpha()):
             messages.error(request, "Company name and Location should only contain alphabets.")
-            return render(request, "user/add_job.html", {"data": job})
+            return render(request, "user/add_job.html", error_context)
+
+        if len(title) < 3:
+            messages.error(request, "Job title must be at least 3 characters.")
+            return render(request, "user/add_job.html", error_context)
+
+        try:
+            last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
+            if last_date_obj < datetime.today().date():
+                messages.error(request, "Last date cannot be in the past.")
+                return render(request, "user/add_job.html", error_context)
+            if last_date_obj > datetime.today().date() + timedelta(days=60):
+                messages.error(request, "Last date must be within 2 months from today.")
+                return render(request, "user/add_job.html", error_context)
+        except ValueError:
+            messages.error(request, "Invalid date format.")
+            return render(request, "user/add_job.html", error_context)
+
+        if salary and (not salary.isdigit() or int(salary) <= 0):
+            messages.error(request, "Salary must be a valid number greater than 0.")
+            return render(request, "user/add_job.html", error_context)
+
+        if len(description.split()) < 5:
+            messages.error(request, "Description must be at least 5 words.")
+            return render(request, "user/add_job.html", error_context)
 
         validate = URLValidator()
         try:
-            if not apply_link: raise ValidationError("Required")
+            if not apply_link: 
+                raise ValidationError("Required")
             validate(apply_link)
         except ValidationError:
-            messages.error(request, "A valid Apply Link is compulsory.")
-            return render(request, "user/add_job.html", {"data": job})
+            messages.error(request, "A valid Apply Link is compulsory (e.g., https://...).")
+            return render(request, "user/add_job.html", error_context)
 
-        # Update fields
         job.title = title
         job.company_name = company_name
-        job.description = request.POST.get('description', '').strip()
+        job.description = description
         job.location = location
         job.salary = salary
         job.last_date = last_date
-        job.required_skills = request.POST.get('required_skills', '').strip(),
+        job.required_skills = required_skills
         job.application_link = apply_link
-
         
         job.save()
         messages.success(request, "Job updated successfully!")
@@ -513,8 +620,6 @@ def delete_job(request, job_id):
 def logout(request):
     request.session.flush()
     return redirect('home')
-
-
 
 def internship_list(request):
     register_id = request.session.get("register_id")
@@ -570,6 +675,10 @@ def internship_create(request):
             except ValueError:
                 messages.error(request, "Stipend must be a valid number.")
                 return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+        
+        if len(description.split()) < 5:
+            messages.error(request, "Description must be at least 5 words.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
 
         Internship.objects.create(
             posted_by=user,
@@ -595,28 +704,60 @@ def internship_edit(request, internship_id):
     user = User.objects.get(register_id=register_id)
     internship = get_object_or_404(Internship, id=internship_id)
 
-    # Permission Check
     if internship.posted_by != user and user.role != "Admin":
         messages.error(request, "You are not authorized to edit this internship.")
         return redirect("user:internship_list")
 
     if request.method == "POST":
-        # Get data from POST
-        internship.title = request.POST.get("title")
-        internship.company_name = request.POST.get("company_name")
-        internship.description = request.POST.get("description")
-        internship.location = request.POST.get("location")
-        internship.stipend = request.POST.get("stipend")
-        internship.duration = request.POST.get("duration")
-        internship.last_date = request.POST.get("last_date")
-        internship.required_skills = request.POST.get("required_skills")
+        title = request.POST.get("title", "").strip()
+        company_name = request.POST.get("company_name", "").strip()
+        description = request.POST.get("description", "").strip()
+        location = request.POST.get("location", "").strip()
+        stipend = request.POST.get("stipend", "").strip()
+        duration = request.POST.get("duration", "").strip()
+        last_date_raw = request.POST.get("last_date")
+        required_skills = request.POST.get("required_skills", "").strip()
 
-        # Basic Validation (Alphabet check for key fields)
-        text_check = {"Title": internship.title, "Company": internship.company_name, "Location": internship.location}
+        text_check = {"Title": title, "Company": company_name, "Location": location}
         for field, value in text_check.items():
             if not value.replace(" ", "").isalpha():
-                messages.error(request, f"{field} should only contain letters.")
+                messages.error(request, f"{field} should only contain letters and spaces.")
                 return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+        try:
+            last_date_obj = datetime.strptime(last_date_raw, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            if last_date_obj <= today:
+                messages.error(request, "The application deadline must be a future date.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+            if last_date_obj > today + timedelta(days=60):
+                messages.error(request, "The application deadline must be within 2 months from today.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid date format.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+        if stipend:
+            try:
+                if float(stipend) < 0:
+                    messages.error(request, "Stipend cannot be negative.")
+                    return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+            except ValueError:
+                messages.error(request, "Stipend must be a valid number.")
+                return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+        if len(description.split()) < 5:
+            messages.error(request, "Description must be at least 5 words.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+
+        internship.title = title
+        internship.company_name = company_name
+        internship.description = description
+        internship.location = location
+        internship.stipend = stipend or None
+        internship.duration = duration or None
+        internship.last_date = last_date_obj
+        internship.required_skills = required_skills
 
         internship.save()
         messages.success(request, "Internship updated successfully!")
@@ -686,6 +827,15 @@ def filter_internship(request):
     })
     
 def student_register(request):
+    register_id = request.session.get("register_id")
+    if not register_id:
+        return redirect("login")
+    user = User.objects.get(register_id=register_id)
+
+    if user.role != "Admin":
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect("user:admin_home")
+
     departments = Department.objects.all()
     if request.method == "POST":
         file = request.FILES.get("file")
@@ -708,8 +858,6 @@ def student_register(request):
         required_columns = ['register id', "name", "email", "phone", "gender"]
 
         df.columns = df.columns.str.lower().str.strip()
-
-
 
         for column in required_columns:
             if column not in df.columns:
@@ -1063,6 +1211,7 @@ def download_career_track(request):
     df.to_csv(path_or_buf=response, index=False)
 
     return response
+
 def alumni_directory_search(request):
     register_id = request.session.get("register_id")
     if not register_id:
@@ -1071,27 +1220,29 @@ def alumni_directory_search(request):
     user = User.objects.get(register_id=register_id)
     query = request.GET.get('q', '').strip()
 
+
     if query:
-        alumni_data = Alumni.objects.select_related('user', 'user__student_profile').filter(
+        alumni = Alumni.objects.select_related('user').filter(user__role = "Alumni").all()
+        alumni_data = alumni.filter(
             user__username__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             user__student_profile__department__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             user__student_profile__admission_year__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             user__student_profile__graduation_year__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             pursuing_degree__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             university__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             company_name__icontains=query  
-        ) | Alumni.objects.select_related('user', 'user__student_profile').filter(
+        ) | alumni.filter(
             job_title__icontains=query 
         )
         alumni_data = alumni_data.distinct()
     else:
-        alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
+        alumni_data = Alumni.objects.select_related('user').filter(user__role = "Alumni").all()
 
     context = {
         "user": user, 
@@ -1108,22 +1259,22 @@ def student_directory_search(request):
     user = User.objects.get(register_id=register_id)
     query = request.GET.get('q', '').strip()
 
+    students = Student.objects.select_related('user').filter(user__role="Student")
+
     if query:
-        students = Student.objects.select_related('user').filter(
+        students = students.filter(
             user__username__icontains=query  
-        ) | Student.objects.select_related('user').filter(
+        ) | students.filter(
             user__register_id__icontains=query  
-        ) | Student.objects.select_related('user').filter(
+        ) | students.filter(
             department__icontains=query  
-        ) | Student.objects.select_related('user').filter(
+        ) | students.filter(
             admission_year__icontains=query  
-        ) | Student.objects.select_related('user').filter(
+        ) | students.filter(
             graduation_year__icontains=query  
         )
         
         students = students.distinct()
-    else:
-        students = Student.objects.select_related('user').all()
 
     context = {
         "user": user,

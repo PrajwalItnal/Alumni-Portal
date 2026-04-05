@@ -295,7 +295,7 @@
 
                     <div class="form-group">
                         <label>Company Name <span class="required">*</span></label>
-                        <input type="text" name="c_name" class="form-control" value="{{ data.company_name }}"
+                        <input type="text" name="c_name" class="form-control" value="{% if data.c_name %}{{ data.c_name }}{% else %}{{ data.company_name }}{% endif %}"
                             placeholder="e.g. Google, Startup Inc." required>
                     </div>
 
@@ -325,7 +325,7 @@
 
                     <div class="form-group full-width">
                         <label>Application Link <span class="required">*</span></label>
-                        <input type="url" name="apply_link" class="form-control" value="{{ data.application_link }}"
+                        <input type="url" name="apply_link" class="form-control" value="{% if data.apply_link %}{{ data.apply_link }}{% else %}{{ data.application_link }}{% endif %}"
                             placeholder="https://careers.yourcompany.com/apply" required>
                         <span class="hint-text">Provide the exact target URL where candidates should submit their
                             application or resume.</span>
