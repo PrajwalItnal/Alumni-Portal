@@ -100,7 +100,7 @@ class Job(models.Model):
     location = models.CharField(max_length=200)
     salary = models.CharField(max_length=100, blank=True, null=True)
     last_date = models.DateField()
-    required_skills = models.TextField(default=True)
+    required_skills = models.TextField(default="")
     posted_at = models.DateTimeField(auto_now_add=True)
     application_link = models.URLField(blank=True, null=True)
     
@@ -161,7 +161,7 @@ class Internship(models.Model):
     location = models.CharField(max_length=200)
     stipend = models.CharField(max_length=100, blank=True, null=True)
     last_date = models.DateField()
-    required_skills = models.TextField(default=True)
+    required_skills = models.TextField(default="")
     posted_at = models.DateTimeField(auto_now_add=True)
     duration = models.CharField(max_length=100, blank=True, null=True)
     application_link = models.URLField(blank=True, null=True)

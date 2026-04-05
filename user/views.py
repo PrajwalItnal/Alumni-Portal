@@ -1,9 +1,10 @@
 from io import BytesIO
 
 from django.conf import settings
-from django.forms import ValidationError
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render,redirect
+from django.shortcuts import get_object_or_404, render, redirect
 import user
 from user.models import Event, User, Achievement, Job, Student
 from django.contrib import messages
@@ -13,7 +14,7 @@ from .models import Internship
 import pandas as pd
 import random
 from django.contrib.auth.hashers import make_password
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, get_connection, send_mail
 import openpyxl
 from django.core.validators import URLValidator
 
@@ -37,8 +38,8 @@ def vi_event(request):
         return redirect("login")
     else:
         user = User.objects.get(register_id=register_id)
-        today = datetime.now()
-        events = Event.objects.filter(date__gte = today).order_by("-created_at")
+        today = datetime.now().date()
+        events = Event.objects.filter(date__gte=today).order_by("-created_at")
         return render(request, "user/vi_event.html", {"user": user, "events": events})
     
 def create_event(request):
@@ -181,8 +182,8 @@ def create_achievements(request):
         else:
             user = User.objects.filter(register_id = register_id).first()
             if user.role != "Alumni" and user.role != "Admin":
-                messages.error(request, "You do not have permission to edit this event.")
-                return redirect("user:donation_list")
+                messages.error(request, "You do not have permission to add achievements.")
+                return redirect("user:achievements_view")
             title = request.POST.get('title')
             description = request.POST.get('description')
             certificate = request.FILES.get('certificate')
@@ -221,8 +222,8 @@ def create_achievements(request):
         return redirect("login")
     user = User.objects.filter(register_id=register_id).first()
     if user.role != "Alumni" and user.role != "Admin":
-        messages.error(request, "You do not have permission to edit this event.")
-        return redirect("user:donation_list")
+        messages.error(request, "You do not have permission to add achievements.")
+        return redirect("user:achievements_view")
     return render(request, "user/create_achievement.html")
 
 def edit_achievement(request, achievement_id):
@@ -302,7 +303,7 @@ def create_donation(request):
 
     user = User.objects.filter(register_id=register_id).first()
     if user.role != "Alumni" and user.role != "Admin":
-        messages.error(request, "You do not have permission to edit this event.")
+        messages.error(request, "You do not have permission to add donations.")
         return redirect("user:donation_list")
 
     if request.method == 'POST':
@@ -841,6 +842,7 @@ def student_register(request):
         file = request.FILES.get("file")
         course_duration = int(request.POST.get("duration"))
         department = request.POST.get("department")
+        email_messages = []
 
         try:
             if file.name.endswith('.csv'):
@@ -893,16 +895,8 @@ def student_register(request):
                 continue  
 
             password = random.randint(1000000000,9999999999)
-            print(f"Generated password for {register_id}: {password}")
             
             try:
-                send_mail(
-                    "Welcome to Alumni Portal",
-                    f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
-                    settings.EMAIL_HOST_USER,
-                    [email],
-                    fail_silently=False,
-                )
                 user = User.objects.create(
                     register_id=register_id,
                     username = name.strip().title(),
@@ -921,16 +915,22 @@ def student_register(request):
                 )
                 user.save()
                 student.save()
+
+                email_messages.append(EmailMessage(
+                    "Welcome to Alumni Portal",
+                    f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
+                    settings.EMAIL_HOST_USER,
+                    [email]
+                ))
                 success_count += 1
             except Exception as e:
                 error_reason = str(e)
             
             if error_reason:
-                if error_reason:
-                    error_data = df.iloc[index].to_dict()
-                    error_data['error_reason'] = error_reason
-                    failed_rows.append(error_data)
-                    continue
+                error_data = df.iloc[index].to_dict()
+                error_data['error_reason'] = error_reason
+                failed_rows.append(error_data)
+                continue
         if failed_rows:
             error_df = pd.DataFrame(failed_rows)
             output = BytesIO()
@@ -945,10 +945,14 @@ def student_register(request):
             )
             response['Content-Disposition'] = f'attachment; filename="registration_errors_{datetime.now()}.xlsx"'
             
+            _send_registration_emails(email_messages)
+            
             messages.warning(request, f"{success_count} students registered. Downloaded errors for {len(failed_rows)} rows.")
             return response
+        _send_registration_emails(email_messages)
         messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
         return redirect("user:student_register")
+
     return render(request, "user/student_registration.html", {"departments": departments})
 
 def send_email(title, message, recipient_list):
@@ -963,7 +967,24 @@ def send_email(title, message, recipient_list):
     except Exception as e:
         print(e)
 
+
+def _send_registration_emails(email_messages):
+    if not email_messages:
+        return
+    with get_connection() as connection:
+        connection.send_messages(email_messages)
+
+
 def convert_alumni(request):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to use this page.')
+        return redirect('user:home')
+
     students = Student.objects.filter(graduation_year=datetime.now().year)
     current_graduators = students.filter(user__role="Student")
     if current_graduators.exists():
@@ -972,6 +993,15 @@ def convert_alumni(request):
         return render(request, "user/convert_alumni.html", {'convert': False, 'year': datetime.now().year})
 
 def convert_to_alumni(request):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to use this action.')
+        return redirect('user:home')
+
     users = User.objects.filter(
         role = "Student",
         student_profile__graduation_year = datetime.now().year
@@ -1222,25 +1252,17 @@ def alumni_directory_search(request):
 
 
     if query:
-        alumni = Alumni.objects.select_related('user').filter(user__role = "Alumni").all()
+        alumni = Alumni.objects.select_related('user').filter(user__role = "Alumni")
         alumni_data = alumni.filter(
-            user__username__icontains=query  
-        ) | alumni.filter(
-            user__student_profile__department__icontains=query  
-        ) | alumni.filter(
-            user__student_profile__admission_year__icontains=query  
-        ) | alumni.filter(
-            user__student_profile__graduation_year__icontains=query  
-        ) | alumni.filter(
-            pursuing_degree__icontains=query  
-        ) | alumni.filter(
-            university__icontains=query  
-        ) | alumni.filter(
-            company_name__icontains=query  
-        ) | alumni.filter(
-            job_title__icontains=query 
-        )
-        alumni_data = alumni_data.distinct()
+            Q(user__username__icontains=query) |
+            Q(user__student_profile__department__icontains=query) |
+            Q(user__student_profile__admission_year__icontains=query) |
+            Q(user__student_profile__graduation_year__icontains=query) |
+            Q(pursuing_degree__icontains=query) |
+            Q(university__icontains=query) |
+            Q(company_name__icontains=query) |
+            Q(job_title__icontains=query)
+        ).distinct()
     else:
         alumni_data = Alumni.objects.select_related('user').filter(user__role = "Alumni").all()
 
@@ -1284,33 +1306,89 @@ def student_directory_search(request):
     return render(request, "user/student_directory.html", context)
 
 def department_list(request):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to view departments.')
+        return redirect('user:home')
+
     departments = Department.objects.all()
     return render(request, 'user/department_list.html', {'departments': departments})
 
 def add_department(request):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to add departments.')
+        return redirect('user:home')
+
     if request.method == "POST":
-        name = request.POST.get('name')
-        if name:
-            Department.objects.create(name=name)
-            messages.success(request, f"Department '{name}' added successfully!")
+        name = request.POST.get('name', '').strip()
+        if not name:
+            messages.error(request, "Department name cannot be empty.")
+            return redirect('user:department_list')
+
+        if Department.objects.filter(name__iexact=name).exists():
+            messages.error(request, f"Department '{name}' already exists.")
+            return redirect('user:department_list')
+
+        Department.objects.create(name=name)
+        messages.success(request, f"Department '{name}' added successfully!")
     return redirect('user:department_list')
 
 def edit_department(request, dept_id):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to edit departments.')
+        return redirect('user:home')
+
     dept = get_object_or_404(Department, dept_id=dept_id)
     students = Student.objects.filter(department=dept.name)
+
     if request.method == "POST":
-        new_name = request.POST.get('name')
-        if new_name:
-            dept.name = new_name
+        new_name = request.POST.get('name', '').strip()
+
+        if not new_name:
+            messages.error(request, "Department name cannot be empty.")
+            return redirect('user:department_list')
+
+        if Department.objects.filter(name__iexact=new_name).exclude(dept_id=dept_id).exists():
+            messages.error(request, "A department with this name already exists.")
+            return redirect('user:department_list')
+
+        dept.name = new_name
+        dept.save()
+
+        if students.exists():
             students.update(department=new_name)
-            students.save()
-            dept.save()
-            messages.success(request, "Department updated successfully.")
+
+        messages.success(request, "Department updated successfully.")
     return redirect('user:department_list')
 
 def delete_department(request, dept_id):
+    register_id = request.session.get('register_id')
+    if not register_id:
+        return redirect('login')
+
+    user = User.objects.filter(register_id=register_id).first()
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to delete departments.')
+        return redirect('user:home')
+
     dept = get_object_or_404(Department, dept_id=dept_id)
+
     if request.method == "POST":
+        Student.objects.filter(department=dept.name).update(department="")
         dept.delete()
         messages.success(request, "Department deleted successfully.")
     return redirect('user:department_list')
