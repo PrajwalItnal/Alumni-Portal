@@ -18,94 +18,100 @@ from django.core.mail import EmailMessage, get_connection, send_mail
 import openpyxl
 from django.core.validators import URLValidator
 
-
-def home(request):
+def get_session_user(request):
     register_id = request.session.get("register_id")
     if not register_id:
+        return None
+    return User.objects.filter(register_id=register_id).first()
+
+def is_valid_text(text):
+    if not text:
+        return False
+    clean_text = text.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "").replace("'", "").replace("\"", "").replace(":", "").replace(";", "").replace("-", "").replace("_", "").replace("+", "").replace("=", "").replace("*", "").replace("/", "").replace("%", "").replace("^", "").replace("&", "").replace("#", "").replace("@", "").replace("$", "").replace("!", "").replace("?", "").replace("<", "").replace(">", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "").replace("(", "").replace(")", "").replace("[", "").replace("]", "").replace("{", "").replace("}", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "")
+    return clean_text.isalpha()
+def home(request):
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
+    
+    if user.role == "Admin":
+        return render(request, "user/admin_home.html", {"user": user})
+    elif user.role == "Alumni":
+        return render(request, "user/alumni_home.html", {"user": user})
     else:
-        user = User.objects.get(register_id=register_id)
-        if user.role == "Admin":
-            return render(request, "user/admin_home.html", {"user": user})
-        elif user.role == "Alumni":
-            return render(request, "user/alumni_home.html", {"user": user})
-        else:
-            return render(request, "user/user_home.html", {"user": user})
+        return render(request, "user/user_home.html", {"user": user})
 
 def vi_event(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    else:
-        user = User.objects.get(register_id=register_id)
-        today = datetime.now().date()
-        events = Event.objects.filter(date__gte=today).order_by("-created_at")
-        return render(request, "user/vi_event.html", {"user": user, "events": events})
+    
+    today = datetime.now().date()
+    events = Event.objects.filter(date__gte=today).order_by("-created_at")
+    return render(request, "user/vi_event.html", {"user": user, "events": events})
     
 def create_event(request):
-    register_id = request.session.get("register_id")
-    
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    else:
-        user = User.objects.get(register_id=register_id)
-        if user.role != "Alumni" and user.role != "Admin":
-            messages.error(request, "You do not have permission to edit this event.")
-            return redirect("user:vi_event")
-        if request.method == "POST":
-            title = request.POST.get("title")
-            description = request.POST.get("description")
-            event_type = request.POST.get("event_type")
-            date = request.POST.get("date")
-            time = request.POST.get("event_time")
-            location = request.POST.get("location")
-            image = request.FILES.get("image")
 
-            try:
-                event_date = datetime.strptime(date, "%Y-%m-%d").date()
-                today = datetime.now().date()
-                max_limit = today + timedelta(days=60)
+    if user.role != "Alumni" and user.role != "Admin":
+        messages.error(request, "You do not have permission to edit this event.")
+        return redirect("user:vi_event")
 
-                if event_date <= today or event_date > max_limit:
-                    messages.error(request, f"Select a date between tomorrow and {max_limit}.")
-                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-            except (ValueError, TypeError):
-                messages.error(request, "Please enter a valid date.")
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        event_type = request.POST.get("event_type")
+        date = request.POST.get("date")
+        time = request.POST.get("event_time")
+        location = request.POST.get("location")
+        image = request.FILES.get("image")
+
+        try:
+            event_date = datetime.strptime(date, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            max_limit = today + timedelta(days=60)
+
+            if event_date <= today or event_date > max_limit:
+                messages.error(request, f"Select a date between tomorrow and {max_limit}.")
                 return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-            if image:
-                if image.size > 2 * 1024 * 1024:
-                    messages.error(request, "Image size should not exceed 2MB.")
-                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-            
-                if image and not image.name.lower().endswith(('.jpg', '.jpeg', '.png')):
-                    messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
-                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-            
-            check_fields = [title, description, event_type, location]
-            for field in check_fields:
-                clean_text = field.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
-            
-                if not clean_text.isalpha():
-                    messages.error(request, "Please use only alphabets and spaces for text fields.")
-                    return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-            Event.objects.create(title=title, 
-                                description=description, 
-                                event_type=event_type, 
-                                date=date, 
-                                event_time=time, 
-                                location=location, 
-                                image=image,
-                                organized_by=user)
-            messages.success(request, "Event created successfully!")
-            return redirect("user:vi_event")
-        return render(request, "user/create_event.html", {"user": user})
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter a valid date.")
+            return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+
+        if image:
+            if image.size > 2 * 1024 * 1024:
+                messages.error(request, "Image size should not exceed 2MB.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+        
+            if not image.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+        
+        if not is_valid_text(title) or not is_valid_text(description) or not is_valid_text(location):
+            messages.error(request, "Title, Description, and Location must contain only alphabets and spaces.")
+            return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+
+        Event.objects.create(
+            title=title, 
+            description=description, 
+            event_type=event_type, 
+            date=date, 
+            event_time=time, 
+            location=location, 
+            image=image,
+            organized_by=user
+        )
+        messages.success(request, "Event created successfully!")
+        return redirect("user:vi_event")
+    return render(request, "user/create_event.html", {"user": user})
     
 def delete_event(request, event_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = get_object_or_404(User, register_id=register_id)
     event = get_object_or_404(Event, id=event_id)
 
     if event.organized_by == user or user.role == "Admin":
@@ -117,11 +123,10 @@ def delete_event(request, event_id):
     return redirect("user:vi_event")
 
 def edit_event(request, event_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.get(register_id=register_id)
     event = get_object_or_404(Event, id=event_id)
 
     if event.organized_by != user and user.role != "Admin":
@@ -129,15 +134,15 @@ def edit_event(request, event_id):
         return redirect("user:vi_event")
 
     if request.method == "POST":
-        event.title = request.POST.get("title")
-        event.description = request.POST.get("description")
-        event.event_type = request.POST.get("event_type")
-        event.location = request.POST.get("location")
-        event.date = request.POST.get("date")
-        event.event_time = request.POST.get("event_time")
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        event_type = request.POST.get("event_type")
+        location = request.POST.get("location")
+        date = request.POST.get("date")
+        time = request.POST.get("event_time")
 
         try:
-            event_date = datetime.strptime(event.date, "%Y-%m-%d").date()
+            event_date = datetime.strptime(date, "%Y-%m-%d").date()
             today = datetime.now().date()
             max_limit = today + timedelta(days=60)
             if event_date <= today or event_date > max_limit:
@@ -151,14 +156,16 @@ def edit_event(request, event_id):
         if new_image:
             event.image = new_image
 
-        check_fields = [event.title, event.description, event.event_type, event.location]
-        for field in check_fields:
-            clean_text = field.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
+        if not is_valid_text(title) or not is_valid_text(description) or not is_valid_text(location):
+            messages.error(request, "Title, Description, and Location must contain only alphabets and spaces.")
+            return render(request, "user/create_event.html", {"user": user, "data": request.POST})
         
-            if not clean_text.isalpha():
-                messages.error(request, "Please use only alphabets and spaces for text fields.")
-                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
-        
+        event.title = title
+        event.description = description
+        event.event_type = event_type
+        event.location = location
+        event.date = date
+        event.event_time = time
         event.save()
         messages.success(request, "Event updated successfully!")
         return redirect("user:vi_event")
@@ -166,72 +173,64 @@ def edit_event(request, event_id):
     return render(request, "user/create_event.html", {"user": user, "data": event})
 
 def view_achievements(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    else:
-        user = User.objects.filter(register_id = register_id).first()
-        achievements = Achievement.objects.all().order_by('created_at')
-        return render(request,"user/view_achievement.html", {"user" : user, "achievements" : achievements})
+    achievements = Achievement.objects.all().order_by('created_at')
+    return render(request, "user/view_achievement.html", {"user": user, "achievements": achievements})
 
 def create_achievements(request):
-    if request.method == 'POST':
-        register_id = request.session.get("register_id")
-        if not register_id:
-            return redirect("login")
-        else:
-            user = User.objects.filter(register_id = register_id).first()
-            if user.role != "Alumni" and user.role != "Admin":
-                messages.error(request, "You do not have permission to add achievements.")
-                return redirect("user:achievements_view")
-            title = request.POST.get('title')
-            description = request.POST.get('description')
-            certificate = request.FILES.get('certificate')
-
-            if not all(x.replace(" ", "").isalpha() for x in [title, description]):
-                messages.error(request, "Title and Description should only contain letters.")
-                return render(request, "user/create_achievement.html", {"data": request.POST})
-            
-            if not title or not description:
-                messages.error(request, "Title and Description cannot be empty.")
-                return render(request, "user/create_achievement.html", {"data": request.POST})
-            
-            if len(description.split()) < 5:
-                messages.error(request, "Description must be at least 5 words.")
-                return render(request, "user/create_achievement.html", {"data": request.POST})
-
-            if certificate:
-                if certificate.size > 5 * 1024 * 1024:
-                    messages.error(request, "Certificate file size should not exceed 5MB.")
-                    return render(request, "user/create_achievement.html", {"data": request.POST})
-                
-                valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
-                if not certificate.name.lower().endswith(valid_extensions):
-                    messages.error(request, "Invalid format: Only PDF, JPG, JPEG, PNG, DOC, and DOCX are allowed.")
-                    return render(request, "user/create_achievement.html", {"data": request.POST})
-            Achievement.objects.create(
-                achieved_by = user,
-                title = title,
-                description = description,
-                certificate = certificate
-            )
-            messages.success(request, "Achievement add successfully")
-            return redirect('user:achievements_view')
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.filter(register_id=register_id).first()
+
     if user.role != "Alumni" and user.role != "Admin":
         messages.error(request, "You do not have permission to add achievements.")
         return redirect("user:achievements_view")
-    return render(request, "user/create_achievement.html")
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        certificate = request.FILES.get('certificate')
+
+        if not is_valid_text(title) or not is_valid_text(description):
+            messages.error(request, "Title and Description should only contain letters and spaces.")
+            return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
+        
+        if not title or not description:
+            messages.error(request, "Title and Description cannot be empty.")
+            return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
+        
+        if len(description.split()) < 5:
+            messages.error(request, "Description must be at least 5 words.")
+            return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
+
+        if certificate:
+            if certificate.size > 5 * 1024 * 1024:
+                messages.error(request, "Certificate file size should not exceed 5MB.")
+                return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
+            
+            valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
+            if not certificate.name.lower().endswith(valid_extensions):
+                messages.error(request, "Invalid format: Only PDF, JPG, JPEG, PNG, DOC, and DOCX are allowed.")
+                return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
+
+        Achievement.objects.create(
+            achieved_by = user,
+            title = title,
+            description = description,
+            certificate = certificate
+        )
+        messages.success(request, "Achievement added successfully")
+        return redirect('user:achievements_view')
+    
+    return render(request, "user/create_achievement.html", {"user": user})
 
 def edit_achievement(request, achievement_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     achievement = get_object_or_404(Achievement, id=achievement_id)
 
     if achievement.achieved_by != user and user.role != "Admin":
@@ -243,10 +242,7 @@ def edit_achievement(request, achievement_id):
         description = request.POST.get('description', '').strip()
         certificate = request.FILES.get('certificate')
 
-        clean_title = title.replace(" ", "")
-        clean_desc = description.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
-
-        if not clean_title.isalpha() or not clean_desc.isalpha():
+        if not is_valid_text(title) or not is_valid_text(description):
             messages.error(request, "Title and Description should only contain letters and spaces.")
             return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
 
@@ -263,13 +259,12 @@ def edit_achievement(request, achievement_id):
             achievement.certificate = certificate
 
         if not title or not description:
-                messages.error(request, "Title and Description cannot be empty.")
-                return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
+            messages.error(request, "Title and Description cannot be empty.")
+            return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
             
         if len(description.split()) < 5:
             messages.error(request, "Description must be at least 5 words.")
             return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
-
 
         achievement.title = title
         achievement.description = description
@@ -281,11 +276,10 @@ def edit_achievement(request, achievement_id):
     return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
 
 def delete_achievement(request, achievement_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     achievement = get_object_or_404(Achievement, id=achievement_id)
 
     if achievement.achieved_by == user or user.role == "Admin":
@@ -297,11 +291,10 @@ def delete_achievement(request, achievement_id):
     return redirect("user:achievements_view")
 
 def create_donation(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
 
-    user = User.objects.filter(register_id=register_id).first()
     if user.role != "Alumni" and user.role != "Admin":
         messages.error(request, "You do not have permission to add donations.")
         return redirect("user:donation_list")
@@ -311,13 +304,15 @@ def create_donation(request):
         payment_method = request.POST.get('payment_method')
         description = request.POST.get('description')
 
-        if int(amount) < 0 or int(amount) < 1000:
-            messages.error(request, "Amount must be a positive number and greater than 1000.")
+        try:
+            if int(amount) < 1000:
+                messages.error(request, "Amount must be at least 1000.")
+                return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
+        except (ValueError, TypeError):
+            messages.error(request, "Please enter a valid amount.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
         
-        clean_desc = description.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
-        
-        if not clean_desc.isalpha():
+        if not is_valid_text(description):
             messages.error(request, "Description should only contain alphabets and spaces.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
@@ -332,20 +327,17 @@ def create_donation(request):
     return render(request, 'user/add_donation.html', {"user": user})
 
 def donation_list(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    else:
-        user = User.objects.filter(register_id=register_id).first()
-        donations = Donation.objects.all().order_by('-donated_at')
-        return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
+    donations = Donation.objects.all().order_by('-donated_at')
+    return render(request, "user/vi_donation.html", {"user": user, "donations": donations})
 
 def edit_donation(request, donation_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     donation = get_object_or_404(Donation, id=donation_id)
 
     if donation.donated_by != user and user.role != "Admin":
@@ -357,23 +349,21 @@ def edit_donation(request, donation_id):
 
         try:
             amount = int(float(amount_raw))
+            if amount < 1000 or amount > 100000:
+                messages.error(request, "Amount must be between 1000 and 100000.")
+                return render(request, 'user/add_donation.html', {"user": user, "data": donation})
         except (ValueError, TypeError):
             messages.error(request, "Please enter a valid numeric amount.")
             return render(request, 'user/add_donation.html', {"user": user, "data": donation})
         
-        if int(amount) < 1000 or int(amount) > 100000:
-            messages.error(request, "Amount must be at least 1000. and less then 100000")
-            return render(request, 'user/add_donation.html', {"user": user, "data": donation})
-
-        clean_desc = request.POST.get("description").replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "")
-        
-        if not clean_desc.isalpha():
+        description = request.POST.get("description")
+        if not is_valid_text(description):
             messages.error(request, "Description should only contain alphabets and spaces.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         donation.amount = amount
         donation.payment_method = request.POST.get("payment_method")
-        donation.description = request.POST.get("description")
+        donation.description = description
         donation.save()
         
         messages.success(request, "Donation updated successfully!")
@@ -382,11 +372,10 @@ def edit_donation(request, donation_id):
     return render(request, "user/add_donation.html", {"user": user, "data": donation})
 
 def delete_donation(request, donation_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     donation = get_object_or_404(Donation, id=donation_id)
 
     if donation.donated_by == user or user.role == "Admin":
@@ -398,34 +387,29 @@ def delete_donation(request, donation_id):
     return redirect("user:donation_list")
 
 def view_job(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    else:
-        user = User.objects.filter(register_id=register_id).first()
-        jobs = list(Job.objects.all().order_by('-posted_at'))
-        
-        if user.role == "Student":
-            user_skills = [s.strip().lower() for s in user.student_profile.skills.split(",")] if user.student_profile.skills else []
-            for job in jobs:
-                job_skills = [j.strip().lower() for j in job.required_skills.split(",")] if job.required_skills else []
+    
+    jobs = list(Job.objects.all().order_by('-posted_at'))
+    
+    if user.role == "Student":
+        user_skills = [s.strip().lower() for s in user.student_profile.skills.split(",")] if user.student_profile.skills else []
+        for job in jobs:
+            job_skills = [j.strip().lower() for j in job.required_skills.split(",")] if job.required_skills else []
+            job.matched_skills = len(set(user_skills) & set(job_skills))
 
-                job.matched_skills = len(set(user_skills) & set(job_skills))
+        jobs.sort(key=lambda x: x.matched_skills, reverse=True)
 
-            jobs.sort(key=lambda x: x.matched_skills, reverse=True)
-            return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
-
-        return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
+    return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
     
 def add_job(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
-
     if user.role != "Alumni" and user.role != "Admin":
-        messages.error(request, "You do not have permission to edit this event.")
+        messages.error(request, "You do not have permission to post jobs.")
         return redirect("user:view_job")
 
     if request.method == 'POST':
@@ -438,28 +422,21 @@ def add_job(request):
         required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
 
-        if not company_name.isalpha():
-            messages.error(request, "Please don't fill the except alphabets.")
-            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
-
-        if not location.isalpha():
-            messages.error(request, "Please don't fill the except alphabets.")
+        if not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(title):
+            messages.error(request, "Title, Company, and Location should contain only alphabets and spaces.")
             return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         
         if not all([title, company_name, description, location, last_date, required_skills]):
             messages.error(request, "Please fill all required fields.")
             return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
-        if len(title) < 3:
-            messages.error(request, "Job title must be at least 3 characters.")
-            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
-
         try:
             last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
-            if last_date_obj < datetime.today().date():
+            today = datetime.today().date()
+            if last_date_obj < today:
                 messages.error(request, "Last date cannot be in the past.")
                 return render(request, "user/add_job.html", {"user": user, "data": request.POST})
-            if last_date_obj > datetime.today().date() + timedelta(days=60):
+            if last_date_obj > today + timedelta(days=60):
                 messages.error(request, "Last date must be within 2 months from today.")
                 return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         except ValueError:
@@ -498,36 +475,27 @@ def add_job(request):
     return render(request, "user/add_job.html", {"user": user})
 
 def filter_job(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
 
     jobs = Job.objects.all()
-
     title_query = request.GET.get("title", "").strip()
     location_query = request.GET.get("loc", "").strip() 
 
     if title_query:
         jobs = jobs.filter(title__icontains=title_query)
-        print(f"Filtering by title: {title_query}")
-
     if location_query:
         jobs = jobs.filter(location__icontains=location_query)
-        print(f"Filtering by location: {location_query}")
 
     jobs = jobs.order_by('-posted_at')
-    
-    print(f"Jobs found: {jobs.count()}")
-
-    user = User.objects.filter(register_id=register_id).first()
     return render(request, "user/view_job.html", {"user": user, "jobs": jobs})
 
 def edit_job(request, job_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     job = get_object_or_404(Job, id=job_id)
 
     if job.posted_by != user and user.role != "Admin":
@@ -544,48 +512,41 @@ def edit_job(request, job_id):
         required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
 
-        error_context = {"user": user, "data": request.POST.dict()}
+        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
+            messages.error(request, "All text fields must contain only alphabets and spaces.")
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
-        if not all([title, company_name, description, location, last_date, required_skills]):
+        if not all([title, company_name, description, location, last_date, required_skills, apply_link]):
             messages.error(request, "Please fill all required fields.")
-            return render(request, "user/add_job.html", error_context)
-
-        if not (company_name.replace(" ", "").isalpha() and location.replace(" ", "").isalpha()):
-            messages.error(request, "Company name and Location should only contain alphabets.")
-            return render(request, "user/add_job.html", error_context)
-
-        if len(title) < 3:
-            messages.error(request, "Job title must be at least 3 characters.")
-            return render(request, "user/add_job.html", error_context)
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         try:
             last_date_obj = datetime.strptime(last_date, "%Y-%m-%d").date()
-            if last_date_obj < datetime.today().date():
+            today = datetime.today().date()
+            if last_date_obj < today:
                 messages.error(request, "Last date cannot be in the past.")
-                return render(request, "user/add_job.html", error_context)
-            if last_date_obj > datetime.today().date() + timedelta(days=60):
+                return render(request, "user/add_job.html", {"user": user, "data": request.POST})
+            if last_date_obj > today + timedelta(days=60):
                 messages.error(request, "Last date must be within 2 months from today.")
-                return render(request, "user/add_job.html", error_context)
+                return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         except ValueError:
             messages.error(request, "Invalid date format.")
-            return render(request, "user/add_job.html", error_context)
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         if salary and (not salary.isdigit() or int(salary) <= 0):
             messages.error(request, "Salary must be a valid number greater than 0.")
-            return render(request, "user/add_job.html", error_context)
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         if len(description.split()) < 5:
             messages.error(request, "Description must be at least 5 words.")
-            return render(request, "user/add_job.html", error_context)
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         validate = URLValidator()
         try:
-            if not apply_link: 
-                raise ValidationError("Required")
             validate(apply_link)
         except ValidationError:
             messages.error(request, "A valid Apply Link is compulsory (e.g., https://...).")
-            return render(request, "user/add_job.html", error_context)
+            return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         job.title = title
         job.company_name = company_name
@@ -595,19 +556,18 @@ def edit_job(request, job_id):
         job.last_date = last_date
         job.required_skills = required_skills
         job.application_link = apply_link
-        
         job.save()
+        
         messages.success(request, "Job updated successfully!")
         return redirect('user:view_job')
 
-    return render(request, "user/add_job.html", {"data": job})
+    return render(request, "user/add_job.html", {"data": job, "user": user})
 
 def delete_job(request, job_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.filter(register_id=register_id).first()
     job = get_object_or_404(Job, id=job_id)
 
     if job.posted_by == user or user.role == "Admin":
@@ -623,50 +583,47 @@ def logout(request):
     return redirect('home')
 
 def internship_list(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
     internships = Internship.objects.all().order_by('-posted_at')
     return render(request, 'user/view_internship.html', {'internships': internships, 'user': user})
 
 def internship_create(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
 
     if user.role not in ["Admin", "Alumni"]:
         messages.error(request, "You are not authorized to post internships.")
         return redirect("user:internship_list")
 
     if request.method == "POST":
-        title = request.POST.get("title")
-        company_name = request.POST.get("company_name")
-        description = request.POST.get("description")
-        location = request.POST.get("location")
+        title = request.POST.get("title", "").strip()
+        company_name = request.POST.get("company_name", "").strip()
+        description = request.POST.get("description", "").strip()
+        location = request.POST.get("location", "").strip()
         stipend = request.POST.get("stipend")
         duration = request.POST.get("duration")
-        last_date = request.POST.get("last_date")
+        last_date_raw = request.POST.get("last_date")
         required_skills = request.POST.get("required_skills")
 
+        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
+            messages.error(request, "Title, Company, Location, and Description must contain only alphabets and spaces.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
+
         try:
-            last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
-            if last_date <= datetime.now().date():
+            last_date = datetime.strptime(last_date_raw, "%Y-%m-%d").date()
+            today = datetime.now().date()
+            if last_date <= today:
                 messages.error(request, "The application deadline must be a future date.")
                 return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
-            if last_date > datetime.now().date() + timedelta(days=60):
+            if last_date > today + timedelta(days=60):
                 messages.error(request, "The application deadline must be within 2 months from today.")
                 return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
         except (ValueError, TypeError):
             messages.error(request, "Invalid date format. Please use the date picker.")
             return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
-        
-        text_check = {"Title": title, "Company": company_name, "Location": location}
-        for field, value in text_check.items():
-            if not value.replace(" ", "").isalpha():
-                messages.error(request, f"{field} should only contain letters and spaces.")
-                return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
             
         if stipend:
             try:
@@ -698,11 +655,10 @@ def internship_create(request):
     return render(request, "user/create_internship.html", {'user': user})
 
 def internship_edit(request, internship_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.get(register_id=register_id)
     internship = get_object_or_404(Internship, id=internship_id)
 
     if internship.posted_by != user and user.role != "Admin":
@@ -719,11 +675,9 @@ def internship_edit(request, internship_id):
         last_date_raw = request.POST.get("last_date")
         required_skills = request.POST.get("required_skills", "").strip()
 
-        text_check = {"Title": title, "Company": company_name, "Location": location}
-        for field, value in text_check.items():
-            if not value.replace(" ", "").isalpha():
-                messages.error(request, f"{field} should only contain letters and spaces.")
-                return render(request, "user/create_internship.html", {'user': user, 'data': internship})
+        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
+            messages.error(request, "Title, Company, Location, and Description must contain only alphabets and spaces.")
+            return render(request, "user/create_internship.html", {'user': user, 'data': internship})
 
         try:
             last_date_obj = datetime.strptime(last_date_raw, "%Y-%m-%d").date()
@@ -759,22 +713,20 @@ def internship_edit(request, internship_id):
         internship.duration = duration or None
         internship.last_date = last_date_obj
         internship.required_skills = required_skills
-
         internship.save()
+        
         messages.success(request, "Internship updated successfully!")
         return redirect("user:internship_list")
 
     return render(request, "user/create_internship.html", {'user': user, 'data': internship})
 
 def internship_delete(request, internship_id):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     
-    user = User.objects.get(register_id=register_id)
     internship = get_object_or_404(Internship, id=internship_id)
 
-    # Permission Check
     if internship.posted_by == user or user.role == "Admin":
         internship.delete()
         messages.success(request, "Internship deleted successfully.")
@@ -784,25 +736,15 @@ def internship_delete(request, internship_id):
     return redirect("user:internship_list")
 
 def filter_internship(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
 
     title = request.GET.get('title', '')
     loc = request.GET.get('loc', '')
 
     internships = Internship.objects.all().order_by('-posted_at')
-
-    title_exists = False
-    location_exists = False
     message = ''
-
-    if title:
-        title_exists = internships.filter(title__icontains=title).exists()
-
-    if loc:
-        location_exists = internships.filter(location__icontains=loc).exists()
 
     if title:
         internships = internships.filter(title__icontains=title)
@@ -811,6 +753,8 @@ def filter_internship(request):
 
     if not internships.exists():
         if title and loc:
+            title_exists = Internship.objects.filter(title__icontains=title).exists()
+            location_exists = Internship.objects.filter(location__icontains=loc).exists()
             if title_exists and not location_exists:
                 message = f'"{title}" is available but not found in "{loc}" location.'
             elif location_exists and not title_exists:
@@ -828,10 +772,9 @@ def filter_internship(request):
     })
     
 def student_register(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
 
     if user.role != "Admin":
         messages.error(request, "You do not have permission to access this page.")
@@ -975,12 +918,59 @@ def _send_registration_emails(email_messages):
         connection.send_messages(email_messages)
 
 
-def convert_alumni(request):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
+def change_user_email(request):
+    user = get_session_user(request)
+    if not user or user.role != 'Admin':
+        messages.error(request, 'You do not have permission to change user details.')
+        return redirect('user:home')
 
-    user = User.objects.filter(register_id=register_id).first()
+    if request.method == 'POST':
+        target_register_id = request.POST.get('register_id', '').strip()
+        new_email = request.POST.get('new_email', '').strip()
+        new_password = request.POST.get('new_password', '').strip()
+
+        if not target_register_id:
+            messages.error(request, 'Register ID is required.')
+            return render(request, 'user/change_user_email.html', {'user': user})
+
+        try:
+            target_user = User.objects.get(register_id=target_register_id)
+        except User.DoesNotExist:
+            messages.error(request, 'User with this register ID does not exist.')
+            return render(request, 'user/change_user_email.html', {'user': user})
+
+        if new_email:
+            if User.objects.filter(email=new_email).exclude(register_id=target_register_id).exists():
+                messages.error(request, 'This email is already in use by another user.')
+                return render(request, 'user/change_user_email.html', {'user': user})
+
+            from django.core.validators import validate_email
+            try:
+                validate_email(new_email)
+                target_user.email = new_email
+            except:
+                messages.error(request, 'Please enter a valid email address.')
+                return render(request, 'user/change_user_email.html', {'user': user})
+
+        if new_password:
+            if len(new_password) < 8:
+                messages.error(request, 'Password must be at least 8 characters long.')
+                return render(request, 'user/change_user_email.html', {'user': user})
+            target_user.password = make_password(new_password)
+
+        if not new_email and not new_password:
+            messages.error(request, 'Please provide either a new email or a new password to update.')
+            return render(request, 'user/change_user_email.html', {'user': user})
+
+        target_user.save()
+        messages.success(request, f'Details for user {target_register_id} have been updated successfully.')
+        return redirect('user:change_user_email')
+
+    return render(request, 'user/change_user_email.html', {'user': user})
+
+
+def convert_alumni(request):
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to use this page.')
         return redirect('user:home')
@@ -993,11 +983,7 @@ def convert_alumni(request):
         return render(request, "user/convert_alumni.html", {'convert': False, 'year': datetime.now().year})
 
 def convert_to_alumni(request):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
-
-    user = User.objects.filter(register_id=register_id).first()
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to use this action.')
         return redirect('user:home')
@@ -1042,11 +1028,9 @@ Alumni Portal Team
     return redirect("user:admin_home")
 
 def change_password(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-
-    user = User.objects.get(register_id=register_id)
 
     if request.method == "POST":
         new_password = request.POST.get("new_password")
@@ -1069,14 +1053,10 @@ def change_password(request):
     return render(request, "user/change_password.html", {"user": user})
 
 def update_profile_std(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
-    print(user)
     student = Student.objects.get(user=user) 
-    print(student.resume.url if student.resume else "No resume")
-    print(student)
 
     if request.method == "POST":
         student.bio = request.POST.get("bio")
@@ -1091,20 +1071,18 @@ def update_profile_std(request):
         student.skills = request.POST.get("skills")
 
         if request.FILES.get("photo"):
-            photo = request.FILES.get("photo").name.split(".")[-1].lower()
-            if photo not in ["jpg", "jpeg", "png"]:
+            photo_ext = request.FILES.get("photo").name.split(".")[-1].lower()
+            if photo_ext not in ["jpg", "jpeg", "png"]:
                 messages.error(request, "Photo must be a JPG, JPEG, or PNG file.")
                 return redirect("user:update_profile_std")
-            else:
-                student.photo = request.FILES.get("photo")
+            student.photo = request.FILES.get("photo")
 
         if request.FILES.get("resume"):
-            resume = request.FILES.get("resume").name.split(".")[-1].lower()
-            if resume not in ["pdf", "doc", "docx"]:
+            resume_ext = request.FILES.get("resume").name.split(".")[-1].lower()
+            if resume_ext not in ["pdf", "doc", "docx"]:
                 messages.error(request, "Resume must be a PDF or Word document.")
                 return redirect("user:update_profile_std")
-            else:
-                student.resume = request.FILES.get("resume")
+            student.resume = request.FILES.get("resume")
                        
         student.save()
         messages.success(request, "Profile updated successfully!")
@@ -1113,59 +1091,50 @@ def update_profile_std(request):
 
 
 def profile_view(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
     student = Student.objects.get(user=user)
-    alumni = None
-    if user.role == "Alumni":
-        alumni = Alumni.objects.get(user=user)
-    return render(request, "user/profile_view.html", {"user": user, "student": student, "alumni": alumni, "skills_list": student.skills.split(",") if student.skills else []})
+    alumni = Alumni.objects.filter(user=user).first() if user.role == "Alumni" else None
+    return render(request, "user/profile_view.html", {
+        "user": user, 
+        "student": student, 
+        "alumni": alumni, 
+        "skills_list": student.skills.split(",") if student.skills else []
+    })
 
 def alumni_update(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
-    alumni = Alumni.objects.get(user = user)  
+    
+    alumni = get_object_or_404(Alumni, user=user)
+
     if request.method == "POST":
-        register_id = request.session.get("register_id")
-        if not register_id:
-            return redirect("login")
-        user = User.objects.get(register_id=register_id)
-        alumni = Alumni.objects.get(user = user)
         alumni.employment_status = request.POST.get("employment_status")
         alumni.job_title = request.POST.get("job_title")
-        if request.POST.get("experience_year"):
-            alumni.experience_year = int(request.POST.get("experience_year"))
-        else:
-            alumni.experience_year = None
+        exp_year = request.POST.get("experience_year")
+        alumni.experience_year = int(exp_year) if exp_year else None
         alumni.pursuing_degree = request.POST.get("pursuing_degree")
         alumni.university = request.POST.get("university")
-        if request.POST.get("available_for_referral"):
-            alumni.available_for_referral = True
-        else:
-            alumni.available_for_referral = False
+        alumni.available_for_referral = bool(request.POST.get("available_for_referral"))
         alumni.save()
-        messages.success(request, "The Alumni Data Updated Sucessfully")
+        messages.success(request, "The Alumni Data Updated Successfully")
         return redirect("user:profile_view")
-    return render(request, "user/alumni_track.html", {"alumni":alumni})
+    return render(request, "user/alumni_track.html", {"alumni": alumni, "user": user})
 
 
 def alumni_directory(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
     alumni_data = Alumni.objects.select_related('user', 'user__student_profile').all()
     return render(request, "user/alumni_directory.html", { "user": user, "alumni_data": alumni_data})
 
 def student_directory(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    user = User.objects.get(register_id=register_id)
     if user.role not in ["Admin", "Alumni"]:
         messages.error(request, "You are not authorized to view this page.")
         return redirect("user:home")
@@ -1173,18 +1142,17 @@ def student_directory(request):
     return render(request, "user/student_directory.html", {"user": user, "students": students})
 
 def alumni_career_track(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     if 'query' in request.session:
         del request.session['query']
     alumni = Alumni.objects.all().order_by('user__student_profile__graduation_year')
-    print(alumni)
-    return render(request, "user/alumni_career_track.html", {'alumni' : alumni})
+    return render(request, "user/alumni_career_track.html", {'user': user, 'alumni': alumni})
 
 def search_career_track(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     query = request.POST.get('q',"").strip()
     request.session['query'] = query
@@ -1202,8 +1170,8 @@ def search_career_track(request):
     return render(request, "user/alumni_career_track.html", {'alumni' : alumni,'query' : query})
 
 def download_career_track(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
     query = ""
     if 'query' in request.session:
@@ -1243,11 +1211,9 @@ def download_career_track(request):
     return response
 
 def alumni_directory_search(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    
-    user = User.objects.get(register_id=register_id)
     query = request.GET.get('q', '').strip()
 
 
@@ -1274,11 +1240,9 @@ def alumni_directory_search(request):
     return render(request, "user/alumni_directory.html", context)
 
 def student_directory_search(request):
-    register_id = request.session.get("register_id")
-    if not register_id:
+    user = get_session_user(request)
+    if not user:
         return redirect("login")
-    
-    user = User.objects.get(register_id=register_id)
     query = request.GET.get('q', '').strip()
 
     students = Student.objects.select_related('user').filter(user__role="Student")
@@ -1306,11 +1270,7 @@ def student_directory_search(request):
     return render(request, "user/student_directory.html", context)
 
 def department_list(request):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
-
-    user = User.objects.filter(register_id=register_id).first()
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to view departments.')
         return redirect('user:home')
@@ -1319,11 +1279,7 @@ def department_list(request):
     return render(request, 'user/department_list.html', {'departments': departments})
 
 def add_department(request):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
-
-    user = User.objects.filter(register_id=register_id).first()
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to add departments.')
         return redirect('user:home')
@@ -1343,11 +1299,7 @@ def add_department(request):
     return redirect('user:department_list')
 
 def edit_department(request, dept_id):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
-
-    user = User.objects.filter(register_id=register_id).first()
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to edit departments.')
         return redirect('user:home')
@@ -1376,11 +1328,7 @@ def edit_department(request, dept_id):
     return redirect('user:department_list')
 
 def delete_department(request, dept_id):
-    register_id = request.session.get('register_id')
-    if not register_id:
-        return redirect('login')
-
-    user = User.objects.filter(register_id=register_id).first()
+    user = get_session_user(request)
     if not user or user.role != 'Admin':
         messages.error(request, 'You do not have permission to delete departments.')
         return redirect('user:home')
