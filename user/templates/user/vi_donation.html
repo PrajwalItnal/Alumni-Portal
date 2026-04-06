@@ -1,258 +1,87 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Donations{% endblock %}
+{% block title %}Community Donations{% endblock %}
 
 {% block content %}
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
+    .wrapper { max-width: 1200px; margin: 40px auto; padding: 0 20px; font-family: 'Segoe UI', sans-serif; }
+    
+    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .header-row h1 { font-size: 1.8rem; color: #111827; margin: 0; }
+    
+    .btn-home { background: #f3f4f6; color: #1f2937; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #d1d5db; transition: 0.2s; margin-right: 12px; }
+    .btn-home:hover { background: #e5e7eb; }
+    .btn-add { background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.2s; }
+    .btn-add:hover { background: #059669; }
 
-  .donations-wrapper {
-    font-family: 'DM Sans', sans-serif;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px 24px;
-    background: #f5f7f2;
-    min-height: 100vh;
-  }
+    .donation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+    
+    .donation-card { background: white; border-radius: 15px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
+    .donation-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
 
-  .donations-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+    .card-top { padding: 20px; background: #f9fafb; border-bottom: 1px solid #f1f5f9; text-align: center; }
+    .amount-text { font-size: 2rem; font-weight: 800; color: #065f46; }
+    
+    .card-mid { padding: 20px; flex-grow: 1; }
+    .donor-name { font-weight: 700; color: #374151; font-size: 1rem; }
+    .date-text { font-size: 0.8rem; color: #9ca3af; margin-bottom: 10px; display: block; }
+    .desc-text { color: #6b7280; font-size: 0.9rem; line-height: 1.5; }
 
-  .donations-header h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 2rem;
-    color: #1b3a1f;
-    margin: 0;
-    letter-spacing: -0.5px;
-  }
+    .card-footer { padding: 15px 20px; background: #f9fafb; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; }
+    .payment-tag { font-size: 0.75rem; font-weight: 700; background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 20px; }
 
-  .btn-back {
-    background: #fff;
-    border: 1.5px solid #c8d8c4;
-    color: #2e7d32;
-    padding: 8px 18px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.18s, border-color 0.18s;
-    text-decoration: none;
-  }
-
-  .btn-back:hover {
-    background: #e8f5e9;
-    border-color: #2e7d32;
-  }
-
-  /* Alert messages */
-  .alert {
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 18px;
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .alert-error {
-    background: #fdecea;
-    color: #b71c1c;
-    border-left: 4px solid #e53935;
-  }
-
-  .alert-success {
-    background: #e8f5e9;
-    color: #1b5e20;
-    border-left: 4px solid #43a047;
-  }
-
-  /* CTA banner */
-  .donate-cta {
-    background: linear-gradient(135deg, #e8f5e9 0%, #f9fbe7 100%);
-    border: 1.5px solid #c8e6c9;
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-
-  .donate-cta p {
-    margin: 0;
-    color: #2e7d32;
-    font-weight: 500;
-    font-size: 15px;
-  }
-
-  .btn-donate {
-    background: #2e7d32;
-    color: #fff;
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.18s, transform 0.1s;
-    display: inline-block;
-  }
-
-  .btn-donate:hover {
-    background: #1b5e20;
-    transform: translateY(-1px);
-  }
-
-  /* Cards grid */
-  .donations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 22px;
-  }
-
-  .donation-card {
-    background: #fff;
-    border-radius: 14px;
-    border: 1.5px solid #e0ebe0;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(46,125,50,0.06);
-    transition: transform 0.18s, box-shadow 0.18s;
-  }
-
-  .donation-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(46,125,50,0.13);
-  }
-
-  .card-icon {
-    background: linear-gradient(135deg, #c8e6c9, #dcedc8);
-    height: 90px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 38px;
-  }
-
-  .card-body {
-    padding: 16px 18px;
-  }
-
-  .card-amount {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.7rem;
-    color: #2e7d32;
-    margin: 0 0 6px 0;
-  }
-
-  .card-desc {
-    color: #555;
-    font-size: 14px;
-    margin: 0 0 12px 0;
-    line-height: 1.5;
-  }
-
-  .card-divider {
-    border: none;
-    border-top: 1px solid #eee;
-    margin: 10px 0;
-  }
-
-  .card-meta {
-    font-size: 13px;
-    color: #666;
-    line-height: 1.8;
-  }
-
-  .card-meta b {
-    color: #2e7d32;
-  }
-
-  .card-footer {
-    padding: 10px 18px;
-    border-top: 1px solid #eee;
-    background: #fafafa;
-    text-align: center;
-  }
-
-  .badge-payment {
-    background: #e8f5e9;
-    color: #1b5e20;
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    display: inline-block;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: #888;
-    font-size: 15px;
-    grid-column: 1/-1;
-  }
-
-  .empty-state span {
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 12px;
-  }
+    .action-links a { font-size: 0.8rem; font-weight: 600; text-decoration: none; margin-left: 10px; }
+    .link-edit { color: #2563eb; }
+    .link-delete { color: #dc2626; }
 </style>
 
-<div class="donations-wrapper">
-
-  <div class="donations-header">
-    <h2>💰 Donations</h2>
-    <button class="btn-back" onclick="window.history.back()">← Back</button>
-  </div>
-
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  {% if user.role == "Admin" or user.role == "Alumni" %}
-    <div class="donate-cta">
-      <p>🌱 Want to contribute to the community?</p>
-      <a href="{% url 'user:create_donation' %}" class="btn-donate">➕ Make a Donation</a>
+<div class="wrapper">
+    <div class="header-row">
+        <h1>🤝 Donations & Contributions</h1>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="btn-home">Home</a>
+            {% if user.role == 'Alumni' or user.role == 'Admin' %}<a href="{% url 'user:create_donation' %}" class="btn-add">+ Donate Now</a>{% endif %}
+        </div>
     </div>
-  {% endif %}
 
-  <div class="donations-grid">
-    {% for donation in donations %}
-      <div class="donation-card">
-        <div class="card-icon">💵</div>
-        <div class="card-body">
-          <h3 class="card-amount">₹ {{ donation.amount }}</h3>
-          <p class="card-desc">{{ donation.description|truncatewords:20|default:"No description provided." }}</p>
-          <hr class="card-divider">
-          <div class="card-meta">
-            <span>By: <b>{{ donation.donated_by.username }}</b></span><br>
-            <span>Date: {{ donation.donated_at|date:"d M Y" }}</span>
-          </div>
-        </div>
-        <div class="card-footer">
-          <span class="badge-payment">💳 {{ donation.payment_method }}</span>
-        </div>
-      </div>
-    {% empty %}
-      <div class="empty-state">
-        <span>🪴</span>
-        No donations found yet. Be the first to contribute!
-      </div>
-    {% endfor %}
-  </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 15px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
+    <div class="donation-grid">
+        {% for donation in donations %}
+            <div class="donation-card">
+                <div class="card-top">
+                    <span class="amount-text">₹{{ donation.amount }}</span>
+                </div>
+                <div class="card-mid">
+                    <span class="donor-name">{{ donation.donated_by.name }}</span>
+                    <span class="date-text">Contributed on {{ donation.donated_at|date:"M d, Y" }}</span>
+                    <p class="desc-text">{{ donation.description|default:"No description provided for this contribution." }}</p>
+                </div>
+                <div class="card-footer">
+                    <span class="payment-tag">💳 {{ donation.payment_method }}</span>
+                    
+                    <div class="action-links">
+                        {% with donor_id=donation.donated_by.register_id|stringformat:"s" user_id=user.register_id|stringformat:"s" %}
+                            {% if donor_id == user_id or user.role == "Admin" %}
+                                <a href="{% url 'user:edit_donation' donation.id %}" class="link-edit">Modify</a>
+                                <a href="{% url 'user:delete_donation' donation.id %}" class="link-delete" 
+                                   onclick="return confirm('Permanently remove this record?')">Delete</a>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 15px;">
+                <p style="color: #9ca3af;">No donations found in the records yet.</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

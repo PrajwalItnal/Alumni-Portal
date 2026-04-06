@@ -4,212 +4,274 @@
 
 {% block content %}
 <style>
-.profile-wrap {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  font-family: sans-serif;
-}
+  .profile-wrap {
+    max-width: 900px;
+    margin: 4.5rem auto 2rem;
+    padding: 2rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    color: #1f2937;
+  }
 
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  background: #1e3a5f;
-  border-radius: 14px;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-}
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    background: #1e3a5f;
+    border-radius: 18px;
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
 
-.profile-header img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid rgba(255,255,255,0.25);
-  flex-shrink: 0;
-}
+  .profile-header img,
+  .profile-avatar-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 255, 255, 0.22);
+    flex-shrink: 0;
+  }
 
-.profile-avatar-placeholder {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.2rem;
-  flex-shrink: 0;
-}
+  .profile-avatar-placeholder {
+    background: rgba(255, 255, 255, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+  }
 
-.profile-header-info h2 {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #fff;
-  margin: 0 0 0.6rem 0;
-}
+  .profile-header-info {
+    flex: 1;
+  }
 
-.profile-header-info p {
-  font-size: 0.85rem;
-  color: rgba(255,255,255,0.6);
-  margin: 0 0 0.4rem 0;
-}
+  .profile-header-info h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
 
-.role-badge {
-  display: inline-block;
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  font-size: 0.72rem;
-  padding: 0.25rem 0.8rem;
-  border-radius: 50px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-top: 0.4rem;
-}
+  .profile-header-info p {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 0.35rem 0;
+  }
 
-.success-msg {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #16a34a;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  margin-bottom: 1.2rem;
-}
+  .role-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-size: 0.72rem;
+    padding: 0.35rem 0.95rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.5rem;
+  }
 
-.error-msg {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  margin-bottom: 1.2rem;
-}
+  .success-msg,
+  .error-msg {
+    padding: 0.95rem 1rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    margin-bottom: 1.2rem;
+  }
 
-.section-card {
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 1.2rem;
-}
+  .success-msg {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
 
-.section-card-title {
-  background: #1e3a5f;
-  color: #fff;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.75rem 1.2rem;
-}
+  .error-msg {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+  }
 
-.section-card-body {
-  padding: 1.4rem;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.4rem;
-}
+  .section-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.3rem;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+  }
 
-.info-item span:first-child {
-  display: block;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #999;
-  margin-bottom: 0.25rem;
-}
+  .section-card-title {
+    background: #1e3a5f;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.95rem 1.4rem;
+  }
 
-.info-item span:last-child {
-  font-size: 0.88rem;
-  color: #111;
-  font-weight: 500;
-}
+  .section-card-body {
+    padding: 1.4rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
 
-.full-width {
-  grid-column: 1 / -1;
-}
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
 
-.link-btn {
-  display: inline-block;
-  font-size: 0.82rem;
-  color: #1e3a5f;
-  border: 1px solid #1e3a5f;
-  padding: 0.3rem 0.9rem;
-  border-radius: 6px;
-  text-decoration: none;
-  margin-top: 0.3rem;
-}
+  .info-item span:first-child {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+  }
 
-.link-btn:hover {
-  background: #1e3a5f;
-  color: #fff;
-}
+  .info-item span:last-child {
+    font-size: 0.92rem;
+    color: #111827;
+    font-weight: 500;
+  }
 
-.btn-row.single-line {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: nowrap;
-  margin-top: 1.5rem;
-}
+  .full-width {
+    grid-column: 1 / -1;
+  }
 
-.btn {
-  padding: 0.7rem 1.4rem;
-  border-radius: 8px;
-  font-size: 0.88rem;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  display: inline-block;
-  white-space: nowrap;
-}
+  .skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
 
-.btn-blue {
-  background: #1e3a5f;
-  color: #fff;
-}
+  .skill-badge {
+    background: #eef2f6;
+    color: #1e3a5f;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid #d1d9e6;
+    font-weight: 600;
+  }
 
-.btn-blue:hover {
-  background: #16304f;
-}
+  .link-btn {
+    display: inline-block;
+    font-size: 0.82rem;
+    color: #1e3a5f;
+    border: 1px solid #1e3a5f;
+    padding: 0.35rem 0.95rem;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 0.3rem;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
 
-.btn-blue-outline {
-  background: #fff;
-  color: #1e3a5f;
-  border: 1px solid #1e3a5f;
-}
+  .link-btn:hover {
+    background: #1e3a5f;
+    color: #fff;
+    box-shadow: 0 10px 22px rgba(30, 58, 95, 0.16);
+  }
 
-.btn-blue-outline:hover {
-  background: #1e3a5f;
-  color: #fff;
-}
+  .resume-item,
+  .social-item {
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    border-radius: 14px;
+    padding: 1rem 1rem 0.85rem;
+  }
 
-@media (max-width: 600px) {
-  .section-card-body { grid-template-columns: 1fr; }
-  .profile-header { flex-direction: column; text-align: center; }
-  .btn-row.single-line { flex-wrap: wrap; }
-}
+  .resume-item span:first-child,
+  .social-item span:first-child {
+    color: #334155;
+  }
+
+  .social-links-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+
+  .social-item .link-btn {
+    margin-top: 0;
+  }
+
+  .btn-row.single-line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.75rem 1.35rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-blue {
+    background: #1e3a5f;
+    color: #fff;
+  }
+
+  .btn-blue-outline {
+    background: #fff;
+    color: #1e3a5f;
+    border: 1px solid #1e3a5f;
+  }
+
+  @media (max-width: 768px) {
+    .profile-wrap {
+      margin: 3.5rem 1rem 2rem;
+      padding: 1.5rem 1rem;
+    }
+
+    .section-card-body {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-header {
+      flex-direction: column;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .profile-header-info h2 {
+      font-size: 1.35rem;
+    }
+
+    .btn-row.single-line {
+      justify-content: center;
+    }
+  }
 </style>
 
 <div class="profile-wrap">
 
   {% if messages %}
-    {% for message in messages %}
-      {% if message.tags == 'success' %}
-        <div class="success-msg">{{ message }}</div>
-      {% else %}
-        <div class="error-msg">{{ message }}</div>
-      {% endif %}
-    {% endfor %}
+  {% for message in messages %}
+  <div class="{% if message.tags == 'success' %}success-msg{% else %}error-msg{% endif %}">{{ message }}</div>
+  {% endfor %}
   {% endif %}
 
   <div class="profile-header">
     {% if student and student.photo %}
-      <img src="{{ student.photo.url }}" alt="Profile Photo">
+    <img src="{{ student.photo.url }}" alt="Profile Photo">
     {% else %}
-      <div class="profile-avatar-placeholder">👤</div>
+    <div class="profile-avatar-placeholder">👤</div>
     {% endif %}
     <div class="profile-header-info">
       <h2>{{ user.username }}</h2>
@@ -230,31 +292,49 @@
       <div class="info-item"><span>Gender</span><span>{{ student.gender|default:"Not provided" }}</span></div>
       <div class="info-item"><span>DOB</span><span>{{ student.dob|default:"Not provided" }}</span></div>
       <div class="info-item"><span>City</span><span>{{ student.city|default:"Not provided" }}</span></div>
-      <div class="info-item full-width"><span>Address</span><span>{{ student.permanent_address|default:"Not provided" }}</span></div>
+
+      <div class="info-item full-width">
+        <span>Skills & Expertise</span>
+        <div class="skills-container">
+          {% for skill in skills_list %}
+          <span class="skill-badge">{{ skill }}</span>
+          {% empty %}
+          <span style="color:#999; font-weight:normal;">No skills added yet.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="info-item full-width"><span>Address</span><span>{{ student.permanent_address|default:"Not provided"
+          }}</span></div>
       <div class="info-item full-width"><span>Bio</span><span>{{ student.bio|default:"Not provided" }}</span></div>
-      <div class="info-item">
+
+      <div class="info-item resume-item">
         <span>Resume</span>
         {% if student.resume %}
-          <a href="{{ student.resume.url }}" target="_blank" class="link-btn">View Resume</a>
+        <a href="{{ student.resume.url }}" target="_blank" class="link-btn">View Resume</a>
         {% else %}
-          <span>Not uploaded</span>
+        <span>Not uploaded</span>
         {% endif %}
       </div>
-      <div class="info-item">
+
+      <div class="info-item social-item">
         <span>Social Links</span>
-        {% if student.github_url %}
+        <div class="social-links-wrap">
+          {% if student.github_url %}
           <a href="{{ student.github_url }}" target="_blank" class="link-btn">GitHub</a>
-        {% endif %}
-        {% if student.linkedin_url %}
+          {% endif %}
+          {% if student.linkedin_url %}
           <a href="{{ student.linkedin_url }}" target="_blank" class="link-btn">LinkedIn</a>
-        {% endif %}
-        {% if not student.github_url and not student.linkedin_url %}
+          {% endif %}
+          {% if not student.github_url and not student.linkedin_url %}
           <span>Not provided</span>
-        {% endif %}
+          {% endif %}
+        </div>
       </div>
-      
     </div>
-    <a href="{% url 'user:update_profile_std' %}" class="btn btn-blue">Edit Profile</a>
+    <div style="padding: 0 1.4rem 1.4rem 1.4rem;">
+      <a href="{% url 'user:update_profile_std' %}" class="btn btn-blue">Edit Student Profile</a>
+    </div>
   </div>
   {% endif %}
 
@@ -262,24 +342,26 @@
   <div class="section-card">
     <div class="section-card-title">Alumni Details</div>
     <div class="section-card-body">
-      <div class="info-item"><span>Employment Status</span><span>{{ alumni.employment_status|default:"Not provided" }}</span></div>
+      <div class="info-item"><span>Employment Status</span><span>{{ alumni.employment_status|default:"Not provided"
+          }}</span></div>
       <div class="info-item"><span>Company</span><span>{{ alumni.company_name|default:"Not provided" }}</span></div>
       <div class="info-item"><span>Job Title</span><span>{{ alumni.job_title|default:"Not provided" }}</span></div>
-      <div class="info-item"><span>Experience</span><span>{{ alumni.experience_year|default:"Not provided" }} years</span></div>
-      <div class="info-item"><span>Higher Study</span><span>{{ alumni.pursuing_degree|default:"Not provided" }}</span></div>
-      <div class="info-item"><span>University</span><span>{{ alumni.university|default:"Not provided" }}</span></div>
-      <div class="info-item"><span>Available for Referral</span><span>{% if alumni.available_for_referral %}Yes{% else %}No{% endif %}</span></div>
+      <div class="info-item"><span>Experience</span><span>{{ alumni.experience_year|default:"0" }} years</span></div>
+      <div class="info-item"><span>Higher Study</span><span>{{ alumni.pursuing_degree|default:"None" }}</span></div>
+      <div class="info-item"><span>University</span><span>{{ alumni.university|default:"N/A" }}</span></div>
+      <div class="info-item"><span>Available for Referral</span><span>{% if alumni.available_for_referral %}Yes{% else
+          %}No{% endif %}</span></div>
     </div>
-     <a href="{% url 'user:alumni_update' %}" class="btn btn-blue"> Profile</a>
+    <div style="padding: 0 1.4rem 1.4rem 1.4rem;">
+      <a href="{% url 'user:alumni_update' %}" class="btn btn-blue">Edit Alumni Profile</a>
+    </div>
   </div>
   {% endif %}
 
   <div class="btn-row single-line">
-    
     <a href="{% url 'user:change_password' %}" class="btn btn-blue-outline">Change Password</a>
     <button class="btn btn-blue-outline" onclick="window.history.back()">← Back</button>
   </div>
 
 </div>
-
 {% endblock %}

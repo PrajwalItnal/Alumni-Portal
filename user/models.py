@@ -1,4 +1,3 @@
-from email.mime import image
 from django.db import models
 
 class User(models.Model):
@@ -49,6 +48,7 @@ class Student(models.Model):
     )
     github_url = models.URLField(blank=True, null=True)
     linkedin_url = models.URLField(blank=True, null=True)
+    skills = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = "student"
@@ -100,9 +100,9 @@ class Job(models.Model):
     location = models.CharField(max_length=200)
     salary = models.CharField(max_length=100, blank=True, null=True)
     last_date = models.DateField()
-    required_skills = models.TextField(default=True)
+    required_skills = models.TextField(default="")
     posted_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default="Open")
+    application_link = models.URLField(blank=True, null=True)
     
     class Meta:
         db_table = "Jobs"
@@ -161,11 +161,10 @@ class Internship(models.Model):
     location = models.CharField(max_length=200)
     stipend = models.CharField(max_length=100, blank=True, null=True)
     last_date = models.DateField()
-    required_skills = models.TextField(default=True)
+    required_skills = models.TextField(default="")
     posted_at = models.DateTimeField(auto_now_add=True)
     duration = models.CharField(max_length=100, blank=True, null=True)
-    status = models.CharField(max_length=20, default="Open")
-
+    application_link = models.URLField(blank=True, null=True)
 
     class Meta:
         db_table = "Internships"
@@ -183,21 +182,12 @@ class Achievement(models.Model):
     class Meta:
         db_table = "achievements"
 
-class College(models.Model):
-    name = models.CharField(max_length=200)
-    address = models.TextField()
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=15)
-    website = models.URLField(blank=True, null=True)
-    established_year = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Department(models.Model):
+    dept_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = "department"
 
     def __str__(self):
         return self.name
-    
-    class Meta:
-        db_table = "college"
-
-

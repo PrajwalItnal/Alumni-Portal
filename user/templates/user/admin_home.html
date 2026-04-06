@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard | Smart Alumni Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
     body {
       font-family: 'DM Sans', sans-serif;
@@ -15,7 +20,7 @@
       min-height: 100vh;
     }
 
-    
+
     .navbar {
       background: #fff;
       border-bottom: 1px solid #e5e4e0;
@@ -28,12 +33,14 @@
       top: 0;
       z-index: 10;
     }
+
     .navbar h1 {
       font-size: 16px;
       font-weight: 600;
       color: #1a1a1a;
       letter-spacing: -0.01em;
     }
+
     .navbar a {
       font-size: 13px;
       color: #555;
@@ -44,7 +51,11 @@
       font-weight: 500;
       transition: background 0.15s, border-color 0.15s;
     }
-    .navbar a:hover { background: #f4f3f0; border-color: #aaa; }
+
+    .navbar a:hover {
+      background: #f4f3f0;
+      border-color: #aaa;
+    }
 
 
     .main {
@@ -53,7 +64,7 @@
       margin: 0 auto;
     }
 
-    
+
     .welcome-box {
       background: #fff;
       border: 1px solid #e5e4e0;
@@ -64,6 +75,7 @@
       align-items: center;
       gap: 1.25rem;
     }
+
     .welcome-icon {
       font-size: 24px;
       width: 52px;
@@ -75,19 +87,21 @@
       justify-content: center;
       flex-shrink: 0;
     }
+
     .welcome-box h2 {
       font-size: 20px;
       font-weight: 600;
       margin-bottom: 5px;
       letter-spacing: -0.01em;
     }
+
     .welcome-box p {
       font-size: 14px;
       color: #666;
       line-height: 1.6;
     }
 
-  
+
     .section-label {
       font-size: 11px;
       font-weight: 600;
@@ -97,15 +111,18 @@
       margin-bottom: 0.75rem;
     }
 
-    
+
     .actions {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 12px;
     }
-    .break { display: none; }
 
-    
+    .break {
+      display: none;
+    }
+
+
     .action-card {
       background: #fff;
       border: 1px solid #e5e4e0;
@@ -116,21 +133,25 @@
       gap: 6px;
       transition: border-color 0.15s, transform 0.15s;
     }
+
     .action-card:hover {
       border-color: #c0bfbb;
       transform: translateY(-1px);
     }
+
     .action-card h3 {
       font-size: 14px;
       font-weight: 600;
       color: #1a1a1a;
     }
+
     .action-card p {
       font-size: 13px;
       color: #777;
       line-height: 1.55;
       flex: 1;
     }
+
     .action-btn {
       display: inline-flex;
       align-items: center;
@@ -141,19 +162,41 @@
       text-decoration: none;
       width: fit-content;
     }
-    .action-btn::after { content: ' →'; }
-    .action-btn:hover { text-decoration: underline; }
 
-    
+    .action-btn::after {
+      content: ' →';
+    }
+
+    .action-btn:hover {
+      text-decoration: underline;
+    }
+
+
     @media (max-width: 600px) {
-      .main { padding: 1rem; }
-      .welcome-box { flex-direction: column; align-items: flex-start; }
-      .welcome-icon { display: none; }
-      .actions { grid-template-columns: 1fr; }
-      .navbar { padding: 0 1rem; }
+      .main {
+        padding: 1rem;
+      }
+
+      .welcome-box {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .welcome-icon {
+        display: none;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .navbar {
+        padding: 0 1rem;
+      }
     }
   </style>
 </head>
+
 <body>
 
   <nav class="navbar">
@@ -162,18 +205,17 @@
   </nav>
 
   {% if messages %}
-    <div class="messages-container" style="padding: 20px 20px 0 20px;">
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
-                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
+  <div class="messages-container" style="padding: 20px 20px 0 20px;">
+    {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
                         {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
                         {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
                         {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+      {{ message }}
     </div>
-{% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
 
 
   <div class="main">
@@ -189,12 +231,6 @@
     <p class="section-label">Management</p>
 
     <div class="actions">
-
-      <div class="action-card">
-        <h3>🏫 College Detail</h3>
-        <p>View and manage college information.</p>
-        <a href="{% url 'user:college_list' %}" class="action-btn">Open</a>
-      </div>
 
       <div class="action-card">
         <h3>📅 Events</h3>
@@ -251,10 +287,23 @@
       </div>
 
       <div class="action-card">
-    <h3>📊 Alumni Status Track</h3>
-    <p>View and monitor alumni career status.</p>
-    <a href="{% url 'user:alumni_career_track' %}" class="action-btn">View</a>
-    </div>
+        <h3>📊 Alumni Status Track</h3>
+        <p>View and monitor alumni career status.</p>
+        <a href="{% url 'user:alumni_career_track' %}" class="action-btn">View</a>
+      </div>
+
+
+      <div class="action-card">
+        <h3>🏢 Manage Departments</h3>
+        <p>Check and manage department details.</p>
+        <a href="{% url 'user:department_list' %}" class="action-btn">View</a>
+      </div>
+
+      <div class="action-card">
+        <h3>✉️ Change Email and Password</h3>
+        <p>Update the email address or reset the password for any student or alumni.</p>
+        <a href="{% url 'user:change_user_email' %}" class="action-btn">Change</a>
+      </div>
 
 
 
@@ -262,4 +311,5 @@
   </div>
 
 </body>
+
 </html>

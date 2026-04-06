@@ -1,40 +1,367 @@
 {% extends 'user/user_base.html' %}
 
-{% block title %}Add Job | Smart Alumni Portal{% endblock %}
+{% block title %}{% if data %}Edit{% else %}Add{% endif %} Job | Portal{% endblock %}
 
 {% block content %}
+<style>
+    html {
+        box-sizing: border-box;
+    }
+    *, *::before, *::after {
+        box-sizing: inherit;
+    }
+    body {
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        color: #1f2937;
+        line-height: 1.6;
+    }
 
-{% if messages %}
-    {% for message in messages %}
-        <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px; 
-            background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %}; 
-            color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
-            {{ message }}
+    .job-form-wrapper {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 56px 20px;
+    }
+
+    .job-card {
+        background: #ffffff;
+        width: 100%;
+        max-width: 860px;
+        border-radius: 28px;
+        box-shadow: 0 28px 80px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+        border: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .job-card-header {
+        position: relative;
+        overflow: hidden;
+        padding: 48px 42px 38px;
+        background: linear-gradient(135deg, #1f3c88 0%, #2563eb 100%);
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .job-card-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top left, rgba(255,255,255,0.28), transparent 35%),
+                    radial-gradient(circle at bottom right, rgba(255,255,255,0.14), transparent 26%);
+        pointer-events: none;
+    }
+
+    .job-card-header h2,
+    .job-card-header p {
+        position: relative;
+        z-index: 1;
+    }
+
+    .job-card-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    .job-card-header p {
+        margin: 12px auto 0;
+        max-width: 680px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .btn-back {
+        position: absolute;
+        left: 24px;
+        top: 24px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        padding: 10px 18px;
+        border-radius: 9999px;
+        font-size: 0.92rem;
+        font-weight: 600;
+        cursor: pointer;
+        backdrop-filter: blur(6px);
+        transition: transform 0.25s ease, background 0.25s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 1;
+    }
+
+    .btn-back:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+    }
+
+    .job-card-body {
+        padding: 42px 44px 48px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 26px;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+
+    .form-group label span.required {
+        color: #ef4444;
+        margin-left: 4px;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 54px;
+        padding: 16px 18px;
+        border: 1px solid #d1d5db;
+        border-radius: 16px;
+        font-size: 1rem;
+        color: #111827;
+        background: #f8fafc;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .form-control::placeholder {
+        color: #94a3b8;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+        line-height: 1.75;
+        padding-top: 18px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 18px 22px;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        margin-top: 15px;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.18);
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px rgba(37, 99, 235, 0.22);
+        background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 12px 22px rgba(37, 99, 235, 0.2);
+    }
+
+    .alert-box {
+        padding: 18px 22px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    .hint-text {
+        font-size: 0.88rem;
+        color: #64748b;
+        margin-top: 8px;
+        display: block;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .job-card-body {
+            padding: 30px 24px 36px;
+        }
+
+        .job-card-header {
+            padding: 38px 24px 32px;
+        }
+
+        .btn-back {
+            position: relative;
+            left: 0;
+            top: 0;
+            margin-bottom: 20px;
+        }
+
+        .job-card-header h2 {
+            font-size: 1.7rem;
+        }
+    }
+</style>
+
+<div class="job-form-wrapper">
+    <div class="job-card">
+        <div class="job-card-header">
+            <button class="btn-back" onclick="window.history.back()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Go Back
+            </button>
+            <h2>{% if data %}Update Job Listing{% else %}Post a New Job{% endif %}</h2>
+            <p>Connect top talent from the alumni network with amazing opportunities</p>
         </div>
-    {% endfor %}
-{% endif %}
 
-<h2>Add Job</h2>
-<button onclick="window.history.back()">Back</button>
+        <div class="job-card-body">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert-box {% if message.tags == 'success' %}alert-success{% else %}alert-error{% endif %}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    {% if message.tags == 'success' %}
+                    <path d="M20 6L9 17l-5-5" />
+                    {% else %}
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                    {% endif %}
+                </svg>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
 
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-grid">
 
-<form action="{% url 'user:add_job' %}" method="post">
-    {% csrf_token %}
-    <label for="title">Title:</label>
-    <input type="text" id="title" name="title" required><br>
-    <label for="c_name">Company Name:</label>
-    <input type="text" id="c_name" name="c_name" required><br>
-    <label for="description">Description:</label>
-    <input type="text" id="description" name="description" required><br>
-    <label for="location">Location:</label>
-    <input type="text" id="location" name="location" required><br>
-    <label for="salary">Salary</label>
-    <input type="text" id="salary" name="salary" required><br>
-    <label for="last_date">Last Date:</label>
-    <input type="date" id="last_date" name="last_date" required><br>
-    <label for="required_skill">Required Skills</label>
-    <input type="text" id="required_skills" name="required_skills" required><br>
-    <button type="submit">Add Job</button>
-</form>
+                    <div class="form-group">
+                        <label>Job Title <span class="required">*</span></label>
+                        <input type="text" name="title" class="form-control" value="{{ data.title }}"
+                            placeholder="e.g. Senior Software Engineer" required>
+                    </div>
 
+                    <div class="form-group">
+                        <label>Company Name <span class="required">*</span></label>
+                        <input type="text" name="c_name" class="form-control" value="{% if data.c_name %}{{ data.c_name }}{% else %}{{ data.company_name }}{% endif %}"
+                            placeholder="e.g. Google, Startup Inc." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location <span class="required">*</span></label>
+                        <input type="text" name="location" class="form-control" value="{{ data.location }}"
+                            placeholder="e.g. Remote, Bangalore, India" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Salary Package <span class="required">*</span></label>
+                        <input type="text" name="salary" class="form-control" value="{{ data.salary }}"
+                            placeholder="e.g. ₹15 LPA / $80k per year" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Application Deadline <span class="required">*</span></label>
+                        <input type="date" name="last_date" class="form-control"
+                            value="{{ data.last_date|date:'Y-m-d' }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Required Skills <span class="required">*</span></label>
+                        <input type="text" name="required_skills" class="form-control"
+                            value="{{ data.required_skills }}" placeholder="e.g. Python, React, Data Analysis" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Application Link <span class="required">*</span></label>
+                        <input type="url" name="apply_link" class="form-control" value="{% if data.apply_link %}{{ data.apply_link }}{% else %}{{ data.application_link }}{% endif %}"
+                            placeholder="https://careers.yourcompany.com/apply" required>
+                        <span class="hint-text">Provide the exact target URL where candidates should submit their
+                            application or resume.</span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Role Description & Responsibilities <span class="required">*</span></label>
+                        <textarea name="description" class="form-control"
+                            placeholder="Describe the role, day-to-day responsibilities, and key attributes you are looking for..."
+                            required>{{ data.description }}</textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <button type="submit" class="submit-btn">
+                            {% if data %}
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <polyline points="17 21 17 13 7 13 7 21" />
+                                <polyline points="7 3 7 8 15 8" />
+                            </svg>
+                            Save Changes
+                            {% else %}
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                            Publish Job Post
+                            {% endif %}
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

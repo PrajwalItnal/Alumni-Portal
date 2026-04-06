@@ -3,128 +3,336 @@
 {% block title %}Job Listings{% endblock %}
 
 {% block content %}
-
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-}
+    body {
+        background: #f8fafc;
+        color: #111827;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        margin: 0;
+    }
 
-.container {
-    width: 90%;
-    margin: auto;
-}
+    .page-container {
+        width: min(1160px, 94%);
+        margin: 0 auto;
+        padding: 32px 0 56px;
+    }
 
-.alert {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
+    .page-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
 
-.post-box {
-    background: #fff3cd;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
+    .page-header h2 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #111827;
+    }
 
-.btn {
-    background: #007bff;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-    text-decoration: none;
-}
+    .page-header p {
+        margin: 8px 0 0;
+        color: #475569;
+        font-size: 0.96rem;
+        max-width: 680px;
+    }
 
-.btn:hover {
-    background: #0056b3;
-}
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
 
-.search-box {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
 
-.search-box input {
-    padding: 5px;
-    margin-right: 10px;
-}
+    .btn-primary {
+        background: #2563eb;
+        color: #ffffff;
+        box-shadow: 0 14px 30px rgba(37, 99, 235, 0.18);
+    }
 
-.job-card {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border-left: 5px solid #007bff;
-}
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        background: #1d4ed8;
+    }
 
-.job-card h3 {
-    margin: 5px 0;
-}
+    .btn-secondary {
+        background: #ffffff;
+        color: #334155;
+        border: 1px solid #cbd5e1;
+        box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.15);
+    }
 
-.job-card p {
-    margin: 3px 0;
-    font-size: 14px;
-}
+    .btn-secondary:hover {
+        background: #eef2ff;
+        color: #1d4ed8;
+        border-color: #c7d2fe;
+    }
+
+    .btn-cta {
+        background: #16a34a;
+        color: #ffffff;
+    }
+
+    .btn-cta:hover {
+        background: #15803d;
+    }
+
+    .btn-link {
+        background: transparent;
+        color: #2563eb;
+        border: 1px solid transparent;
+    }
+
+    .btn-link:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+    }
+
+    .alert-box {
+        width: 100%;
+        margin-bottom: 24px;
+        padding: 16px 18px;
+        border-radius: 16px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background: #ecfdf5;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border-color: #fecaca;
+    }
+
+    .search-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 22px 24px;
+        margin-bottom: 28px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    .search-form {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        align-items: end;
+    }
+
+    .search-form input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #d1d5db;
+        border-radius: 14px;
+        font-size: 0.96rem;
+        color: #111827;
+        background: #f8fafc;
+        transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .search-form input:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #ffffff;
+    }
+
+    .search-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .job-list {
+        display: grid;
+        gap: 24px;
+    }
+
+    .job-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 24px;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 22px 46px rgba(15, 23, 42, 0.1);
+    }
+
+    .job-card-header {
+        padding: 24px 28px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        border-bottom: 1px solid #e2e8f0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent);
+    }
+
+    .job-card-header h3 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .job-meta {
+        color: #475569;
+        font-size: 0.92rem;
+        text-align: right;
+        min-width: 160px;
+    }
+
+    .job-body {
+        padding: 24px 28px 28px;
+        display: grid;
+        gap: 18px;
+    }
+
+    .job-info {
+        display: grid;
+        gap: 10px;
+    }
+
+    .job-info p {
+        margin: 0;
+        color: #334155;
+        font-size: 0.96rem;
+        line-height: 1.75;
+    }
+
+    .job-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .job-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .job-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 6px;
+    }
+
+    @media (max-width: 840px) {
+        .search-form {
+            grid-template-columns: 1fr;
+        }
+
+        .job-card-header {
+            text-align: left;
+        }
+
+        .job-meta {
+            text-align: left;
+            min-width: auto;
+        }
+    }
 </style>
 
-<div class="container">
+<div class="page-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert-box {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert"
-            style="background-color:{% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
-                   color:{% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
-            {{ message }}
+    <div class="page-header">
+        <div>
+            <h2>Job Listings</h2>
+            <p>Explore opportunities from the alumni network and apply directly to positions that match your skills.</p>
         </div>
-    {% endfor %}
-{% endif %}
-
-{% if user.role == "Admin" or user.role == "Alumni" %}
-    <div class="post-box">
-        <p>Have a new job opportunity to share?</p>
-        <a href="{% url 'user:add_job' %}" class="btn">Post New Job</a>
-        <a href="{% url 'user:admin_home' %}">Home</a>
-        \<a href="{% url 'user:logout' %}">Logout</a>
-        
+        <div class="button-group">
+            <a href="{% url 'user:home' %}" class="btn btn-secondary">Home</a>
+            {% if user.role == "Admin" or user.role == "Alumni" %}
+                <a href="{% url 'user:add_job' %}" class="btn btn-primary">+ Post New Job</a>
+            {% endif %}
+        </div>
     </div>
-{% endif %}
 
-<h2>Job Listings</h2>
+    <div class="search-box">
+        <form action="{% url 'user:filter_job' %}" method="get" class="search-form">
+            <input type="text" name="title" placeholder="Job title" value="{{ request.GET.title }}">
+            <input type="text" name="loc" placeholder="Location" value="{{ request.GET.loc }}">
+            <div class="search-actions">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{% url 'user:view_job' %}" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
 
-<div class="search-box">
-<form action="{% url 'user:filter_job' %}" method="get">
-    <label>Title:</label>
-    <input type="text" name="title" value="{{ request.GET.title }}">
-    
-    <label>Location:</label>
-    <input type="text" name="loc" value="{{ request.GET.loc }}">
-    
-    <button type="submit" class="btn">Search</button>
-    
-    <a href="{% url 'user:view_job' %}" style="margin-left:10px;">Clear</a>
-</form>
-</div>
-
-{% if jobs %}
     {% for job in jobs %}
         <div class="job-card">
-            <p>{{ job.posted_by.username }}</p>
-            <h3>{{ job.company_name }}</h3>
-            <p><strong>Title:</strong> {{ job.title }}</p>
-            <p><strong>Description:</strong> {{ job.description }}</p>
-            <p><strong>Location:</strong> {{ job.location }}</p>
-            <p><strong>Salary:</strong> {{ job.salary }}</p>
-            <p><strong>Last Date:</strong> {{ job.last_date }}</p>
-            <p><strong>Skills:</strong> {{ job.required_skills }}</p>
+            <div class="job-card-header">
+                <h3>{{ job.company_name }}</h3>
+                <div class="job-meta">Posted by: {{ job.posted_by.username }}</div>
+            </div>
+            <div class="job-body">
+                <div class="job-info">
+                    <p><strong>Position:</strong> {{ job.title }}</p>
+                    <p><strong>Description:</strong> {{ job.description }}</p>
+                </div>
+                <div class="job-tags">
+                    <span class="job-pill">Location: {{ job.location }}</span>
+                    <span class="job-pill">Salary: {{ job.salary }}</span>
+                    <span class="job-pill">Deadline: {{ job.last_date }}</span>
+                </div>
+                <p><strong>Required Skills:</strong> {{ job.required_skills }}</p>
+                <div class="job-actions">
+                    <a href="{{ job.application_link }}" target="_blank" class="btn btn-cta">🚀 Apply Now</a>
+                    {% if job.posted_by.register_id == user.register_id or user.role == "Admin" %}
+                        <a href="{% url 'user:edit_job' job.id %}" class="btn btn-secondary">Modify Job</a>
+                        <a href="{% url 'user:delete_job' job.id %}" class="btn btn-link" onclick="return confirm('Delete this job post?')">Remove</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
+    {% empty %}
+        <p>No job listings available.</p>
     {% endfor %}
-{% else %}
-    <p>No job listings available.</p>
-{% endif %}
-
 </div>
-
 {% endblock %}

@@ -3,71 +3,69 @@
 {% block title %}Alumni Career Track{% endblock %}
 
 {% block content %}
+<div class="container mt-5 mb-5">
+    <button class="btn btn-outline-secondary mb-3" onclick="window.history.back()">← Back</button>
 
-<h2 style="text-align:center; margin-bottom:20px;">
-    Alumni Career Tracking
-</h2>
+    <div class="card shadow-sm border-0" style="border-radius: 12px;">
+        <div class="card-body p-4">
+            <h2 class="fw-bold mb-4 text-center">Alumni Career Tracking</h2>
 
-<form method="POST" action = "{% url 'user:search_career_track' %}" style="margin-bottom:20px; text-align:center;">
-    {% csrf_token %}
-    <input type="text" name="q" placeholder="Search by name, company, job, dept or role"
-           value="{{ query|default:'' }}"
-           style="padding:8px; width:300px;">
+            <form method="POST" action="{% url 'user:search_career_track' %}" class="row justify-content-center mb-4 g-2">
+                {% csrf_token %}
+                <div class="col-md-6">
+                    <input type="text" name="q" class="form-control form-control-lg shadow-sm" placeholder="Search by name, company, job, dept or role..." value="{{ query|default:'' }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm">🔍 Search</button>
+                    <a href="{% url 'user:alumni_career_track' %}" class="btn btn-outline-secondary btn-lg ms-2 shadow-sm">Reset</a>
+                    <a href="{% url 'user:download_career_track' %}" class="btn btn-success btn-lg ms-2 shadow-sm">📥 Download CSV</a>
+                </div>
+            </form>
 
-    <button type="submit" style="padding:8px 15px;">Search</button>
-
-    <a href="{% url 'user:alumni_career_track' %}" style="margin-left:10px;">Reset</a>
-</form>
-{% comment %} <a href="{% url 'user:download_career_track' %}?q={{ query|default:'' }}" 
-   style="margin-left:10px; padding:8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-weight: 500;">
-   Download Excel/CSV
-</a> {% endcomment %}
-
-<table border="1" cellpadding="10" cellspacing="0"
-       style="width:100%; border-collapse:collapse; text-align:center;">
-
-    <tr style="background-color:#f2f2f2;">
-        <th>S.No</th>
-        <th>Register Id</th>
-        <th>Name</th>
-        <th>Company</th>
-        <th>Job Role</th>
-        <th>Experience</th>
-        <th>Higher Studies</th>
-        <th>University</th>
-        <th>Referral</th>
-    </tr>
-
-    {% for a in alumni %}
-    <tr>
-        <td>{{ forloop.counter }}</td>
-
-        <td>{{ a.user.register_id }}</td>
-
-        <td>{{ a.user.username }}</td>
-
-        <td>{{ a.company_name|default:"-" }}</td>
-        <td>{{ a.job_title|default:"-" }}</td>
-        <td>{{ a.experience_year|default:"-" }}</td>
-
-        <td>{{ a.pursuing_degree|default:"-" }}</td>
-        <td>{{ a.university|default:"-" }}</td>
-
-        <td>
-            {% if a.available_for_referral %}
-                <span style="color:green; font-weight:bold;">Available</span>
-            {% else %}
-                <span style="color:red;">Not Available</span>
-            {% endif %}
-        </td>
-    </tr>
-
-    {% empty %}
-    <tr>
-        <td colspan="9">No alumni career data available.</td>
-    </tr>
-    {% endfor %}
-
-</table>
-
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle border">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>S.No</th>
+                            <th>Reg Id</th>
+                            <th>Name</th>
+                            <th>Company</th>
+                            <th>Job Role</th>
+                            <th>Experience</th>
+                            <th>Higher Studies</th>
+                            <th>University</th>
+                            <th>Referral</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in alumni %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td class="text-secondary fw-semibold">{{ a.user.register_id }}</td>
+                            <td class="fw-bold">{{ a.user.username }}</td>
+                            <td>{{ a.company_name|default:"-" }}</td>
+                            <td>{{ a.job_title|default:"-" }}</td>
+                            <td>{{ a.experience_year|default:"-" }} yrs</td>
+                            <td>{{ a.pursuing_degree|default:"-" }}</td>
+                            <td>{{ a.university|default:"-" }}</td>
+                            <td>
+                                {% if a.available_for_referral %}
+                                    <span class="badge bg-success py-2 px-3">Available</span>
+                                {% else %}
+                                    <span class="badge bg-danger py-2 px-3">Not Available</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">No alumni career data available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>
+</div>
 {% endblock %}

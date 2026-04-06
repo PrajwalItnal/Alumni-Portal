@@ -1,68 +1,134 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Make a Donation{% endblock %}
+{% block title %}{% if data.id %}Update{% else %}Make a{% endif %} Donation{% endblock %}
 
 {% block content %}
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h2>💰 Make a Donation</h2>
-    <div>
-        <a href="{% url 'user:home' %}" class="btn">🏠 Home</a>
-        <a href="{% url 'user:donation_list' %}" class="btn">💰 View Donations</a>
+<style>
+    .donation-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 20px;
+        background-color: #f3f4f6;
+    }
+
+    .donation-card {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        width: 100%;
+        max-width: 500px;
+    }
+
+    .donation-card h2 {
+        margin-top: 0;
+        color: #1f2937;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #4b5563;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background-color: #10b981;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-submit:hover {
+        background-color: #059669;
+    }
+
+    .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+    .alert-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .alert-success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+</style>
+
+<div class="donation-container">
+    <div class="donation-card">
+        <h2>💰 {% if data.id %}Update{% else %}Make a{% endif %} Donation</h2>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" name="amount" class="form-control" 
+                       value="{{ data.amount }}" required min="1000" placeholder="Minimum ₹1000">
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select name="payment_method" class="form-control" required>
+                    <option value="" disabled {% if not data %}selected{% endif %}>Select Method</option>
+                    <option value="UPI" {% if data.payment_method == "UPI" %}selected{% endif %}>UPI</option>
+                    <option value="Net Banking" {% if data.payment_method == "Net Banking" %}selected{% endif %}>Net Banking</option>
+                    <option value="Card" {% if data.payment_method == "Card" %}selected{% endif %}>Credit/Debit Card</option>
+                    <option value="Cash" {% if data.payment_method == "Cash" %}selected{% endif %}>Cash</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Description / Note</label>
+                <textarea name="description" class="form-control" rows="4" placeholder="Optional note about your contribution">{{ data.description }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                {% if data.id %}Update Record{% else %}Confirm Donation{% endif %}
+            </button>
+            
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="{% url 'user:donation_list' %}" style="color: #6b7280; text-decoration: none; font-size: 0.85rem;">Cancel and Go Back</a>
+            </p>
+        </form>
     </div>
-</div>
-
-<hr>
-
-{% if messages %}
-    {% for message in messages %}
-        <div style="padding: 10px; margin-bottom: 20px; border-radius: 5px;
-            background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d4edda{% endif %};
-            color: {% if message.tags == 'error' %}#721c24{% else %}#155724{% endif %};">
-            {{ message }}
-        </div>
-    {% endfor %}
-{% endif %}
-
-<div class="card" style="padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <form method="POST" action="{% url 'user:create_donation' %}">
-        {% csrf_token %}
-
-         <div style="margin-bottom: 15px;">
-            <label style="display: block; font-weight: bold;">Enter Name</label>
-            <input type="text" name="text" required min="1" placeholder="Enter name"
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; font-weight: bold;">Amount (₹)</label>
-            <input type="number" name="amount" required min="1" placeholder="Enter amount"
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; font-weight: bold;">Payment Method</label>
-            <select name="payment_method" required
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                <option value="">-- Select Payment Method --</option>
-                <option value="UPI">UPI</option>
-                <option value="Net Banking">Net Banking</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Debit Card">Debit Card</option>
-                <option value="Cash">Cash</option>
-            </select>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: bold;">Description</label>
-            <textarea name="description" rows="3" placeholder="Optional note..."
-                style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 100px;"></textarea>
-        </div>
-
-        <button type="submit" class="btn btn-success"
-            style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-            💳 Submit Donation
-        </button>
-
-    </form>
 </div>
 {% endblock %}

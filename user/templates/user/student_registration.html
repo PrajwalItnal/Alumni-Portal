@@ -4,41 +4,67 @@
 
 {% block content %}
 
-{% if messages %}
-    <div class="messages-container" style="padding: 20px 20px 0 20px;">
+<div class="container mt-4">
+    {% if messages %}
+    <div class="messages-container mb-4">
         {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
-                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
-                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
-                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
-                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     </div>
-{% endif %}
+    {% endif %}
 
-    <button onclick="window.history.back()">Back</button>
-    <h2>Student Registration</h2>
-    <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="file">Upload Excel Or CSV File:</label>
-            <input type="file" name="file" id="file" class="form-control" required>
-            <label for="adm_year">Admission Year:</label>
-            <input type="number" name="adm_year" id="adm_year" class="form-control" required>
-            <label for="grad_year">Graduation Year:</label>
-            <input type="number" name="grad_year" id="grad_year" class="form-control" required>
-            <label for="department">Department:</label>
-            <select name="department" id="department" class="form-control" required>
-                <option value="">Select Department</option>
-                <option value="Bachelor of Computer Application">Bachelor of Computer Application</option>
-                <option value="Bachelor of Science">Bachelor of Science</option>
-                <option value="Bachelor of Arts">Bachelor of Arts</option>
-                <option value="Bachelor of Commerce">Bachelor of Commerce</option>
-                <option value="Bachelor of Business Administrator">Bachelor of Business Administrator</option>
-            </select>
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Student Registration</h4>
+            <button class="btn btn-light btn-sm" onclick="window.history.back()">← Back</button>
         </div>
-        <button type="submit" class="btn btn-primary">Register Students</button>
-    </form>
+        
+        <div class="card-body">
+            <div class="alert alert-info py-2">
+                <strong>Note:</strong> Upload a CSV or Excel file with columns: 
+                <code>register id, name, email, phone, gender</code>.
+            </div>
+
+            <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label for="file" class="form-label fw-bold">Upload Excel Or CSV File:</label>
+                        <input type="file" name="file" id="file" class="form-control" required accept=".csv, .xlsx, .xls">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="duration" class="form-label fw-bold">Course Duration (in years):</label>
+                        <select name="duration" id="duration" class="form-control" required>
+                            <option value="">Select Duration</option>
+                            <option value="1">1 Year</option>
+                            <option value="2">2 Years</option>
+                            <option value="3">3 Years</option>
+                            <option value="4">4 Years</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="department" class="form-label fw-bold">Department:</label>
+                        <select name="department" id="department" class="form-control" required>
+                            <option value="">Select Department</option>
+                            {% for dept in departments %}
+                                <option value="{{ dept.name }}">{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary px-4">Register Students</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
