@@ -304,8 +304,7 @@
         </div>
       </div>
 
-      <div class="info-item full-width"><span>Address</span><span>{{ student.permanent_address|default:"Not provided"
-          }}</span></div>
+      <div class="info-item full-width"><span>Address</span><span>{{ student.permanent_address|default:"Not provided" }}</span></div>
       <div class="info-item full-width"><span>Bio</span><span>{{ student.bio|default:"Not provided" }}</span></div>
 
       <div class="info-item resume-item">
@@ -342,15 +341,40 @@
   <div class="section-card">
     <div class="section-card-title">Alumni Details</div>
     <div class="section-card-body">
-      <div class="info-item"><span>Employment Status</span><span>{{ alumni.employment_status|default:"Not provided"
-          }}</span></div>
-      <div class="info-item"><span>Company</span><span>{{ alumni.company_name|default:"Not provided" }}</span></div>
-      <div class="info-item"><span>Job Title</span><span>{{ alumni.job_title|default:"Not provided" }}</span></div>
-      <div class="info-item"><span>Experience</span><span>{{ alumni.experience_year|default:"0" }} years</span></div>
-      <div class="info-item"><span>Higher Study</span><span>{{ alumni.pursuing_degree|default:"None" }}</span></div>
-      <div class="info-item"><span>University</span><span>{{ alumni.university|default:"N/A" }}</span></div>
-      <div class="info-item"><span>Available for Referral</span><span>{% if alumni.available_for_referral %}Yes{% else
-          %}No{% endif %}</span></div>
+      <div class="info-item">
+        <span>Employment Status</span>
+        <span>{{ alumni.employment_status|default:"Not provided" }}</span>
+      </div>
+      <div class="info-item">
+        <span>Company</span>
+        <span>{{ alumni.company_name|default:"Not provided" }}</span>
+      </div>
+      <div class="info-item">
+        <span>Job Title</span>
+        <span>{{ alumni.job_title|default:"Not provided" }}</span>
+      </div>
+      <div class="info-item">
+        <span>Experience</span>
+        <span>{{ alumni.experience_year|default:"0" }} years</span>
+      </div>
+      <div class="info-item">
+        <span>Higher Study</span>
+        <span>{{ alumni.pursuing_degree|default:"None" }}</span>
+      </div>
+      <div class="info-item">
+        <span>University</span>
+        <span>{{ alumni.university|default:"N/A" }}</span>
+      </div>
+      <div class="info-item">
+        <span>Available for Referral</span>
+        <span>
+          {% if alumni.available_for_referral %}
+            Yes
+          {% else %}
+            No
+          {% endif %}
+        </span>
+      </div>
     </div>
     <div style="padding: 0 1.4rem 1.4rem 1.4rem;">
       <a href="{% url 'user:alumni_update' %}" class="btn btn-blue">Edit Alumni Profile</a>

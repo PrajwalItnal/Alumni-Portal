@@ -1112,6 +1112,7 @@ def alumni_update(request):
 
     if request.method == "POST":
         alumni.employment_status = request.POST.get("employment_status")
+        alumni.company_name = request.POST.get("company_name")
         alumni.job_title = request.POST.get("job_title")
         exp_year = request.POST.get("experience_year")
         alumni.experience_year = int(exp_year) if exp_year else None
