@@ -27,8 +27,10 @@ def get_session_user(request):
 def is_valid_text(text):
     if not text:
         return False
+    text = str(text)
     clean_text = text.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "").replace("'", "").replace("\"", "").replace(":", "").replace(";", "").replace("-", "").replace("_", "").replace("+", "").replace("=", "").replace("*", "").replace("/", "").replace("%", "").replace("^", "").replace("&", "").replace("#", "").replace("@", "").replace("$", "").replace("!", "").replace("?", "").replace("<", "").replace(">", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "").replace("(", "").replace(")", "").replace("[", "").replace("]", "").replace("{", "").replace("}", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "")
     return clean_text.isalpha()
+
 def home(request):
     user = get_session_user(request)
     if not user:
@@ -782,12 +784,92 @@ def student_register(request):
 
     departments = Department.objects.all()
     if request.method == "POST":
+        registration_type = request.POST.get("registration_type")
+        
+        if registration_type == "single":
+            register_id = request.POST.get("register_id", "").strip()
+            name = request.POST.get("name", "").strip()
+            email = request.POST.get("email", "").strip()
+            phone = request.POST.get("phone", "").strip()
+            gender = request.POST.get("gender", "").lower()
+            course_duration = int(request.POST.get("duration"))
+            department = request.POST.get("department")
+
+            if not register_id:
+                messages.error(request, "Register ID is required.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if not is_valid_text(register_id):
+                messages.error(request, "Invalid Register ID: numbers are not allowed.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if len(register_id) > 14:
+                messages.error(request, "Register ID is too long (max 14 characters).")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if not is_valid_text(name):
+                messages.error(request, "Invalid name: only letters and spaces allowed (numbers not allowed).")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+            
+            if len(name) < 3:
+                messages.error(request, "Name is too short (min 3 characters).")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if User.objects.filter(register_id=register_id).exists():
+                messages.error(request, "Register ID already exists.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+            
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already exists.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if not email.endswith("@gmail.com"):
+                messages.error(request, "Invalid email domain (must be @gmail.com).")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            if not phone.isdigit() or len(phone) != 10:
+                messages.error(request, "Invalid phone number: must be 10 digits.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+            password = random.randint(1000000000, 9999999999)
+            try:
+                user = User.objects.create(
+                    register_id=register_id,
+                    username=name.title(),
+                    email=email,
+                    role="Student",
+                    password=make_password(str(password))
+                )
+                Student.objects.create(
+                    user=user,
+                    department=department,
+                    admission_year=datetime.now().year,
+                    graduation_year=datetime.now().year + course_duration,
+                    phone=phone,
+                    gender=gender
+                )
+                
+                send_mail(
+                    "Welcome to Alumni Portal",
+                    f"Your account has been created successfully! Your login credentials are:\n\nRegister ID: {register_id}\nPassword: {password}\n\nPlease change your password after logging in.",
+                    settings.EMAIL_HOST_USER,
+                    [email],
+                    fail_silently=False,
+                )
+                messages.success(request, f"Student {name} registered successfully! Credentials sent to {email}.")
+                return redirect("user:student_register")
+            except Exception as e:
+                messages.error(request, f"Error creating student: {str(e)}")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
+
+        # Bulk Registration Logic
         file = request.FILES.get("file")
         course_duration = int(request.POST.get("duration"))
         department = request.POST.get("department")
         email_messages = []
 
         try:
+
             if file.name.endswith('.csv'):
                 df = pd.read_csv(file)
             else:
@@ -820,7 +902,9 @@ def student_register(request):
 
             error_reason = None
             
-            if User.objects.filter(register_id=register_id).exists():
+            if not is_valid_text(register_id):
+                error_reason = "Invalid Register ID: numbers are not allowed"
+            elif User.objects.filter(register_id=register_id).exists():
                 error_reason = "Register ID already exists"
             elif User.objects.filter(email=email).exists():
                 error_reason = "Email already exists"
@@ -830,6 +914,11 @@ def student_register(request):
                 error_reason = f"Invalid gender: {gender}"
             elif not phone.isdigit() or len(phone) != 10:
                 error_reason = f"Invalid phone number: {phone}"
+            elif not is_valid_text(name):
+                error_reason = "Invalid username: only letters and spaces allowed (numbers not allowed)"
+            elif len(name.strip()) < 3:
+                error_reason = "Username too short (min 3 characters)"
+
             
             if error_reason:
                 error_data = df.iloc[index].to_dict()
