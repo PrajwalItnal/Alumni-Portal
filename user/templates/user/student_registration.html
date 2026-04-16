@@ -31,16 +31,16 @@
             <!-- Tabs -->
             <ul class="nav nav-tabs mb-4" id="registrationTab" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">Single Registration</button>
+                    <button class="nav-link {% if not bulk_tab_active %}active{% endif %}" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">Single Registration</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab">Bulk Registration (CSV/Excel)</button>
+                    <button class="nav-link {% if bulk_tab_active %}active{% endif %}" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab">Bulk Registration (CSV/Excel)</button>
                 </li>
             </ul>
 
             <div class="tab-content" id="registrationTabContent">
                 <!-- Single Registration -->
-                <div class="tab-pane fade show active" id="single" role="tabpanel">
+                <div class="tab-pane fade {% if not bulk_tab_active %}show active{% endif %}" id="single" role="tabpanel">
                     <form action="{% url 'user:student_register' %}" method="post" id="singleRegForm">
                         {% csrf_token %}
                         <input type="hidden" name="registration_type" value="single">
@@ -48,7 +48,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Register ID</label>
-                                <input type="text" name="register_id" class="form-control" placeholder="e.g. 21CS001" required value="{{ data.register_id }}">
+                                <input type="text" name="register_id" class="form-control" placeholder="e.g. AB1234567890" required maxlength="12" value="{{ data.register_id }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Full Name</label>
@@ -99,7 +99,7 @@
                 </div>
 
                 <!-- Bulk Registration -->
-                <div class="tab-pane fade" id="bulk" role="tabpanel">
+                <div class="tab-pane fade {% if bulk_tab_active %}show active{% endif %}" id="bulk" role="tabpanel">
                     <div class="alert alert-info py-2 mb-4 border-0" style="background: #eff6ff; color: #1e40af;">
                         <i class="me-2">ℹ️</i> <strong>Requirement:</strong> Upload a CSV or Excel file with exactly these columns: 
                         <code>register id, name, email, phone, gender</code>.
@@ -165,13 +165,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     regIdInput.addEventListener('input', function() {
         const val = this.value.trim();
-        const alphaReg = /^[A-Za-z\s.\-]+$/;
+        const alphaNumReg = /^[A-Za-z0-9]+$/;
+        const hasLetter = /[A-Za-z]/.test(val);
+        const hasNumber = /[0-9]/.test(val);
         
         if (val === '') {
             regIdMsg.textContent = '';
             this.classList.remove('is-invalid', 'is-valid');
-        } else if (!alphaReg.test(val)) {
-            regIdMsg.textContent = '❌ Numbers not allowed in Register ID';
+        } else if (!alphaNumReg.test(val) || val.length !== 12 || !hasLetter || !hasNumber) {
+            regIdMsg.textContent = '❌ Must be 12 chars containing both letters and numbers';
             regIdMsg.style.color = '#dc2626';
             this.classList.add('is-invalid');
             this.classList.remove('is-valid');
@@ -218,16 +220,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const val = nameInput.value.trim();
         const regId = regIdInput.value.trim();
         const alphaReg = /^[A-Za-z\s.\-]+$/;
+        const alphaNumReg = /^[A-Za-z0-9]+$/;
+        const hasLetter = /[A-Za-z]/.test(regId);
+        const hasNumber = /[0-9]/.test(regId);
 
-        if (regId.length > 14) {
+        if (regId.length !== 12 || !alphaNumReg.test(regId) || !hasLetter || !hasNumber) {
             e.preventDefault();
-            alert('Register ID cannot exceed 14 characters.');
-            return;
-        }
-
-        if (!alphaReg.test(regId)) {
-            e.preventDefault();
-            alert('Register ID cannot contain numbers.');
+            alert('Register ID must be exactly 12 characters long and contain both numbers and alphabets.');
             return;
         }
 
@@ -238,5 +237,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+{% if download_file %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const link = document.createElement("a");
+        link.href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{{ download_file }}";
+        link.download = "registration_errors_{{ current_time }}.xlsx";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+{% endif %}
 
 {% endblock %}

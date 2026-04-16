@@ -156,6 +156,14 @@ def edit_event(request, event_id):
         
         new_image = request.FILES.get("image")
         if new_image:
+            if new_image.size > 2 * 1024 * 1024:
+                messages.error(request, "Image size should not exceed 2MB.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+        
+            if not new_image.name.lower().endswith(('.jpg', '.jpeg', '.png')):
+                messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
+                return render(request, "user/create_event.html", {"user": user, "data": request.POST})
+                
             event.image = new_image
 
         if not is_valid_text(title) or not is_valid_text(description) or not is_valid_text(location):
@@ -208,8 +216,8 @@ def create_achievements(request):
             return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
 
         if certificate:
-            if certificate.size > 5 * 1024 * 1024:
-                messages.error(request, "Certificate file size should not exceed 5MB.")
+            if certificate.size > 2 * 1024 * 1024:
+                messages.error(request, "Certificate file size should not exceed 2MB.")
                 return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
             
             valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
@@ -249,8 +257,8 @@ def edit_achievement(request, achievement_id):
             return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
 
         if certificate:
-            if certificate.size > 5 * 1024 * 1024:
-                messages.error(request, "Certificate file size should not exceed 5MB.")
+            if certificate.size > 2 * 1024 * 1024:
+                messages.error(request, "Certificate file size should not exceed 2MB.")
                 return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
             
             valid_extensions = ('.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx')
@@ -799,12 +807,9 @@ def student_register(request):
                 messages.error(request, "Register ID is required.")
                 return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
 
-            if not is_valid_text(register_id):
-                messages.error(request, "Invalid Register ID: numbers are not allowed.")
-                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
-
-            if len(register_id) > 14:
-                messages.error(request, "Register ID is too long (max 14 characters).")
+            r_id_str = str(register_id)
+            if not r_id_str.isalnum() or len(r_id_str) != 12 or r_id_str.isalpha() or r_id_str.isdigit():
+                messages.error(request, "Register ID must be exactly 12 characters long and contain BOTH numbers and alphabets.")
                 return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
 
             if not is_valid_text(name):
@@ -902,8 +907,9 @@ def student_register(request):
 
             error_reason = None
             
-            if not is_valid_text(register_id):
-                error_reason = "Invalid Register ID: numbers are not allowed"
+            r_id_str = str(register_id)
+            if not r_id_str.isalnum() or len(r_id_str) != 12 or r_id_str.isalpha() or r_id_str.isdigit():
+                error_reason = "Register ID must be 12 characters containing BOTH numbers and alphabets"
             elif User.objects.filter(register_id=register_id).exists():
                 error_reason = "Register ID already exists"
             elif User.objects.filter(email=email).exists():
@@ -969,21 +975,25 @@ def student_register(request):
             with pd.ExcelWriter(output, engine='openpyxl') as writer:
                 error_df.to_excel(writer, index=False, sheet_name='Errors')
             
-            output.seek(0)
-            
-            response = HttpResponse(
-                output.read(),
-                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            )
-            response['Content-Disposition'] = f'attachment; filename="registration_errors_{datetime.now()}.xlsx"'
+            import base64
+            excel_b64 = base64.b64encode(output.getvalue()).decode()
             
             _send_registration_emails(email_messages)
             
             messages.warning(request, f"{success_count} students registered. Downloaded errors for {len(failed_rows)} rows.")
-            return response
+            return render(request, "user/student_registration.html", {
+                "departments": departments, 
+                "bulk_tab_active": True,
+                "download_file": excel_b64,
+                "current_time": datetime.now().strftime('%Y%m%d_%H%M%S')
+            })
+            
         _send_registration_emails(email_messages)
         messages.success(request, "Students registered successfully! Login credentials have been sent to their email addresses.")
-        return redirect("user:student_register")
+        return render(request, "user/student_registration.html", {
+            "departments": departments, 
+            "bulk_tab_active": True
+        })
 
     return render(request, "user/student_registration.html", {"departments": departments})
 
@@ -1155,23 +1165,52 @@ def update_profile_std(request):
         student.linkedin_url = request.POST.get("linkedin_url")
         student.city = request.POST.get("city")
         student.permanent_address = request.POST.get("permanent_address")
-        if request.POST.get("dob"):
-            student.dob = request.POST.get("dob")
+        dob_str = request.POST.get("dob")
+        if dob_str:
+            try:
+                dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+                today = datetime.now().date()
+                if dob > today:
+                    messages.error(request, "Date of birth cannot be in the future.")
+                    return redirect("user:update_profile_std")
+                
+                age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                if age < 15:
+                    messages.error(request, "You must be at least 15 years old.")
+                    return redirect("user:update_profile_std")
+                if age > 50:
+                    messages.error(request, "Age cannot be greater than 50 years.")
+                    return redirect("user:update_profile_std")
+                    
+                student.dob = dob
+            except ValueError:
+                messages.error(request, "Please enter a valid date.")
+                return redirect("user:update_profile_std")
         student.skills = request.POST.get("skills")
 
         if request.FILES.get("photo"):
-            photo_ext = request.FILES.get("photo").name.split(".")[-1].lower()
+            photo = request.FILES.get("photo")
+            if photo.size > 2 * 1024 * 1024:
+                messages.error(request, "Photo size should not exceed 2MB.")
+                return redirect("user:update_profile_std")
+            
+            photo_ext = photo.name.split(".")[-1].lower()
             if photo_ext not in ["jpg", "jpeg", "png"]:
                 messages.error(request, "Photo must be a JPG, JPEG, or PNG file.")
                 return redirect("user:update_profile_std")
-            student.photo = request.FILES.get("photo")
+            student.photo = photo
 
         if request.FILES.get("resume"):
-            resume_ext = request.FILES.get("resume").name.split(".")[-1].lower()
+            resume = request.FILES.get("resume")
+            if resume.size > 2 * 1024 * 1024:
+                messages.error(request, "Resume size should not exceed 2MB.")
+                return redirect("user:update_profile_std")
+            
+            resume_ext = resume.name.split(".")[-1].lower()
             if resume_ext not in ["pdf", "doc", "docx"]:
                 messages.error(request, "Resume must be a PDF or Word document.")
                 return redirect("user:update_profile_std")
-            student.resume = request.FILES.get("resume")
+            student.resume = resume
                        
         student.save()
         messages.success(request, "Profile updated successfully!")
