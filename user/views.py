@@ -1186,6 +1186,8 @@ def update_profile_std(request):
             except ValueError:
                 messages.error(request, "Please enter a valid date.")
                 return redirect("user:update_profile_std")
+        else:
+            student.dob = None
         student.skills = request.POST.get("skills")
 
         if request.FILES.get("photo"):

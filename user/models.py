@@ -33,7 +33,7 @@ class Student(models.Model):
         ("Other", "Other"),
     ]
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    dob = models.DateField()
+    dob = models.DateField(blank=True, null=True)
     city = models.CharField(max_length=20, blank=True)
     permanent_address = models.TextField(null = True, blank = True)
     photo = models.FileField(
