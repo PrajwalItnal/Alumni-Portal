@@ -1,12 +1,12 @@
-# 🎓 Alumni Portal  
-### A Comprehensive Alumni Management System built with Django
+# 📺 LearnTube Hub  
+### A YouTube-Powered E-Learning Platform built with Django
 
-![Django](https://img.shields.io/badge/Django-4.2-darkgreen)
+![Django](https://img.shields.io/badge/Django-6.0-darkgreen)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-> **Alumni Portal** is a sophisticated platform designed to bridge the gap between educational institutions, current students, and alumni. It facilitates networking, career opportunities, event management, and resource sharing.
+> **LearnTube Hub** is a lightweight Learning Management System (LMS) that allows users to publish, explore, and save **YouTube-based educational courses** with automatic video embedding.
 
 ---
 
@@ -19,8 +19,8 @@
 - [Technology Stack](#-technology-stack)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [Validation Logic](#-validation-logic)
-- [Collaborators](#-collaborators)
+- [YouTube Embedding Logic](#-youtube-embedding-logic)
+- [Limitations](#-limitations)
 - [Future Enhancements](#-future-enhancements)
 - [License](#-license)
 - [Author](#-author)
@@ -29,81 +29,85 @@
 
 ## 🚀 Overview
 
-**Alumni Portal** provides a centralized hub for an institution's community. It streamlines administrative tasks like student registration and graduation tracking while offering students and alumni a platform to grow their professional networks.
+**LearnTube Hub** is designed for learners and content creators who want a **simple and distraction‑free platform** for sharing educational content hosted on YouTube.
 
-✔ Professional Directory & Search  
-✔ Job & Internship Boards  
-✔ Event Coordination & RSVP  
-✔ Donation Management & Tracking  
+✔ Built‑in Course Certifications  
+✔ Progress tracking & resume functionality  
+✔ No paid courses  
+✔ Focus on accessible learning & sharing
 
 ---
 
 ## ✨ Features
 
-- **User Authentication**: Secure login system with role-based redirection.
-- **Student Onboarding**: Support for both single and bulk registration (Excel/CSV).
-- **Alumni Transition**: Automated conversion of graduating students to alumni status.
-- **Career Hub**: Posting and filtering for jobs and internships with skill matching.
-- **Event Management**: Create and track institutional events with image uploads.
-- **Achievement Gallery**: Showcasing alumni and student successes with certificate uploads.
-- **Resource Support**: Integrated donation system for alumni to support their alma mater.
-- **Profile Management**: Detailed user profiles including resumes, social links, and skills.
-- **Modern UI**: Clean, "Light & Airy" design with glassmorphism and smooth animations.
+- User authentication (Signup / Login / Logout)
+- Role‑based access (Student & Publisher)
+- Publish YouTube‑based courses with unique URL validation
+- Automatic YouTube link embedding
+- Course enrollment and precise progress tracking
+- "Resume where you left off" video functionality
+- Automated certificate generation upon completion
+- Save courses using AJAX
+- Responsive embedded video player
 
 ---
 
 ## 👥 User Roles
 
-| Role | Capabilities |
-|-----|-------------|
-| **Student** | Browse directory, view events, apply for jobs/internships, track achievements |
-| **Alumni** | Post jobs/internships, create events, donate, professional networking |
-| **Admin** | Manage departments, bulk student registration, alumni conversion, full system control |
+| Role      | Capabilities |
+|-----------|--------------|
+| **Student** | Browse, enroll, track progress, earn certificates & save courses |
+| **Publisher** | Upload & manage courses |
+| **Admin** | Full control via Django Admin |
 
 ---
 
 ## 🗂 Project Structure
 
 ```text
-Alumni-Portal/
+LearnTube-Hub/
 │
-├── alumni_portal/             # Project configuration (settings, urls, wsgi)
+├── LearnTube/                # Project settings
 │
-├── user/                      # Core application logic
-│   ├── migrations/            # Database schema history
-│   ├── templates/             # App-specific HTML templates
-│   │   └── user/              # Modularized UI components
-│   ├── models.py              # Data structures (User, Student, Alumni, Event, etc.)
-│   ├── views.py               # Request handling & business logic
-│   ├── urls.py                # App-level routing
-│   └── admin.py               # Admin panel configuration
+├── users/                    # Main app
+│   ├── migrations/
+│   ├── templates/
+│   │   └── users/
+│   ├── models.py
+│   ├── views.py
+│   ├── forms.py
+│   └── urls.py
 │
-├── static/                    # Global assets
-│   ├── css/                   # Modernized styling (modern.css)
-│   └── images/                # UI illustrations and icons
+├── static/
+│   └── css/
+│       ├── styles.css
+│       ├── login.css
+│       ├── signup.css
+│       ├── profile.css
+│       └── upload.css
 │
-├── media/                     # User-uploaded content (Photos, Resumes, etc.)
+├── templates/
+│   └── base.html
 │
-├── templates/                 # Global layout templates (base, home, login)
-│
-├── manage.py                  # Django CLI entry point
-├── requirements.txt           # Project dependencies
-├── db.sqlite3                 # Local database storage
-└── README.md                  # Project documentation
+├── manage.py
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
+
 ---
 
 ## 🧰 Technology Stack
 
 | Technology | Purpose |
-|:---|:---|
-| **Python** | Core Programming Language |
-| **Django 4.2** | High-level Web Framework |
-| **Pandas / Openpyxl** | Excel/CSV Processing for Bulk Registration |
-| **SQLite** | Efficient Relational Database |
-| **HTML5 / CSS3** | Semantic Structure & Glassmorphic Styling |
-| **JavaScript** | Real-time Validation & UI Interactions |
-| **Git & GitHub** | Distributed Version Control |
+|------------|---------|
+| **Python** | Backend logic |
+| **Django 6.0** | Web framework |
+| **SQLite** | Database |
+| **HTML5** | Templates |
+| **CSS3** | Styling |
+| **JavaScript** | AJAX interactions |
+| **Git & GitHub** | Version control |
 
 ---
 
@@ -111,105 +115,89 @@ Alumni-Portal/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/PrajwalItnal/Alumni-Portal.git
-cd Alumni-Portal
+git clone https://github.com/PrajwalItnal/LearnTube-Hub.git
+cd LearnTube-Hub
 ```
+
 ### 2️⃣ Create a Virtual Environment
 ```bash
-python -m venv .venv
+python -m venv venv
 ```
+
 ### 3️⃣ Activate the Virtual Environment
 **Windows:**
 ```bash
-.venv\Scripts\activate
+venv\Scripts\activate
 ```
 **Linux / macOS:**
 ```bash
-source .venv/bin/activate
+source venv/bin/activate
 ```
-## 4️⃣ Install Dependencies
+
+### 4️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-## 5️⃣ Apply Migrations
+
+### 5️⃣ Apply Migrations
 ```bash
 python manage.py migrate
 ```
-## 6️⃣ Run the Development Server
+
+### 6️⃣ Run the Development Server
 ```bash
 python manage.py runserver
 ```
-## 🌐 Open in Browser
 
-Once the server is running, you can access the application at:
-
-👉 **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**
-
----
-
-### 🛠 Troubleshooting Connection
-If the page doesn't load, ensure that:
-1. Your virtual environment is still **activated**.
-2. You have run the `python manage.py runserver` command without errors.
-3. No other application is using port **8000**.
+### 🌐 Open in Browser
+Visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** after the server starts.
 
 ---
 
 ## 🔁 Usage
 
-### 🛡 Admin
-* **Bulk Import**: Quickly register an entire batch of students using Excel.
-* **Convert Alumni**: Seamlessly transition students to alumni status upon graduation.
-* **Manage Departments**: Configure academic divisions within the portal.
+### 👨🏫 Publisher
+* **Register / Login:** Create and manage your account.
+* **Upload:** Paste YouTube course links.
+* **Automatic Embedding:** Courses are instantly viewable.
 
-### 🎓 Alumni
-* **Give Back**: Post job opportunities or internships for juniors.
-* **Networking**: Connect with fellow alumni and organize events.
-* **Profile**: Maintain a professional portfolio with links and achievements.
-
-### 📖 Student
-* **Explore**: Search for alumni in specific companies or departments.
-* **Prepare**: View job requirements and apply through institutional links.
-* **Engage**: Participate in alumni-led events and track professional milestones.
+### 👨🎓 Student
+* **Register / Login:** Create your learning profile.
+* **Browse:** Explore all available courses.
+* **Enroll & Track:** Enroll in courses and track your watch progress.
+* **Earn Certificates:** Complete courses to generate personalized certificates.
+* **Save:** Keep favorite courses in your library.
+* **Watch:** Seamless "resume where you left off" tracking.
 
 ---
 
-## 📺 Validation Logic
+## 📺 YouTube Embedding Logic
 
-### ✅ Smart Onboarding
-The system validates Register IDs to ensure they are exactly 12 characters and alphanumeric, preventing duplicate or malformed entries during both single and bulk registration.
+### ✅ Supported URLs
+* `https://www.youtube.com/watch?v=VIDEO_ID`
+* `https://youtu.be/VIDEO_ID`
 
-### 🔄 Date of Birth Rules
-The profile update system enforces a minimum age of 15 for safety while allowing alumni of all ages to maintain active records without restrictive upper limits.
+### 🔄 Automatic Conversion
+The system converts these links to the embed format:
+* `https://www.youtube.com/embed/VIDEO_ID`
 
-> [!TIP]
-> **Pro Tip:** When uploading bulk data, ensure your Excel headers match: `register id`, `name`, `email`, `phone`, and `gender`.
+> [!CAUTION]
+> If a creator has disabled embedding, a "Watch on YouTube" fallback link is shown.
 
 ---
 
 ## ⚠️ Limitations
-* Custom user model is not integrated with Django's built-in auth backend.
-* SMTP credentials are stored in plain text in `settings.py`.
-* No payment gateway integration for donations.
-
----
-
-## 👥 Collaborators
-
-This project was made possible by the following contributors:
-
-- **Prajwal Itnal** ([@PrajwalItnal](https://github.com/PrajwalItnal))
-- **Deepa BL** ([@deepabl](https://github.com/deepabl))
-- **Juned Fattekhan** ([@junedfattekhan5](https://github.com/junedfattekhan5))
+* No payment gateway integration.
+* Limited by YouTube's embedding settings.
 
 ---
 
 ## 🚧 Future Enhancements
-- [ ] **Advanced Filtering**: Search by graduation year range or industry sector.
-- [ ] **Real-time Messaging**: Direct chat between students and alumni.
-- [ ] **Automated Emails**: Newsletter and event notifications.
-- [ ] **Mobile App**: Dedicated Android/iOS client for the portal.
-- [ ] **PostgreSQL**: Scaling to a robust production database.
+- [ ] Search & Filters by keywords
+- [ ] Category & tag organization
+- [ ] Comments & star ratings
+- [ ] Deployment on Render or Railway
+- [ ] PostgreSQL support for production
 
 ---
 
@@ -220,10 +208,18 @@ This project is licensed under the **MIT License**.
 
 ## 👤 Author
 
-**Prajwal Itnal** *Computer Applications Student | Data Enthusiast*
+**Prajwal Itnal** *Computer Applications Student | Data Enthusiast*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prajwal-itnal/)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PrajwalItnal)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:prajwalitnal20@gmail.com)
+
+---
+
+## 👥 Collaborators
+
+- **Prajwal Itnal** ([@PrajwalItnal](https://github.com/PrajwalItnal))
+- **Deepa BL** ([@deepabl](https://github.com/deepabl))
+- **Juned Fattekhan** ([@junedfattekhan5](https://github.com/junedfattekhan5))
 
 ---
