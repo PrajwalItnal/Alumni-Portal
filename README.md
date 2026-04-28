@@ -1,12 +1,12 @@
-# 📺 LearnTube Hub  
-### A YouTube-Powered E-Learning Platform built with Django
+# 🎓 Alumni Portal  
+### A Comprehensive Alumni Management System built with Django
 
-![Django](https://img.shields.io/badge/Django-6.0-darkgreen)
+![Django](https://img.shields.io/badge/Django-4.2-darkgreen)
 ![Python](https://img.shields.io/badge/Python-3.x-blue)
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-> **LearnTube Hub** is a lightweight Learning Management System (LMS) that allows users to publish, explore, and save **YouTube-based educational courses** with automatic video embedding.
+> **Alumni Portal** is a robust platform designed to connect institutions, current students, and alumni, enabling networking, career opportunities, event management, and resource sharing.
 
 ---
 
@@ -19,8 +19,8 @@
 - [Technology Stack](#-technology-stack)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [YouTube Embedding Logic](#-youtube-embedding-logic)
-- [Limitations](#-limitations)
+- [Validation Logic](#-validation-logic)
+- [Collaborators](#-collaborators)
 - [Future Enhancements](#-future-enhancements)
 - [License](#-license)
 - [Author](#-author)
@@ -29,69 +29,59 @@
 
 ## 🚀 Overview
 
-**LearnTube Hub** is designed for learners and content creators who want a **simple and distraction‑free platform** for sharing educational content hosted on YouTube.
-
-✔ Built‑in Course Certifications  
-✔ Progress tracking & resume functionality  
-✔ No paid courses  
-✔ Focus on accessible learning & sharing
+**Alumni Portal** provides a centralized hub for an institution's community. It streamlines administrative tasks such as student registration and graduation tracking while offering students and alumni a platform to grow their professional networks.
 
 ---
 
 ## ✨ Features
 
-- User authentication (Signup / Login / Logout)
-- Role‑based access (Student & Publisher)
-- Publish YouTube‑based courses with unique URL validation
-- Automatic YouTube link embedding
-- Course enrollment and precise progress tracking
-- "Resume where you left off" video functionality
-- Automated certificate generation upon completion
-- Save courses using AJAX
-- Responsive embedded video player
+- **User Authentication**: Secure login with role‑based redirection.
+- **Student Onboarding**: Single and bulk registration (Excel/CSV).
+- **Alumni Transition**: Automatic conversion of graduating students.
+- **Career Hub**: Job and internship posting with skill matching.
+- **Event Management**: Create and track events with image uploads.
+- **Achievement Gallery**: Showcase successes with certificates.
+- **Donation System**: Manage alumni donations and tracking.
+- **Profile Management**: Detailed user profiles with resumes, social links, and skills.
+- **Modern UI**: Light & Airy design with glassmorphism and smooth animations.
 
 ---
 
 ## 👥 User Roles
 
-| Role      | Capabilities |
-|-----------|--------------|
-| **Student** | Browse, enroll, track progress, earn certificates & save courses |
-| **Publisher** | Upload & manage courses |
-| **Admin** | Full control via Django Admin |
+| Role | Capabilities |
+|------|--------------|
+| **Student** | Browse directory, view events, apply for jobs/internships, track achievements |
+| **Alumni** | Post jobs/internships, create events, donate, professional networking |
+| **Admin** | Manage departments, bulk registration, alumni conversion, full system control |
 
 ---
 
 ## 🗂 Project Structure
 
 ```text
-LearnTube-Hub/
+Alumni-Portal/
 │
-├── LearnTube/                # Project settings
+├── alumni_portal/            # Project configuration (settings, urls, wsgi)
 │
-├── users/                    # Main app
+├── user/                     # Core application
 │   ├── migrations/
-│   ├── templates/
-│   │   └── users/
+│   ├── templates/user/
 │   ├── models.py
 │   ├── views.py
-│   ├── forms.py
 │   └── urls.py
 │
-├── static/
-│   └── css/
-│       ├── styles.css
-│       ├── login.css
-│       ├── signup.css
-│       ├── profile.css
-│       └── upload.css
+├── static/                    # Global assets
+│   ├── css/
+│   └── images/
 │
-├── templates/
-│   └── base.html
+├── media/                     # Uploaded content (photos, resumes, certificates)
+│
+├── templates/                 # Global layout templates (base, home, login)
 │
 ├── manage.py
 ├── requirements.txt
-├── .gitignore
+├── db.sqlite3
 └── README.md
 ```
 
@@ -100,13 +90,13 @@ LearnTube-Hub/
 ## 🧰 Technology Stack
 
 | Technology | Purpose |
-|------------|---------|
-| **Python** | Backend logic |
-| **Django 6.0** | Web framework |
+|-----------|---------|
+| **Python** | Core language |
+| **Django 4.2** | Web framework |
 | **SQLite** | Database |
-| **HTML5** | Templates |
-| **CSS3** | Styling |
-| **JavaScript** | AJAX interactions |
+| **Pandas / Openpyxl** | Bulk data processing |
+| **HTML5 / CSS3** | Structure & styling |
+| **JavaScript** | Interactivity |
 | **Git & GitHub** | Version control |
 
 ---
@@ -115,89 +105,71 @@ LearnTube-Hub/
 
 ### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/PrajwalItnal/LearnTube-Hub.git
-cd LearnTube-Hub
+git clone https://github.com/PrajwalItnal/Alumni-Portal.git
+cd Alumni-Portal
 ```
-
 ### 2️⃣ Create a Virtual Environment
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
-
 ### 3️⃣ Activate the Virtual Environment
 **Windows:**
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
-**Linux / macOS:**
+**Linux/macOS:**
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
-
 ### 4️⃣ Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
 ### 5️⃣ Apply Migrations
 ```bash
 python manage.py migrate
 ```
-
 ### 6️⃣ Run the Development Server
 ```bash
 python manage.py runserver
 ```
-
 ### 🌐 Open in Browser
-Visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** after the server starts.
+Visit **http://127.0.0.1:8000/**
 
 ---
 
 ## 🔁 Usage
 
-### 👨🏫 Publisher
-* **Register / Login:** Create and manage your account.
-* **Upload:** Paste YouTube course links.
-* **Automatic Embedding:** Courses are instantly viewable.
-
-### 👨🎓 Student
-* **Register / Login:** Create your learning profile.
-* **Browse:** Explore all available courses.
-* **Enroll & Track:** Enroll in courses and track your watch progress.
-* **Earn Certificates:** Complete courses to generate personalized certificates.
-* **Save:** Keep favorite courses in your library.
-* **Watch:** Seamless "resume where you left off" tracking.
+- **Admin** can bulk import students and convert graduates to alumni.
+- **Alumni** can post jobs/internships, create events, and manage donations.
+- **Students** can search directories, apply for opportunities, and track achievements.
 
 ---
 
-## 📺 YouTube Embedding Logic
+## 📺 Validation Logic
 
-### ✅ Supported URLs
-* `https://www.youtube.com/watch?v=VIDEO_ID`
-* `https://youtu.be/VIDEO_ID`
+### ✅ Smart Onboarding
+Enforces a 12‑character alphanumeric Register ID for both single and bulk registrations.
 
-### 🔄 Automatic Conversion
-The system converts these links to the embed format:
-* `https://www.youtube.com/embed/VIDEO_ID`
-
-> [!CAUTION]
-> If a creator has disabled embedding, a "Watch on YouTube" fallback link is shown.
+### 🔄 Date of Birth Rules
+Minimum age of **15** years is required; no upper age limit.
 
 ---
 
-## ⚠️ Limitations
-* No payment gateway integration.
-* Limited by YouTube's embedding settings.
+## 👥 Collaborators
+
+- **Prajwal Itnal** – [@PrajwalItnal](https://github.com/PrajwalItnal)
+- **Deepa BL** – [@deepabl](https://github.com/deepabl)
+- **Juned Fattekhan** – [@junedfattekhan5](https://github.com/junedfattekhan5)
 
 ---
 
 ## 🚧 Future Enhancements
-- [ ] Search & Filters by keywords
-- [ ] Category & tag organization
-- [ ] Comments & star ratings
-- [ ] Deployment on Render or Railway
-- [ ] PostgreSQL support for production
+- Advanced filtering by graduation year, industry, etc.
+- Real‑time messaging between students and alumni.
+- Automated email newsletters and event notifications.
+- Mobile app for Android/iOS.
+- PostgreSQL support for production scaling.
 
 ---
 
@@ -208,18 +180,8 @@ This project is licensed under the **MIT License**.
 
 ## 👤 Author
 
-**Prajwal Itnal** *Computer Applications Student | Data Enthusiast*
+**Prajwal Itnal** – Programmer
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prajwal-itnal/)
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PrajwalItnal)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:prajwalitnal20@gmail.com)
-
----
-
-## 👥 Collaborators
-
-- **Prajwal Itnal** ([@PrajwalItnal](https://github.com/PrajwalItnal))
-- **Deepa BL** ([@deepabl](https://github.com/deepabl))
-- **Juned Fattekhan** ([@junedfattekhan5](https://github.com/junedfattekhan5))
-
----
