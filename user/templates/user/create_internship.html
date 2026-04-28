@@ -1,92 +1,68 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}{% if data.id %}Edit{% else %}Create{% endif %} Internship | Portal{% endblock %}
+{% block title %}{% if data.id %}Edit{% else %}Create{% endif %} Internship | Alumni Portal{% endblock %}
+{% block page_title %}{% if data.id %}Update Internship{% else %}New Internship{% endif %}{% endblock %}
 
 {% block content %}
-<style>
-    .form-wrapper { max-width: 700px; margin: 50px auto; padding: 0 20px; }
-    .form-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
-    .form-header { border-bottom: 2px solid #f0f2f5; margin-bottom: 30px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-    .form-header h2 { margin: 0; color: #2c3e50; }
-    
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; font-weight: 600; color: #34495e; margin-bottom: 8px; }
-    .form-control { width: 100%; padding: 12px; border: 1.5px solid #dcdde1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
-    .form-control:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
-    
-    .submit-btn { background: #3498db; color: white; border: none; padding: 14px 28px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: 0.3s; }
-    .submit-btn:hover { background: #2980b9; }
-    
-    .alert { padding: 15px; border-radius: 8px; margin-bottom: 25px; font-size: 0.9rem; }
-    .alert-error { background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
-</style>
-
-<div class="form-wrapper">
-    <button onclick="window.history.back()" style="background:none; border:none; color:#3498db; cursor:pointer; margin-bottom:15px; font-weight:600;">← Go Back</button>
-
-    <div class="form-card">
-        <div class="form-header">
-            <h2>{% if data.id %}Modify{% else %}New{% endif %} Internship</h2>
-            <span style="font-size: 0.85rem; color: #95a5a6;">Smart Alumni Portal</span>
+<div style="display: flex; justify-content: center; align-items: start;">
+    <div class="card" style="width: 100%; max-width: 700px; padding: 3rem;">
+        
+        <div style="margin-bottom: 2.5rem; text-align: center;">
+            <div class="nav-logo" style="margin: 0 auto 1.5rem; width: 60px; height: 60px; font-size: 30px; background: var(--tertiary-glow);">🏢</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">{% if data.id %}Edit Internship{% else %}Internship Details{% endif %}</h2>
+            <p style="color: var(--text-muted);">Provide the details for the new internship opportunity.</p>
         </div>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-error">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
 
         <form method="POST">
             {% csrf_token %}
 
-            <div class="form-group">
-                <label>Internship Title</label>
-                <input type="text" name="title" class="form-control" value="{{ data.title|default:'' }}" required placeholder="e.g. Frontend Web Developer">
+            <div style="margin-bottom: 1.5rem;">
+                <label class="section-label">Internship Title *</label>
+                <input type="text" name="title" value="{{ data.title|default:'' }}" required placeholder="e.g. Frontend Web Developer">
             </div>
 
-            <div class="form-group">
-                <label>Company Name</label>
-                <input type="text" name="company_name" class="form-control" value="{{ data.company_name|default:'' }}" required>
+            <div style="margin-bottom: 1.5rem;">
+                <label class="section-label">Company Name *</label>
+                <input type="text" name="company_name" value="{{ data.company_name|default:'' }}" required placeholder="e.g. Acme Corp">
             </div>
 
-            <div class="form-group">
-                <label>Location</label>
-                <input type="text" name="location" class="form-control" value="{{ data.location|default:'' }}" required placeholder="e.g. Remote, Mumbai, etc.">
+            <div style="margin-bottom: 1.5rem;">
+                <label class="section-label">Location *</label>
+                <input type="text" name="location" value="{{ data.location|default:'' }}" required placeholder="e.g. Remote, Mumbai">
             </div>
 
-            <div class="form-row" style="display:flex; gap:20px;">
-                <div class="form-group" style="flex:1;">
-                    <label>Stipend</label>
-                    <input type="text" name="stipend" class="form-control" value="{{ data.stipend|default:'' }}" placeholder="e.g. ₹15,000/mo">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div>
+                    <label class="section-label">Stipend</label>
+                    <input type="text" name="stipend" value="{{ data.stipend|default:'' }}" placeholder="e.g. ₹15,000/mo">
                 </div>
-                <div class="form-group" style="flex:1;">
-                    <label>Duration</label>
-                    <input type="text" name="duration" class="form-control" value="{{ data.duration|default:'' }}" placeholder="e.g. 6 Months">
+                <div>
+                    <label class="section-label">Duration</label>
+                    <input type="text" name="duration" value="{{ data.duration|default:'' }}" placeholder="e.g. 6 Months">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Application Deadline</label>
-                <input type="date" name="last_date" class="form-control" value="{{ data.last_date|date:'Y-m-d' }}" required>
+            <div style="margin-bottom: 1.5rem;">
+                <label class="section-label">Application Deadline *</label>
+                <input type="date" name="last_date" value="{{ data.last_date|date:'Y-m-d' }}" required>
             </div>
 
-            <div class="form-group">
-                <label>Required Skills</label>
-                <textarea name="required_skills" class="form-control" rows="2" required placeholder="Python, React, UI Design...">{{ data.required_skills|default:'' }}</textarea>
+            <div style="margin-bottom: 1.5rem;">
+                <label class="section-label">Required Skills *</label>
+                <input type="text" name="required_skills" value="{{ data.required_skills|default:'' }}" required placeholder="e.g. Python, React, UI Design">
             </div>
 
-            <div class="form-group">
-                <label>Detailed Description</label>
-                <textarea name="description" class="form-control" rows="5" required>{{ data.description|default:'' }}</textarea>
+            <div style="margin-bottom: 2.5rem;">
+                <label class="section-label">Detailed Description *</label>
+                <textarea name="description" rows="5" required placeholder="Outline the roles, responsibilities, and qualifications...">{{ data.description|default:'' }}</textarea>
             </div>
 
-            <button type="submit" class="submit-btn">
-                {% if data.id %}Update Listing{% else %}Publish Internship{% endif %}
-            </button>
-            
-            <p style="text-align: center; margin-top: 20px;">
-                <a href="{% url 'user:internship_list' %}" style="color: #95a5a6; text-decoration: none; font-size: 0.9rem;">Discard and Cancel</a>
-            </p>
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn-primary" style="flex: 1; justify-content: center;">
+                    {% if data.id %}Update Listing{% else %}Publish Internship{% endif %}
+                </button>
+                <button type="button" class="btn-secondary" onclick="window.history.back()">Cancel</button>
+            </div>
         </form>
     </div>
 </div>

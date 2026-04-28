@@ -1,152 +1,102 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Alumni Directory{% endblock %}
+{% block title %}Alumni Directory | Alumni Portal{% endblock %}
+{% block page_title %}Alumni Network{% endblock %}
 
 {% block content %}
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<style>
-    .alumni-directory-wrap {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .directory-header {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 30px;
-    }
-
-    .directory-header h2 {
-        margin: 0;
-        font-size: 2rem;
-        color: #111827;
-    }
-
-    .directory-header .btn-home {
-        background: #f3f4f6;
-        border: 1px solid #d1d5db;
-        color: #111827;
-        border-radius: 10px;
-        padding: 10px 18px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .directory-header .btn-home:hover {
-        background: #e5e7eb;
-    }
-
-    .student-card, .alumni-card {
-        border-radius: 18px;
-        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .student-card:hover, .alumni-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.12);
-    }
-
-    .alumni-card .card-body {
-        padding: 28px;
-    }
-
-    .alumni-card .text-muted {
-        color: #6b7280 !important;
-    }
-
-    .alumni-card hr {
-        border-color: #e5e7eb;
-    }
-
-    .directory-empty {
-        padding: 60px 30px;
-        background: #ffffff;
-        border-radius: 16px;
-        border: 1px solid #e5e7eb;
-    }
-
-    .search-form .form-control {
-        min-width: 300px;
-        border-radius: 12px;
-    }
-</style>
-
-<div class="alumni-directory-wrap">
-<div class="row mb-4 search-form">
-    <div class="col-md-8 mx-auto">
-        <form method="GET" action="{% url 'user:alumni_directory_search' %}" class="d-flex gap-2">
-            <input type="text" 
-                   name="q" 
-                   class="form-control shadow-sm" 
-                   placeholder="Search by Name, Dept, Year, Degree, University, or Company..." 
-                   value="{{ query }}">
-            
-            <button type="submit" class="btn btn-primary px-4">🔍 Search</button>
-            
-            {% if query %}
-                <a href="{% url 'user:alumni_directory' %}" class="btn btn-outline-secondary">Clear</a>
-            {% endif %}
+<!-- Enhanced Search Section -->
+<div class="card" style="margin-bottom: 3rem; background: linear-gradient(135deg, white 0%, var(--primary-glow) 100%); border: none; box-shadow: 0 10px 30px rgba(37, 99, 235, 0.05);">
+    <div style="padding: 1rem;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 700;">Find Alumni</h2>
+        <form method="GET" action="{% url 'user:alumni_directory_search' %}" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px; position: relative;">
+                <input type="text" name="q" placeholder="Search by name, department, company, or batch year..." value="{{ query }}" 
+                       style="width: 100%; padding: 1rem 1.5rem; border-radius: 15px; border: 1px solid var(--border); font-size: 1rem; transition: var(--transition);">
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="submit" class="btn-primary" style="padding: 0 2rem; height: 54px; display: flex; align-items: center; gap: 0.5rem; border-radius: 15px;">
+                    <span>🔍</span> <span>Search Network</span>
+                </button>
+                {% if query %}
+                    <a href="{% url 'user:alumni_directory' %}" class="btn-secondary" style="padding: 0 1.5rem; height: 54px; display: flex; align-items: center; border-radius: 15px;">Clear</a>
+                {% endif %}
+            </div>
         </form>
     </div>
 </div>
 
-<hr>
-
-<div class="container mt-5">
-    <div class="directory-header">
-        <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="btn-home">Home</a>
-        <h2>🎓 Alumni Directory</h2>
-    </div>
-
-    <div class="row">
-        {% for alumni in alumni_data %}
-        <div class="col-md-4 mb-4">
-            <div class="card alumni-card shadow-sm h-100 border-0">
-                <div class="card-body p-4">
-
-                    <h5 class="card-title fw-bold">{{ alumni.user.username }}</h5>
-
-                    <p class="text-muted mb-1">
-                        🎓 {{ alumni.user.student_profile.department|default:"Department not found" }}
-                    </p>
-                    <p class="mb-1">
-                        📅 Batch of {{ alumni.user.student_profile.graduation_year|default:"N/A" }}
-                    </p>
-
-                    <hr>
-
-                    <p class="mb-1">
-                        💼 <strong>{{ alumni.job_title|default:"Not updated" }}</strong>
-                    </p>
-
-                    {% if alumni.employment_status %}
-                    <p class="mb-1 text-muted">{{ alumni.employment_status }}</p>
-                    {% endif %}
-
-                    {% if alumni.available_for_referral %}
-                    <span class="badge bg-success mt-2">✅ Open for Referral</span>
-                    {% endif %}
-
+<div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem;">
+    {% for alumni in alumni_data %}
+    <div class="dashboard-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%; border: 1px solid var(--border); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+        
+        <!-- Card Header with Gradient -->
+        <div style="height: 100px; background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%); position: relative;">
+            <div style="position: absolute; bottom: -30px; left: 2rem;">
+                <div class="avatar-sm" style="width: 80px; height: 80px; font-size: 2rem; background: white; color: var(--primary); border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+                    {{ alumni.user.username|first|upper }}
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col">
-            <p class="text-center text-muted">No alumni records found.</p>
-      
+
+        <div style="padding: 3.5rem 2rem 2rem; flex: 1; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                <h3 style="font-size: 1.4rem; margin: 0; font-weight: 700; color: #1e293b;">{{ alumni.user.username }}</h3>
+                {% if alumni.available_for_referral %}
+                    <span style="background: #ecfdf5; color: #10b981; font-size: 0.7rem; font-weight: 800; padding: 0.4rem 0.8rem; border-radius: 50px; text-transform: uppercase; letter-spacing: 0.05em;">Referral Open</span>
+                {% endif %}
+            </div>
+            
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">{{ alumni.user.email }}</p>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.1rem;">🎓</span>
+                    <div>
+                        <p style="font-size: 0.85rem; font-weight: 700; color: #475569; margin: 0;">{{ alumni.user.student_profile.department|default:"Alumni" }}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Class of {{ alumni.user.student_profile.graduation_year|default:"N/A" }}</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #f1f5f9;">
+                    <span style="font-size: 1.1rem;">💼</span>
+                    <div>
+                        <p style="font-size: 0.85rem; font-weight: 700; color: #475569; margin: 0;">{{ alumni.job_title|default:"Professional" }}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">{{ alumni.company_name|default:"Independent" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; gap: 0.5rem;">
+                    {% if alumni.user.student_profile.linkedin_url %}
+                        <a href="{{ alumni.user.student_profile.linkedin_url }}" target="_blank" title="LinkedIn" style="color: #0a66c2; font-size: 1.2rem; text-decoration: none;">🔗</a>
+                    {% endif %}
+                </div>
+                <a href="{% url 'user:profile_view' %}?id={{ alumni.user.user_id }}" class="action-btn" style="background: var(--primary-glow); color: var(--primary); padding: 0.6rem 1.2rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; transition: var(--transition);">
+                    View Profile →
+                </a>
+            </div>
         </div>
-        {% endfor %}
     </div>
-</div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 6rem 2rem;">
+        <div style="font-size: 5rem; margin-bottom: 2rem;">🔍</div>
+        <h3 style="font-size: 1.8rem; color: #1e293b; margin-bottom: 1rem;">No matching alumni found</h3>
+        <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto 2rem;">We couldn't find any alumni matching your search. Try broadening your criteria or check back later.</p>
+        <a href="{% url 'user:alumni_directory' %}" class="btn-primary" style="display: inline-block;">Browse Full Network</a>
+    </div>
+    {% endfor %}
 </div>
 
+<style>
+    .dashboard-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary);
+    }
+    input:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-glow) !important;
+        outline: none;
+    }
+</style>
 {% endblock %}

@@ -4,201 +4,77 @@
 {% block title %}About | Alumni Portal{% endblock %}
 
 {% block content %}
-<style>
-  .about-page {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
-    font-family: sans-serif;
-    color: #111;
-    background: #fff;
-  }
+<div class="section">
+  <h1 class="text-gradient">About the Alumni Portal</h1>
+  <p>Connecting students, alumni, and the college — all in one place.</p>
 
-  .about-page h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-  }
-
-  .about-page .sub {
-    color: #777;
-    font-size: 0.95rem;
-    margin-bottom: 3rem;
-  }
-
-  .about-page h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #111;
-  }
-
-  .about-page p {
-    font-size: 0.9rem;
-    color: #555;
-    line-height: 1.8;
-    margin-bottom: 2.5rem;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid #e5e5e5;
-    margin: 2.5rem 0;
-  }
-
-  .grid-3 {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .grid-2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .card {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 1.2rem;
-  }
-
-  .card h3 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.6rem;
-    color: #111;
-  }
-
-  .card ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .card ul li {
-    font-size: 0.83rem;
-    color: #666;
-    padding: 0.2rem 0;
-  }
-
-  .card ul li::before {
-    content: '→ ';
-    color: #aaa;
-  }
-
-  .card p {
-    font-size: 0.83rem;
-    color: #666;
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .college-info {
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2.5rem;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.2rem;
-  }
-
-  .info-item strong {
-    display: block;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #999;
-    margin-bottom: 0.25rem;
-  }
-
-  .info-item span {
-    font-size: 0.88rem;
-    color: #333;
-  }
-
-  @media (max-width: 700px) {
-    .grid-3, .grid-2, .college-info { grid-template-columns: 1fr; }
-  }
-</style>
-
-<div class="about-page">
-
-  <h1>About the Alumni Portal</h1>
-  <p class="sub">Connecting students, alumni, and the college — all in one place.</p>
-
-  <h2>Our Institution</h2>
-  <div class="college-info">
-    <div class="info-item">
-      <strong>College</strong>
-      <span>BLDEA Jamakhandi</span>
-    </div>
-    <div class="info-item">
-      <strong>Location</strong>
-      <span>Jamakhandi, Karnataka, India</span>
-    </div>
-    <div class="info-item">
-      <strong>Phone</strong>
-      <span>+91 79962 49047</span>
-    </div>
-    <div class="info-item">
-      <strong>Email</strong>
-      <span>bldea@gmail.com</span>
+  <div class="card" style="margin-top: 3rem;">
+    <h2>Our Institution</h2>
+    <div class="grid-3" style="margin-top: 1.5rem;">
+      <div class="info-item">
+        <span class="section-label">College</span>
+        <p><strong>BLDEA Jamakhandi</strong></p>
+      </div>
+      <div class="info-item">
+        <span class="section-label">Location</span>
+        <p><strong>Jamakhandi, Karnataka, India</strong></p>
+      </div>
+      <div class="info-item">
+        <span class="section-label">Phone</span>
+        <p><strong>+91 79962 49047</strong></p>
+      </div>
+      <div class="info-item">
+        <span class="section-label">Email</span>
+        <p><strong>bldea@gmail.com</strong></p>
+      </div>
     </div>
   </div>
 
-  <h2>Our Mission</h2>
-  <p>We help graduates stay connected with their college and give back to the next generation. Whether you're a student looking for opportunities or an alumnus wanting to mentor — this is your platform.</p>
-
-  <hr>
+  <div class="section" style="padding-left: 0; padding-right: 0;">
+    <h2>Our Mission</h2>
+    <p>We help graduates stay connected with their college and give back to the next generation. Whether you're a student looking for opportunities or an alumnus wanting to mentor — this is your platform.</p>
+  </div>
 
   <h2>Who It's For</h2>
-  <div class="grid-3">
-    <div class="card">
+  <div class="grid-3" style="margin-top: 2rem;">
+    <div class="role-card">
       <h3>🏫 Admin</h3>
-      <ul>
-        <li>Verify students & alumni</li>
-        <li>Manage events</li>
-        <li>Approve job postings</li>
-        <li>View analytics</li>
+      <ul style="list-style: none; margin-top: 1rem;">
+        <li>→ Verify students & alumni</li>
+        <li>→ Manage events</li>
+        <li>→ Approve job postings</li>
+        <li>→ View analytics</li>
       </ul>
     </div>
-    <div class="card">
+    <div class="role-card">
       <h3>🎓 Students</h3>
-      <ul>
-        <li>Register and login</li>
-        <li>Connect with alumni</li>
-        <li>Search jobs & internships</li>
-        <li>Attend events</li>
+      <ul style="list-style: none; margin-top: 1rem;">
+        <li>→ Register and login</li>
+        <li>→ Connect with alumni</li>
+        <li>→ Search jobs & internships</li>
+        <li>→ Attend events</li>
       </ul>
     </div>
-    <div class="card">
+    <div class="role-card">
       <h3>🧑‍🎓 Alumni</h3>
-      <ul>
-        <li>Get verified by college</li>
-        <li>Provide mentorship</li>
-        <li>Share job openings</li>
-        <li>Post success stories</li>
+      <ul style="list-style: none; margin-top: 1rem;">
+        <li>→ Get verified by college</li>
+        <li>→ Provide mentorship</li>
+        <li>→ Share job openings</li>
+        <li>→ Post success stories</li>
       </ul>
     </div>
   </div>
 
-  <hr>
-
-  <h2>Platform Features</h2>
-  <div class="grid-3">
-    <div class="card"><h3>💼 Jobs</h3><p>Full-time openings posted by alumni and partner companies.</p></div>
-    <div class="card"><h3>📌 Internships</h3><p>Short-term opportunities with stipends and skill requirements.</p></div>
-    <div class="card"><h3>🎉 Events</h3><p>Alumni meets, reunions, workshops, and campus events.</p></div>
+  <div class="section" style="padding-left: 0; padding-right: 0; margin-top: 3rem;">
+    <h2>Platform Features</h2>
+    <div class="grid-3" style="margin-top: 2rem;">
+      <div class="card"><h3>💼 Jobs</h3><p>Full-time openings posted by alumni and partner companies.</p></div>
+      <div class="card"><h3>📌 Internships</h3><p>Short-term opportunities with stipends and skill requirements.</p></div>
+      <div class="card"><h3>🎉 Events</h3><p>Alumni meets, reunions, workshops, and campus events.</p></div>
+      <div class="card"><h3>💖 Donations</h3><p>Support students through scholarships and funding.</p></div>
+      <div class="card"><h3>🏆 Achievements</h3><p>Read and share inspiring alumni journeys.</p></div>
+    </div>
   </div>
-  <div class="grid-2">
-    <div class="card"><h3>💖 Donations</h3><p>Support students through scholarships and funding.</p></div>
-    <div class="card"><h3>🏆 Achievements</h3><p>Read and share inspiring alumni journeys.</p></div>
-  </div>
-
 </div>
 {% endblock %}

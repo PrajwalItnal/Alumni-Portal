@@ -1,167 +1,320 @@
-{% extends 'user/user_base.html' %}
+{% extends "user/user_base.html" %}
 
-{% block title %}Student Registration{% endblock %}
+{% block title %}Student Onboarding | Alumni Portal{% endblock %}
+{% block page_title %}Registration Hub{% endblock %}
 
 {% block content %}
-<style>
-    .nav-tabs .nav-link { color: #555; font-weight: 500; border-radius: 8px 8px 0 0; }
-    .nav-tabs .nav-link.active { color: #3b82f6; font-weight: 600; border-bottom: 2px solid #3b82f6; }
-    .validation-msg { font-size: 0.8rem; margin-top: 0.2rem; }
-</style>
-
-<div class="container mt-4 mb-5">
-    {% if messages %}
-    <div class="messages-container mb-4">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="registration-wrapper" style="animation: fadeIn 0.8s ease-out;">
+    <!-- Header Section -->
+    <div class="card header-card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; overflow: hidden; position: relative;">
+        <div style="position: absolute; top: -20px; right: -20px; font-size: 8rem; opacity: 0.1; transform: rotate(15deg);">🎓</div>
+        <div style="position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 800; margin: 0; letter-spacing: -0.03em;">Student Onboarding</h2>
+                <p style="opacity: 0.9; margin-top: 0.5rem; font-size: 1.1rem; font-weight: 500;">Register new members to the alumni network with ease.</p>
             </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="card shadow-sm border-0" style="border-radius: 12px;">
-        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center p-3">
-            <h4 class="mb-0 fw-bold">Student Registration</h4>
-            <button class="btn btn-light btn-sm fw-medium" onclick="window.history.back()">← Back</button>
+            <button class="btn-secondary" onclick="window.history.back()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 700; backdrop-filter: blur(10px);">← Back to Dashboard</button>
         </div>
-        
-        <div class="card-body p-4">
-            <!-- Tabs -->
-            <ul class="nav nav-tabs mb-4" id="registrationTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if not bulk_tab_active %}active{% endif %}" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button" role="tab">Single Registration</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if bulk_tab_active %}active{% endif %}" id="bulk-tab" data-bs-toggle="tab" data-bs-target="#bulk" type="button" role="tab">Bulk Registration (CSV/Excel)</button>
-                </li>
-            </ul>
+    </div>
 
-            <div class="tab-content" id="registrationTabContent">
-                <!-- Single Registration -->
-                <div class="tab-pane fade {% if not bulk_tab_active %}show active{% endif %}" id="single" role="tabpanel">
-                    <form action="{% url 'user:student_register' %}" method="post" id="singleRegForm">
-                        {% csrf_token %}
-                        <input type="hidden" name="registration_type" value="single">
-                        
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Register ID</label>
-                                <input type="text" name="register_id" class="form-control" placeholder="e.g. AB1234567890" required maxlength="12" value="{{ data.register_id }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Full Name</label>
-                                <input type="text" name="name" id="userName" class="form-control" placeholder="Enter Full Name" required value="{{ data.name }}">
-                                <div id="nameValidation" class="validation-msg"></div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Email</label>
-                                <input type="email" name="email" class="form-control" placeholder="example@gmail.com" required value="{{ data.email }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Phone Number</label>
-                                <input type="text" name="phone" id="userPhone" class="form-control" placeholder="10-digit mobile number" required maxlength="10" value="{{ data.phone }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold">Gender</label>
-                                <select name="gender" class="form-select" required>
-                                    <option value="">Select Gender</option>
-                                    <option value="male" {% if data.gender == "male" %}selected{% endif %}>Male</option>
-                                    <option value="female" {% if data.gender == "female" %}selected{% endif %}>Female</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold">Duration (Years)</label>
-                                <select name="duration" class="form-select" required>
-                                    <option value="">Select Duration</option>
-                                    <option value="1" {% if data.duration == "1" %}selected{% endif %}>1 Year</option>
-                                    <option value="2" {% if data.duration == "2" %}selected{% endif %}>2 Years</option>
-                                    <option value="3" {% if data.duration == "3" %}selected{% endif %}>3 Years</option>
-                                    <option value="4" {% if data.duration == "4" %}selected{% endif %}>4 Years</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold">Department</label>
-                                <select name="department" class="form-select" required>
-                                    <option value="">Select Department</option>
-                                    {% for dept in departments %}
-                                        <option value="{{ dept.name }}" {% if data.department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
-                                    {% endfor %}
-                                </select>
+    <div class="card" style="padding: 0; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.05);">
+        <!-- Navigation Tabs -->
+        <div class="modern-tabs" style="display: flex; background: #f1f5f9; padding: 0.5rem; border-radius: 24px 24px 0 0;">
+            <button onclick="switchTab('single')" id="tab-single" class="tab-pill {% if not bulk_tab_active %}active{% endif %}" style="flex: 1; padding: 1.25rem; border: none; border-radius: 20px; font-weight: 700; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem;">
+                👤 Single Registration
+            </button>
+            <button onclick="switchTab('bulk')" id="tab-bulk" class="tab-pill {% if bulk_tab_active %}active{% endif %}" style="flex: 1; padding: 1.25rem; border: none; border-radius: 20px; font-weight: 700; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem;">
+                📂 Bulk Import (Excel/CSV)
+            </button>
+        </div>
+
+        <div style="padding: 3.5rem;">
+            <!-- Single Registration Form -->
+            <div id="content-single" class="tab-content-area {% if not bulk_tab_active %}active{% endif %}">
+                <form action="{% url 'user:student_register' %}" method="post" id="singleRegForm" class="animated-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="registration_type" value="single">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; margin-bottom: 3rem;">
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Register ID</label>
+                            <div style="position: relative;">
+                                <input type="text" name="register_id" placeholder="e.g. AB1234567890" required maxlength="12" value="{{ data.register_id }}" class="modern-input">
+                                <div id="regIdValidation" class="validation-badge"></div>
                             </div>
                         </div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary px-5 py-2 fw-medium">Register Student</button>
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Full Legal Name</label>
+                            <div style="position: relative;">
+                                <input type="text" name="name" id="userName" placeholder="Enter full name" required value="{{ data.name }}" class="modern-input">
+                                <div id="nameValidation" class="validation-badge"></div>
+                            </div>
                         </div>
-                    </form>
-                </div>
 
-                <!-- Bulk Registration -->
-                <div class="tab-pane fade {% if bulk_tab_active %}show active{% endif %}" id="bulk" role="tabpanel">
-                    <div class="alert alert-info py-2 mb-4 border-0" style="background: #eff6ff; color: #1e40af;">
-                        <i class="me-2">ℹ️</i> <strong>Requirement:</strong> Upload a CSV or Excel file with exactly these columns: 
-                        <code>register id, name, email, phone, gender</code>.
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Institutional Email</label>
+                            <input type="email" name="email" placeholder="student@university.edu" required value="{{ data.email }}" class="modern-input">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Mobile Number</label>
+                            <input type="text" name="phone" id="userPhone" placeholder="10-digit mobile number" required maxlength="10" value="{{ data.phone }}" class="modern-input">
+                        </div>
+
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Gender Identity</label>
+                            <select name="gender" required class="modern-select">
+                                <option value="">Select Gender</option>
+                                <option value="male" {% if data.gender|lower == "male" %}selected{% endif %}>Male</option>
+                                <option value="female" {% if data.gender|lower == "female" %}selected{% endif %}>Female</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Course Duration (Years)</label>
+                            <select name="duration" required class="modern-select">
+                                <option value="">Select Duration</option>
+                                <option value="1" {% if data.duration == "1" %}selected{% endif %}>1 Year Degree</option>
+                                <option value="2" {% if data.duration == "2" %}selected{% endif %}>2 Year Degree</option>
+                                <option value="3" {% if data.duration == "3" %}selected{% endif %}>3 Year Degree</option>
+                                <option value="4" {% if data.duration == "4" %}selected{% endif %}>4 Year Degree</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group" style="grid-column: 1 / -1;">
+                            <label class="section-label" style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; display: block; text-transform: uppercase; letter-spacing: 0.05em;">Academic Department</label>
+                            <select name="department" required class="modern-select">
+                                <option value="">Assign to Department</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.name }}" {% if data.department == dept.name %}selected{% endif %}>{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
                     </div>
 
-                    <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <input type="hidden" name="registration_type" value="bulk">
-                        
-                        <div class="row g-4">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Select File (CSV/XLSX):</label>
-                                <input type="file" name="file" class="form-control" required accept=".csv, .xlsx, .xls">
-                            </div>
+                    <div style="display: flex; justify-content: center; margin-top: 3rem;">
+                        <button type="submit" class="register-btn">
+                            Complete Onboarding ✨
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Course Duration:</label>
-                                <select name="duration" class="form-select" required>
-                                    <option value="">Select Duration</option>
-                                    <option value="1">1 Year</option>
-                                    <option value="2">2 Years</option>
-                                    <option value="3">3 Years</option>
-                                    <option value="4">4 Years</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Department:</label>
-                                <select name="department" class="form-select" required>
-                                    <option value="">Select Department</option>
-                                    {% for dept in departments %}
-                                        <option value="{{ dept.name }}">{{ dept.name }}</option>
-                                    {% endfor %}
-                                </select>
+            <!-- Bulk Registration Form -->
+            <div id="content-bulk" class="tab-content-area {% if bulk_tab_active %}active{% endif %}" style="display: none;">
+                <div class="bulk-info" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 2rem; border-radius: 20px; border: 1px solid #bae6fd; margin-bottom: 3rem;">
+                    <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                        <div style="font-size: 2rem;">💡</div>
+                        <div>
+                            <h4 style="color: #0369a1; font-weight: 800; margin-bottom: 0.5rem; font-size: 1.2rem;">Bulk Upload Instructions</h4>
+                            <p style="color: #0c4a6e; font-size: 1rem; line-height: 1.6;">Please ensure your spreadsheet contains the following headers in lowercase:</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1rem;">
+                                <span class="format-tag">register id</span>
+                                <span class="format-tag">name</span>
+                                <span class="format-tag">email</span>
+                                <span class="format-tag">phone</span>
+                                <span class="format-tag">gender</span>
                             </div>
                         </div>
-
-                        <div class="mt-4">
-                            <button type="submit" class="btn btn-primary px-5 py-2 fw-medium">Register All Students</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
+
+                <form action="{% url 'user:student_register' %}" method="post" enctype="multipart/form-data" class="animated-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="registration_type" value="bulk">
+                    
+                    <div class="drop-zone" id="drop-zone" style="border: 3px dashed #cbd5e1; border-radius: 24px; padding: 5rem 2rem; text-align: center; background: #f8fafc; transition: all 0.3s ease; margin-bottom: 3rem; cursor: pointer;">
+                        <input type="file" name="file" id="file-input" required accept=".csv, .xlsx, .xls" style="display: none;">
+                        <div style="font-size: 4rem; margin-bottom: 1.5rem;">📤</div>
+                        <h4 style="font-weight: 800; color: #1e293b; font-size: 1.4rem;">Select or Drag File</h4>
+                        <p id="file-name" style="color: #64748b; margin-top: 0.75rem;">Supports Excel and CSV formats</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+                        <div>
+                            <label class="section-label">Global Duration</label>
+                            <select name="duration" required class="modern-select">
+                                <option value="">Select for all students</option>
+                                <option value="1">1 Year</option>
+                                <option value="2">2 Years</option>
+                                <option value="3">3 Years</option>
+                                <option value="4">4 Years</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="section-label">Global Department</label>
+                            <select name="department" required class="modern-select">
+                                <option value="">Select for all students</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.name }}">{{ dept.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: center;">
+                        <button type="submit" class="register-btn" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                            Import All Records 🚀
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const nameInput = document.getElementById('userName');
-    const nameMsg = document.getElementById('nameValidation');
-    const phoneInput = document.getElementById('userPhone');
-    const regIdInput = document.getElementsByName('register_id')[0];
-    
-    // Create a validation msg div for Register ID if or use existing if any
-    let regIdMsg = document.getElementById('regIdValidation');
-    if (!regIdMsg) {
-        regIdMsg = document.createElement('div');
-        regIdMsg.id = 'regIdValidation';
-        regIdMsg.className = 'validation-msg';
-        regIdInput.parentNode.appendChild(regIdMsg);
+<style>
+    /* Modern Styles */
+    .modern-input, .modern-select {
+        width: 100%;
+        padding: 1.25rem 1.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #1e293b;
+        background: #ffffff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
     }
+
+    .modern-input:focus, .modern-select:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.15);
+        outline: none;
+        transform: translateY(-2px);
+    }
+
+    .tab-pill {
+        color: #64748b;
+        background: transparent;
+    }
+
+    .tab-pill.active {
+        background: #ffffff !important;
+        color: #6366f1 !important;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .register-btn {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        color: white;
+        border: none;
+        padding: 1.25rem 4rem;
+        border-radius: 18px;
+        font-size: 1.15rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 30px rgba(99, 102, 241, 0.25);
+    }
+
+    .register-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.35);
+    }
+
+    .register-btn:active {
+        transform: translateY(0);
+    }
+
+    .format-tag {
+        background: #bae6fd;
+        color: #0369a1;
+        padding: 0.4rem 1rem;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+
+    .drop-zone:hover {
+        border-color: #6366f1;
+        background: #f1f5f9;
+        transform: scale(0.99);
+    }
+
+    .drop-zone.active {
+        border-color: #a855f7;
+        background: #f5f3ff;
+    }
+
+    .validation-badge {
+        position: absolute;
+        right: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        font-weight: 700;
+        pointer-events: none;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animated-form {
+        animation: fadeIn 0.6s ease-out;
+    }
+</style>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-pill').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content-area').forEach(pane => pane.style.display = 'none');
+    
+    document.getElementById('tab-' + tabId).classList.add('active');
+    document.getElementById('content-' + tabId).style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    {% if bulk_tab_active %}
+        switchTab('bulk');
+    {% endif %}
+
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const fileName = document.getElementById('file-name');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        if (fileInput.files.length > 0) {
+            fileName.textContent = '✅ Selected: ' + fileInput.files[0].name;
+            fileName.style.color = '#059669';
+            fileName.style.fontWeight = '800';
+            dropZone.style.borderColor = '#059669';
+        }
+    });
+
+    // Handle drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('active');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('active');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('active');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = '✅ Dropped: ' + fileInput.files[0].name;
+            fileName.style.color = '#059669';
+            fileName.style.fontWeight = '800';
+            dropZone.style.borderColor = '#059669';
+        }
+    });
+
+    // Real-time validation
+    const nameInput = document.getElementById('userName');
+    const nameBadge = document.getElementById('nameValidation');
+    const regIdInput = document.getElementsByName('register_id')[0];
+    const regIdBadge = document.getElementById('regIdValidation');
 
     regIdInput.addEventListener('input', function() {
         const val = this.value.trim();
@@ -170,85 +323,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasNumber = /[0-9]/.test(val);
         
         if (val === '') {
-            regIdMsg.textContent = '';
-            this.classList.remove('is-invalid', 'is-valid');
+            regIdBadge.textContent = '';
         } else if (!alphaNumReg.test(val) || val.length !== 12 || !hasLetter || !hasNumber) {
-            regIdMsg.textContent = '❌ Must be 12 chars containing both letters and numbers';
-            regIdMsg.style.color = '#dc2626';
-            this.classList.add('is-invalid');
-            this.classList.remove('is-valid');
+            regIdBadge.textContent = '❌ Invalid Format';
+            regIdBadge.style.color = '#dc2626';
+            this.style.borderColor = '#dc2626';
         } else {
-            regIdMsg.textContent = '✅ Format valid';
-            regIdMsg.style.color = '#16a34a';
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
+            regIdBadge.textContent = '✅ Verified';
+            regIdBadge.style.color = '#059669';
+            this.style.borderColor = '#059669';
         }
     });
 
     nameInput.addEventListener('input', function() {
         const val = this.value.trim();
-        // Allow letters, spaces, dots, and hyphens
         const nameReg = /^[A-Za-z\s.\-]+$/;
         
         if (val === '') {
-            nameMsg.textContent = '';
-            this.classList.remove('is-invalid', 'is-valid');
-        } else if (!nameReg.test(val)) {
-            nameMsg.textContent = '❌ Numbers not allowed. Letters, dots, and hyphens only';
-            nameMsg.style.color = '#dc2626';
-            this.classList.add('is-invalid');
-            this.classList.remove('is-valid');
-        } else if (val.length < 3) {
-            nameMsg.textContent = '⚠️ Too short (min 3 chars)';
-            nameMsg.style.color = '#d97706';
-            this.classList.add('is-invalid');
-            this.classList.remove('is-valid');
+            nameBadge.textContent = '';
+        } else if (!nameReg.test(val) || val.length < 3) {
+            nameBadge.textContent = '❌ Invalid Name';
+            nameBadge.style.color = '#dc2626';
+            this.style.borderColor = '#dc2626';
         } else {
-            nameMsg.textContent = '✅ Valid name';
-            nameMsg.style.color = '#16a34a';
-            this.classList.remove('is-invalid');
-            this.classList.add('is-valid');
-        }
-    });
-
-    phoneInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
-
-    // Handle form submission
-    document.getElementById('singleRegForm').addEventListener('submit', function(e) {
-        const val = nameInput.value.trim();
-        const regId = regIdInput.value.trim();
-        const alphaReg = /^[A-Za-z\s.\-]+$/;
-        const alphaNumReg = /^[A-Za-z0-9]+$/;
-        const hasLetter = /[A-Za-z]/.test(regId);
-        const hasNumber = /[0-9]/.test(regId);
-
-        if (regId.length !== 12 || !alphaNumReg.test(regId) || !hasLetter || !hasNumber) {
-            e.preventDefault();
-            alert('Register ID must be exactly 12 characters long and contain both numbers and alphabets.');
-            return;
-        }
-
-        if (!alphaReg.test(val) || val.length < 3) {
-            e.preventDefault();
-            alert('Please provide a valid name (letters, spaces, dots, and hyphens only, min 3 characters).');
+            nameBadge.textContent = '✅ Looks Good';
+            nameBadge.style.color = '#059669';
+            this.style.borderColor = '#059669';
         }
     });
 });
 </script>
-
-{% if download_file %}
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const link = document.createElement("a");
-        link.href = "data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{{ download_file }}";
-        link.download = "registration_errors_{{ current_time }}.xlsx";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-</script>
-{% endif %}
-
-{% endblock %}
+{% endblock %}

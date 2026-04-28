@@ -1,102 +1,117 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Update Profile{% endblock %}
+{% block title %}Update Profile | Alumni Portal{% endblock %}
+{% block page_title %}Academic Profile Update{% endblock %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <button class="btn btn-outline-secondary mb-3" onclick="window.history.back()">← Back</button>
-            <div class="card shadow-sm border-0" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <h2 class="fw-bold mb-4">Update Profile</h2>
+<div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, white 0%, var(--primary-glow) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin: 0;">Refine Your Profile</h2>
+            <p style="color: var(--text-muted); margin-top: 0.25rem;">Keep your information up-to-date to improve your networking opportunities.</p>
+        </div>
+        <button class="btn-secondary" onclick="window.history.back()" style="padding: 0.6rem 1.2rem; border-radius: 10px;">← Back</button>
+    </div>
+</div>
 
-                    {% if messages %}
-                        <div class="mb-4">
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
+<form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 2rem;">
+    {% csrf_token %}
+    
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; align-items: start;">
+        
+        <!-- Files & Socials Sidebar -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem;">Assets & Verification</h3>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div>
+                        <label class="section-label">Profile Photo</label>
+                        <input type="file" name="photo" style="width: 100%;">
+                        {% if student.photo %}
+                            <p style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--primary); font-weight: 700;">✅ Photo Uploaded</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="section-label">Resume (PDF/DOC)</label>
+                        <input type="file" name="resume" style="width: 100%;">
+                        {% if student.resume %}
+                            <p style="font-size: 0.75rem; margin-top: 0.5rem; color: var(--primary); font-weight: 700;">✅ Resume Uploaded</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem;">Professional Links</h3>
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <label class="section-label">GitHub URL</label>
+                        <input type="url" name="github_url" value="{{ student.github_url }}" placeholder="https://github.com/username" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label class="section-label">LinkedIn URL</label>
+                        <input type="url" name="linkedin_url" value="{{ student.linkedin_url }}" placeholder="https://linkedin.com/in/username" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Details -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div class="card">
+                <h3 style="font-size: 1.1rem; margin-bottom: 2rem;">Basic Information</h3>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div>
+                        <label class="section-label">Biography</label>
+                        <textarea name="bio" rows="4" placeholder="Tell us about yourself..." style="width: 100%;">{{ student.bio }}</textarea>
+                    </div>
+                    <div>
+                        <label class="section-label">Skills (Comma separated)</label>
+                        <textarea name="skills" rows="2" placeholder="e.g. Python, Django, SQL, Leadership" style="width: 100%;">{{ student.skills }}</textarea>
+                    </div>
+                    
+                    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                        <div>
+                            <label class="section-label">Phone Number</label>
+                            <input type="text" name="phone" value="{{ student.phone }}" style="width: 100%;">
                         </div>
-                    {% endif %}
-
-                    <form method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-
-                        <div class="mb-3">
-                            <label for="bio" class="form-label fw-bold">Bio</label>
-                            <textarea name="bio" id="bio" class="form-control" rows="3">{{ student.bio }}</textarea>
+                        <div>
+                            <label class="section-label">Gender</label>
+                            <select name="gender" style="width: 100%;">
+                                <option value="">Select</option>
+                                <option value="Male" {% if student.gender|lower == "male" %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if student.gender|lower == "female" %}selected{% endif %}>Female</option>
+                            </select>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="skills" class="form-label fw-bold">Skills (Comma separated)</label>
-                            <textarea name="skills" id="skills" class="form-control" rows="2" placeholder="e.g. Python, Django, SQL, Machine Learning">{{ student.skills }}</textarea>
+                        <div>
+                            <label class="section-label">Date of Birth</label>
+                            <input type="date" name="dob" value="{{ student.dob|date:'Y-m-d' }}" style="width: 100%;">
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="phone" class="form-label fw-bold">Phone</label>
-                                <input type="text" name="phone" id="phone" class="form-control" value="{{ student.phone }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="gender" class="form-label fw-bold">Gender</label>
-                                <select name="gender" id="gender" class="form-select">
-                                    <option value="">Select</option>
-                                    <option value="Male" {% if student.gender == "Male" %}selected{% endif %}>Male</option>
-                                    <option value="Female" {% if student.gender == "Female" %}selected{% endif %}>Female</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label class="section-label">Current City</label>
+                            <input type="text" name="city" value="{{ student.city }}" style="width: 100%;">
                         </div>
+                    </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="dob" class="form-label fw-bold">Date of Birth</label>
-                                <input type="date" name="dob" id="dob" class="form-control" value="{{ student.dob|date:'Y-m-d' }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="city" class="form-label fw-bold">City</label>
-                                <input type="text" name="city" id="city" class="form-control" value="{{ student.city }}">
-                            </div>
-                        </div>
+                    <div style="margin-top: 1rem;">
+                        <label class="section-label">Permanent Address</label>
+                        <textarea name="permanent_address" rows="2" style="width: 100%;">{{ student.permanent_address }}</textarea>
+                    </div>
+                </div>
 
-                        <div class="mb-3">
-                            <label for="permanent_address" class="form-label fw-bold">Permanent Address</label>
-                            <textarea name="permanent_address" id="permanent_address" class="form-control" rows="2">{{ student.permanent_address }}</textarea>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="photo" class="form-label fw-bold">Profile Photo</label>
-                                <input type="file" name="photo" id="photo" class="form-control">
-                                {% if student.photo %}<small class="text-muted d-block mt-1">Current: <a href="{{ student.photo.url }}" target="_blank">View File</a></small>{% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label for="resume" class="form-label fw-bold">Resume</label>
-                                <input type="file" name="resume" id="resume" class="form-control">
-                                {% if student.resume %}<small class="text-muted d-block mt-1">Current: <a href="{{ student.resume.url }}" target="_blank">View File</a></small>{% endif %}
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="github_url" class="form-label fw-bold">GitHub URL</label>
-                                <input type="url" name="github_url" id="github_url" class="form-control" value="{{ student.github_url }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="linkedin_url" class="form-label fw-bold">LinkedIn URL</label>
-                                <input type="url" name="linkedin_url" id="linkedin_url" class="form-control" value="{{ student.linkedin_url }}">
-                            </div>
-                        </div>
-
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
-                        </div>
-                    </form>
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                    <button type="submit" class="btn-primary" style="padding: 1rem 3rem; border-radius: 12px; font-weight: 700;">Save Profile Changes</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>
+
+<style>
+    input:focus, textarea:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+        outline: none;
+    }
+</style>
 {% endblock %}

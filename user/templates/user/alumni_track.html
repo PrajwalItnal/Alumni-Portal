@@ -1,74 +1,82 @@
-{% extends 'user/user_base.html' %}
+{% extends "user/user_base.html" %}
 
-{% block title %}Alumni Portal | Alumni Track{% endblock %}
+{% block title %}Career Tracking | Alumni Portal{% endblock %}
+{% block page_title %}Career Milestone Update{% endblock %}
 
 {% block content %}
-<div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <button class="btn btn-outline-secondary mb-3" onclick="window.history.back()">← Back</button>
-            <div class="card shadow-sm border-0" style="border-radius: 12px;">
-                <div class="card-body p-4">
-                    <h2 class="fw-bold mb-4 text-center">Update Alumni Profile</h2>
+<div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, white 0%, var(--tertiary-glow) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin: 0;">Update Your Professional Track</h2>
+            <p style="color: var(--text-muted); margin-top: 0.25rem;">Help the community stay informed about your career journey and achievements.</p>
+        </div>
+        <button class="btn-secondary" onclick="window.history.back()" style="padding: 0.6rem 1.2rem; border-radius: 10px;">← Back</button>
+    </div>
+</div>
 
-                    <form method="POST" action="{% url 'user:alumni_update' %}">
-                        {% csrf_token %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+    <form method="POST" action="{% url 'user:alumni_update' %}" style="display: flex; flex-direction: column; gap: 2rem;">
+        {% csrf_token %}
 
-                        <!-- Employment Status -->
-                        <div class="mb-3">
-                            <label for="emp_sts" class="form-label fw-bold">Employment Status</label>
-                            <select name="employment_status" id="emp_sts" class="form-select" required>
-                                <option value="">Select Status</option>
-                                <option value="WORKING" {% if alumni.employment_status == "WORKING" %}selected{% endif %}>Working 💼</option>
-                                <option value="STUDYING" {% if alumni.employment_status == "STUDYING" %}selected{% endif %}>Higher Studies 🎓</option>
-                                <option value="SEARCHING" {% if alumni.employment_status == "SEARCHING" %}selected{% endif %}>Looking for Job 🔍</option>
-                                <option value="BUSINESS" {% if alumni.employment_status == "BUSINESS" %}selected{% endif %}>Entrepreneur 🚀</option>
-                                <option value="NOT_WORKING" {% if alumni.employment_status == "NOT_WORKING" %}selected{% endif %}>Not Working ❌</option>
-                            </select>
-                        </div>
+        <!-- Employment Status -->
+        <div>
+            <label class="section-label">Current Employment Status</label>
+            <select name="employment_status" required style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                <option value="">Select Status</option>
+                <option value="WORKING" {% if alumni.employment_status == "WORKING" %}selected{% endif %}>Working 💼</option>
+                <option value="STUDYING" {% if alumni.employment_status == "STUDYING" %}selected{% endif %}>Higher Studies 🎓</option>
+                <option value="SEARCHING" {% if alumni.employment_status == "SEARCHING" %}selected{% endif %}>Looking for Job 🔍</option>
+                <option value="BUSINESS" {% if alumni.employment_status == "BUSINESS" %}selected{% endif %}>Entrepreneur 🚀</option>
+                <option value="NOT_WORKING" {% if alumni.employment_status == "NOT_WORKING" %}selected{% endif %}>Not Working ❌</option>
+            </select>
+        </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="company" class="form-label fw-bold">Company Name</label>
-                                <input type="text" name="company_name" id="company" class="form-control" value="{{ alumni.company_name }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="job_title" class="form-label fw-bold">Job Title</label>
-                                <input type="text" name="job_title" id="job_title" class="form-control" value="{{ alumni.job_title }}">
-                            </div>
-                        </div>
+        <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
+            <div>
+                <label class="section-label">Organization / Company</label>
+                <input type="text" name="company_name" value="{{ alumni.company_name }}" placeholder="e.g. Google, Microsoft, Freelance" style="width: 100%;">
+            </div>
+            <div>
+                <label class="section-label">Job Designation</label>
+                <input type="text" name="job_title" value="{{ alumni.job_title }}" placeholder="e.g. Senior Software Engineer" style="width: 100%;">
+            </div>
+        </div>
 
-                        <div class="mb-3">
-                            <label for="experience_year" class="form-label fw-bold">Experience (Years)</label>
-                            <input type="number" name="experience_year" id="experience_year" class="form-control" value="{{ alumni.experience_year }}">
-                        </div>
+        <div>
+            <label class="section-label">Years of Professional Experience</label>
+            <input type="number" name="experience_year" value="{{ alumni.experience_year }}" style="width: 100%;">
+        </div>
 
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <label for="degree" class="form-label fw-bold">Pursuing Degree</label>
-                                <input type="text" name="pursuing_degree" id="degree" class="form-control" value="{{ alumni.pursuing_degree }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="university" class="form-label fw-bold">University</label>
-                                <input type="text" name="university" id="university" class="form-control" value="{{ alumni.university }}">
-                            </div>
-                        </div>
-
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" name="available_for_referral" id="referralCheckbox" {% if alumni.available_for_referral %}checked{% endif %}>
-                            <label class="form-check-label fw-bold" for="referralCheckbox">
-                                Available for Referral
-                            </label>
-                        </div>
-
-                        <div class="d-grid mt-2">
-                            <button type="submit" class="btn btn-primary btn-lg">Update Profile</button>
-                        </div>
-
-                    </form>
+        <div style="background: var(--background); padding: 2rem; border-radius: 15px; border: 1px dashed var(--border);">
+            <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main);">Higher Education (Optional)</h4>
+            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr;">
+                <div>
+                    <label class="section-label">Pursuing Degree</label>
+                    <input type="text" name="pursuing_degree" value="{{ alumni.pursuing_degree }}" placeholder="e.g. MS in Data Science" style="width: 100%;">
+                </div>
+                <div>
+                    <label class="section-label">Institution / University</label>
+                    <input type="text" name="university" value="{{ alumni.university }}" placeholder="e.g. Stanford University" style="width: 100%;">
                 </div>
             </div>
         </div>
-    </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 1.5rem; background: var(--primary-glow); border-radius: 12px;">
+            <input type="checkbox" name="available_for_referral" id="referralCheckbox" {% if alumni.available_for_referral %}checked{% endif %} style="width: 20px; height: 20px; cursor: pointer;">
+            <label for="referralCheckbox" style="font-weight: 700; color: var(--primary); cursor: pointer;">I am available to provide referrals for current students</label>
+        </div>
+
+        <div style="margin-top: 1rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 1.25rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem;">Update Milestone</button>
+        </div>
+    </form>
 </div>
+
+<style>
+    input:focus, select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+        outline: none;
+    }
+</style>
 {% endblock %}

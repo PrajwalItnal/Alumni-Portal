@@ -142,6 +142,7 @@ class Event(models.Model):
     location = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.FileField(upload_to="event_images/", blank=True, null=True)
+    registration_link = models.URLField(blank=True, null=True)
     
     class Meta:
         db_table = "Events"

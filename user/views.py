@@ -24,12 +24,19 @@ def get_session_user(request):
         return None
     return User.objects.filter(register_id=register_id).first()
 
-def is_valid_text(text):
+def is_valid_text(text, allow_numbers=False):
     if not text:
         return False
-    text = str(text)
-    clean_text = text.replace(" ", "").replace("\r", "").replace("\n", "").replace(".", "").replace(",", "").replace("'", "").replace("\"", "").replace(":", "").replace(";", "").replace("-", "").replace("_", "").replace("+", "").replace("=", "").replace("*", "").replace("/", "").replace("%", "").replace("^", "").replace("&", "").replace("#", "").replace("@", "").replace("$", "").replace("!", "").replace("?", "").replace("<", "").replace(">", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "").replace("(", "").replace(")", "").replace("[", "").replace("]", "").replace("{", "").replace("}", "").replace("|", "").replace("\\", "").replace("~", "").replace("`", "")
-    return clean_text.isalpha()
+    text = str(text).strip()
+    # Remove common punctuation but keep letters and optionally numbers
+    clean_text = "".join(c for c in text if c.isalnum() or c.isspace())
+    
+    if allow_numbers:
+        # Check if it has at least some content (letters or numbers)
+        return len(clean_text) > 0
+    else:
+        # Must have letters, but we remove spaces for isalpha check
+        return clean_text.replace(" ", "").isalpha()
 
 def home(request):
     user = get_session_user(request)
@@ -91,8 +98,8 @@ def create_event(request):
                 messages.error(request, "Invalid image format: Only JPG, JPEG, and PNG files are allowed.")
                 return render(request, "user/create_event.html", {"user": user, "data": request.POST})
         
-        if not is_valid_text(title) or not is_valid_text(description) or not is_valid_text(location):
-            messages.error(request, "Title, Description, and Location must contain only alphabets and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(description, allow_numbers=True) or not is_valid_text(location, allow_numbers=True):
+            messages.error(request, "Title, Description, and Location must contain valid text.")
             return render(request, "user/create_event.html", {"user": user, "data": request.POST})
 
         Event.objects.create(
@@ -103,6 +110,7 @@ def create_event(request):
             event_time=time, 
             location=location, 
             image=image,
+            registration_link=request.POST.get("registration_link"),
             organized_by=user
         )
         messages.success(request, "Event created successfully!")
@@ -166,8 +174,8 @@ def edit_event(request, event_id):
                 
             event.image = new_image
 
-        if not is_valid_text(title) or not is_valid_text(description) or not is_valid_text(location):
-            messages.error(request, "Title, Description, and Location must contain only alphabets and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(description, allow_numbers=True) or not is_valid_text(location, allow_numbers=True):
+            messages.error(request, "Title, Description, and Location must contain valid text.")
             return render(request, "user/create_event.html", {"user": user, "data": request.POST})
         
         event.title = title
@@ -176,6 +184,7 @@ def edit_event(request, event_id):
         event.location = location
         event.date = date
         event.event_time = time
+        event.registration_link = request.POST.get("registration_link")
         event.save()
         messages.success(request, "Event updated successfully!")
         return redirect("user:vi_event")
@@ -203,8 +212,8 @@ def create_achievements(request):
         description = request.POST.get('description')
         certificate = request.FILES.get('certificate')
 
-        if not is_valid_text(title) or not is_valid_text(description):
-            messages.error(request, "Title and Description should only contain letters and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Title and Description must contain valid text.")
             return render(request, "user/create_achievement.html", {"user": user, "data": request.POST})
         
         if not title or not description:
@@ -252,8 +261,8 @@ def edit_achievement(request, achievement_id):
         description = request.POST.get('description', '').strip()
         certificate = request.FILES.get('certificate')
 
-        if not is_valid_text(title) or not is_valid_text(description):
-            messages.error(request, "Title and Description should only contain letters and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Title and Description must contain valid text.")
             return render(request, "user/create_achievement.html", {"data": achievement, "user": user})
 
         if certificate:
@@ -322,8 +331,8 @@ def create_donation(request):
             messages.error(request, "Please enter a valid amount.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
         
-        if not is_valid_text(description):
-            messages.error(request, "Description should only contain alphabets and spaces.")
+        if not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Description must contain valid text.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         Donation.objects.create(
@@ -367,8 +376,8 @@ def edit_donation(request, donation_id):
             return render(request, 'user/add_donation.html', {"user": user, "data": donation})
         
         description = request.POST.get("description")
-        if not is_valid_text(description):
-            messages.error(request, "Description should only contain alphabets and spaces.")
+        if not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Description must contain valid text.")
             return render(request, 'user/add_donation.html', {"user": user, 'data': request.POST})
 
         donation.amount = amount
@@ -432,8 +441,8 @@ def add_job(request):
         required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
 
-        if not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(title):
-            messages.error(request, "Title, Company, and Location should contain only alphabets and spaces.")
+        if not is_valid_text(company_name, allow_numbers=True) or not is_valid_text(location, allow_numbers=True) or not is_valid_text(title, allow_numbers=True):
+            messages.error(request, "Title, Company, and Location must contain valid text.")
             return render(request, "user/add_job.html", {"user": user, "data": request.POST})
         
         if not all([title, company_name, description, location, last_date, required_skills]):
@@ -522,8 +531,8 @@ def edit_job(request, job_id):
         required_skills = request.POST.get('required_skills', '').strip()
         apply_link = request.POST.get('apply_link', '').strip()
 
-        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
-            messages.error(request, "All text fields must contain only alphabets and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(company_name, allow_numbers=True) or not is_valid_text(location, allow_numbers=True) or not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Title, Company, Location, and Description must contain valid text.")
             return render(request, "user/add_job.html", {"user": user, "data": request.POST})
 
         if not all([title, company_name, description, location, last_date, required_skills, apply_link]):
@@ -618,8 +627,8 @@ def internship_create(request):
         last_date_raw = request.POST.get("last_date")
         required_skills = request.POST.get("required_skills")
 
-        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
-            messages.error(request, "Title, Company, Location, and Description must contain only alphabets and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(company_name, allow_numbers=True) or not is_valid_text(location, allow_numbers=True) or not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Title, Company, Location, and Description must contain valid text.")
             return render(request, "user/create_internship.html", {'user': user, 'data': request.POST})
 
         try:
@@ -685,8 +694,8 @@ def internship_edit(request, internship_id):
         last_date_raw = request.POST.get("last_date")
         required_skills = request.POST.get("required_skills", "").strip()
 
-        if not is_valid_text(title) or not is_valid_text(company_name) or not is_valid_text(location) or not is_valid_text(description):
-            messages.error(request, "Title, Company, Location, and Description must contain only alphabets and spaces.")
+        if not is_valid_text(title, allow_numbers=True) or not is_valid_text(company_name, allow_numbers=True) or not is_valid_text(location, allow_numbers=True) or not is_valid_text(description, allow_numbers=True):
+            messages.error(request, "Title, Company, Location, and Description must contain valid text.")
             return render(request, "user/create_internship.html", {'user': user, 'data': internship})
 
         try:
@@ -800,7 +809,11 @@ def student_register(request):
             email = request.POST.get("email", "").strip()
             phone = request.POST.get("phone", "").strip()
             gender = request.POST.get("gender", "").lower()
-            course_duration = int(request.POST.get("duration"))
+            try:
+                course_duration = int(request.POST.get("duration", 0))
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid course duration.")
+                return render(request, "user/student_registration.html", {"departments": departments, "data": request.POST})
             department = request.POST.get("department")
 
             if not register_id:
@@ -899,11 +912,18 @@ def student_register(request):
         failed_rows = []
         success_count = 0
         for index, row in df.iterrows():
-            register_id = row['register id']
-            name = row['name']
-            email = row['email']
-            phone = str(row['phone'])
-            gender = row['gender']
+            # Clean up numeric values from Excel/CSV (handles floats like 1234.0)
+            def clean_numeric(val):
+                if pd.isna(val): return ""
+                v = str(val).strip()
+                if v.endswith('.0'): v = v[:-2]
+                return v
+
+            register_id = clean_numeric(row['register id'])
+            name = str(row['name']).strip()
+            email = str(row['email']).strip()
+            phone = clean_numeric(row['phone'])
+            gender = str(row['gender']).lower().strip()
 
             error_reason = None
             
@@ -916,7 +936,7 @@ def student_register(request):
                 error_reason = "Email already exists"
             elif not email.endswith("@gmail.com"):
                 error_reason = "Invalid email domain (must be @gmail.com)"
-            elif gender not in ['male', 'female']:
+            elif gender not in ['male', 'female', 'Female', 'Male']:
                 error_reason = f"Invalid gender: {gender}"
             elif not phone.isdigit() or len(phone) != 10:
                 error_reason = f"Invalid phone number: {phone}"
@@ -1174,14 +1194,12 @@ def update_profile_std(request):
                     messages.error(request, "Date of birth cannot be in the future.")
                     return redirect("user:update_profile_std")
                 
+                # Calculate age and enforce minimum age of 15 years
                 age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
                 if age < 15:
                     messages.error(request, "You must be at least 15 years old.")
                     return redirect("user:update_profile_std")
-                if age > 50:
-                    messages.error(request, "Age cannot be greater than 50 years.")
-                    return redirect("user:update_profile_std")
-                    
+                # No upper age limit enforced
                 student.dob = dob
             except ValueError:
                 messages.error(request, "Please enter a valid date.")
@@ -1221,16 +1239,25 @@ def update_profile_std(request):
 
 
 def profile_view(request):
-    user = get_session_user(request)
-    if not user:
+    session_user = get_session_user(request)
+    if not session_user:
         return redirect("login")
-    student = Student.objects.get(user=user)
-    alumni = Alumni.objects.filter(user=user).first() if user.role == "Alumni" else None
+    
+    target_id = request.GET.get('id')
+    if target_id:
+        user = get_object_or_404(User, user_id=target_id)
+    else:
+        user = session_user
+
+    student = Student.objects.filter(user=user).first()
+    alumni = Alumni.objects.filter(user=user).first()
+    
     return render(request, "user/profile_view.html", {
         "user": user, 
         "student": student, 
         "alumni": alumni, 
-        "skills_list": student.skills.split(",") if student.skills else []
+        "is_own_profile": (user.user_id == session_user.user_id),
+        "skills_list": [s.strip() for s in student.skills.split(",")] if student and student.skills else []
     })
 
 def alumni_update(request):

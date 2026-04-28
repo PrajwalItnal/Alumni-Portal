@@ -1,109 +1,93 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Internships | Smart Alumni Portal{% endblock %}
+{% block title %}Internships | Alumni Portal{% endblock %}
+{% block page_title %}Internship Opportunities{% endblock %}
 
 {% block content %}
-<style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; margin: 0; }
-    .navbar { display: flex; justify-content: space-between; align-items: center; background: #2d3e50; color: white; padding: 15px 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .nav-right { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; }
-    .nav-right a { color: #ecf0f1; text-decoration: none; font-weight: 500; }
-    
-    .main-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    
-    .top-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .create-card { background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0; text-decoration: none; color: inherit; transition: 0.3s; display: inline-block; width: 280px; }
-    .create-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-    .action-btn { background: #3498db; color: white; padding: 8px 16px; border-radius: 5px; font-weight: 600; display: inline-block; margin-top: 10px; }
-
-    .search-bar { background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .search-bar input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; }
-    .search-bar button { background: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-
-    .internship-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; }
-    .intern-card { background: white; border-radius: 12px; padding: 25px; border-left: 6px solid #3498db; position: relative; transition: 0.3s; display: flex; flex-direction: column; }
-    .intern-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-    
-    .status-badge { position: absolute; top: 15px; right: 15px; background: #e8f4fd; color: #3498db; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-    .intern-card h3 { margin: 0 0 10px 0; color: #2c3e50; font-size: 1.3rem; }
-    .intern-card p { color: #7f8c8d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 15px; }
-    
-    .meta-info { font-size: 0.85rem; color: #555; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-top: 1px solid #eee; padding-top: 15px; }
-    .meta-info span { display: flex; align-items: center; gap: 8px; }
-
-    .user-actions { margin-top: 20px; padding-top: 15px; border-top: 1px solid #f0f0f0; display: flex; gap: 15px; }
-    .edit-link { color: #f39c12; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-    .delete-link { color: #e74c3c; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
-
-    .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid transparent; }
-    .alert-error { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-    .alert-success { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-</style>
-
-<div class="navbar">
-    <h2>🎓 Internship Portal</h2>
-    <div style="display:flex; align-items:center; gap:20px;">
-        <span>Welcome, <strong>{{ user.username }}</strong></span>
-        <ul class="nav-right">
-            <li><a href="{% url 'user:admin_home' %}">Home</a></li>
-            <li><a href="{% url 'user:logout' %}" style="color: #ff7675;">Logout</a></li>
-        </ul>
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <h3 style="font-size: 1.25rem;">Global Career Hub</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Explore and apply for internships shared by our alumni and faculty.</p>
+        </div>
+        {% if user.role == "Admin" or user.role == "Alumni" %}
+            <a href="{% url 'user:internship_create' %}" class="btn-primary">+ Post Internship</a>
+        {% endif %}
     </div>
 </div>
 
-<div class="main-container">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="top-actions">
-        {% if user.role == "Admin" or user.role == "Alumni" %}
-        <a href="{% url 'user:internship_create' %}" class="create-card">
-            <h3 style="margin:0;">➕ Post Internship</h3>
-            <p style="margin:5px 0;">Share a new opportunity</p>
-            <span class="action-btn">Post Now</span>
-        </a>
-        {% endif %}
-    </div>
-
-    <form class="search-bar" action="{% url 'user:filter_internship' %}" method="get">
-        <input type="text" name="title" placeholder="Search by job title..." value="{{ title|default:'' }}">
-        <input type="text" name="loc" placeholder="Location..." value="{{ loc|default:'' }}">
-        <button type="submit">Filter Results</button>
-        <a href="{% url 'user:internship_list' %}" style="color:#7f8c8d; text-decoration:none; font-size:0.9rem;">Clear All</a>
+<!-- Enhanced Search Bar -->
+<div class="card" style="margin-bottom: 3rem; padding: 1.5rem;">
+    <form action="{% url 'user:filter_internship' %}" method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <input type="text" name="title" placeholder="Search by job title..." value="{{ title|default:'' }}" style="width: 100%;">
+        </div>
+        <div style="flex: 1; min-width: 200px;">
+            <input type="text" name="loc" placeholder="Location..." value="{{ loc|default:'' }}" style="width: 100%;">
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <button type="submit" class="btn-primary">Filter Results</button>
+            <a href="{% url 'user:internship_list' %}" class="btn-secondary">Clear</a>
+        </div>
     </form>
+</div>
 
-    <div class="internship-grid">
-        {% for internship in internships %}
-            <div class="intern-card">
-                <span class="status-badge">{{ internship.status|default:"Active" }}</span>
-                <h3>{{ internship.title }}</h3>
-                <p>{{ internship.description|truncatewords:25 }}</p>
+{% if message %}
+    <div class="section-label" style="background: var(--secondary-glow); color: var(--secondary); display: block; width: 100%; margin-bottom: 2rem; padding: 1rem 1.5rem;">
+        {{ message }}
+    </div>
+{% endif %}
 
-                <div class="meta-info">
-                    <span>🏢 {{ internship.company_name }}</span>
-                    <span>📍 {{ internship.location }}</span>
-                    <span>💰 {{ internship.stipend|default:"Not Disclosed" }}</span>
-                    <span>⏳ {{ internship.duration|default:"TBD" }}</span>
-                    <span>📅 Ends: {{ internship.last_date|date:"M d, Y" }}</span>
-                    <span>👤 {{ internship.posted_by.username }}</span>
-                </div>
+<div class="dashboard-grid">
+    {% for internship in internships %}
+    <div class="dashboard-card" style="display: flex; flex-direction: column; border-top: 5px solid var(--primary);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+            <span class="section-label" style="background: var(--primary-glow); color: var(--primary); margin: 0;">{{ internship.status|default:"Active" }}</span>
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">📅 {{ internship.last_date|date:"M d, Y" }}</span>
+        </div>
 
+        <h3 style="font-size: 1.3rem; margin-bottom: 0.75rem; color: var(--text-main);">{{ internship.title }}</h3>
+        <p style="font-size: 0.95rem; color: var(--text-main); line-height: 1.6; margin-bottom: 2rem; flex: 1;">{{ internship.description|truncatewords:30 }}</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1.5rem; background: var(--background); border-radius: 15px; margin-bottom: 2rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <p style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">🏢 Company</p>
+                {{ internship.company_name }}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <p style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">📍 Location</p>
+                {{ internship.location }}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <p style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">💰 Stipend</p>
+                {{ internship.stipend|default:"Not Disclosed" }}
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                <p style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">⏳ Duration</p>
+                {{ internship.duration|default:"TBD" }}
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <div style="font-size: 0.8rem;">
+                <span style="color: var(--text-muted);">Posted by</span><br>
+                <span style="font-weight: 700;">{{ internship.posted_by.username }}</span>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
                 {% if internship.posted_by.register_id == user.register_id or user.role == "Admin" %}
-                <div class="user-actions">
-                    <a href="{% url 'user:internship_edit' internship.id %}" class="edit-link">Modify Details</a>
-                    <a href="{% url 'user:internship_delete' internship.id %}" class="delete-link" 
-                       onclick="return confirm('Permanently delete this internship listing?')">Remove</a>
-                </div>
+                    <a href="{% url 'user:internship_edit' internship.id %}" class="action-btn btn-edit">Edit</a>
+                    <a href="{% url 'user:internship_delete' internship.id %}" class="action-btn btn-delete" onclick="return confirm('Permanently delete this internship listing?')">Delete</a>
                 {% endif %}
             </div>
-        {% empty %}
-            <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 10px;">
-                <p style="color: #95a5a6; font-size: 1.2rem;">No internships found. Check back later!</p>
-            </div>
-        {% endfor %}
+        </div>
     </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 6rem 2rem;">
+        <div class="nav-logo" style="margin: 0 auto 1.5rem; width: 80px; height: 80px; font-size: 40px; background: var(--secondary-glow); color: var(--secondary);">🏢</div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">No internships available</h3>
+        <p style="color: var(--text-muted);">We couldn't find any internship opportunities at the moment. Try adjusting your search or check back soon!</p>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}

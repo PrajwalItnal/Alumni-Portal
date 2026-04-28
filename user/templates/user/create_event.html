@@ -1,256 +1,92 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}{% if data.id %}Edit{% else %}Create{% endif %} Event{% endblock %}
+{% block title %}{% if data.id %}Edit{% else %}Create{% endif %} Event | Alumni Portal{% endblock %}
+{% block page_title %}Event Coordination{% endblock %}
 
 {% block content %}
-
-<style>
-  body {
-    background-color: #f3f4f6;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-  }
-
-  .wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 16px;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    padding: 28px 40px;
-    width: 100%;
-    max-width: 600px;
-  }
-
-  .card-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .card-logo .icon {
-    width: 36px;
-    height: 36px;
-    background: #3b82f6;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-  }
-
-  .card-logo span {
-    font-weight: 600;
-    font-size: 1rem;
-    color: #111;
-  }
-
-  .btn-back {
-    margin-left: auto;
-    background: none;
-    border: 1.5px solid #e5e7eb;
-    color: #6b7280;
-    padding: 6px 16px;
-    border-radius: 8px;
-    font-size: 0.82rem;
-    cursor: pointer;
-    text-decoration: none;
-  }
-
-  .btn-back:hover {
-    border-color: #3b82f6;
-    color: #3b82f6;
-  }
-
-  .card h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #111;
-    margin: 0 0 2px;
-  }
-
-  .card .subtitle {
-    font-size: 0.85rem;
-    color: #6b7280;
-    margin-bottom: 16px;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 20px;
-  }
-
-  .full {
-    grid-column: 1 / -1;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-  }
-
-  label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 5px;
-  }
-
-  input[type="text"],
-  input[type="date"],
-  input[type="time"],
-  textarea {
-    padding: 9px 12px;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    color: #111;
-    background: #f9fafb;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-  }
-
-  input:focus,
-  textarea:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-    background: #fff;
-  }
-
-  textarea {
-    min-height: 70px;
-    resize: none;
-  }
-
-  input[type="file"] {
-    padding: 8px 12px;
-    border: 1.5px dashed #d1d5db;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    color: #6b7280;
-    background: #f9fafb;
-    box-sizing: border-box;
-    cursor: pointer;
-    width: 100%;
-  }
-
-  .btn-submit {
-    margin-top: 16px;
-    width: 100%;
-    padding: 12px;
-    background: #3b82f6;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .btn-submit:hover {
-    background: #2563eb;
-  }
-
-  .message {
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
-  }
-  .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-  .success { background-color: #d1fae5; color: #065f46; border: 1px solid #bbf7d0; }
-  
-  .current-img-info {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-top: 4px;
-  }
-</style>
-
-<div class="wrapper">
-  <div class="card">
-    {% if messages %}
-        {% for message in messages %}
-            <div class="message {% if message.tags == 'error' %}error{% else %}success{% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="card-logo">
-      <div class="icon">🎓</div>
-      <span>Alumni Portal</span>
-      <a href="{% url 'user:vi_event' %}" class="btn-back">← Back</a>
+<div class="card" style="margin-bottom: 2.5rem; background: linear-gradient(135deg, white 0%, var(--primary-glow) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin: 0;">Organize Campus Events</h2>
+            <p style="color: var(--text-muted); margin-top: 0.25rem;">Schedule reunions, seminars, and networking sessions for the community.</p>
+        </div>
+        <button class="btn-secondary" onclick="window.history.back()" style="padding: 0.6rem 1.2rem; border-radius: 10px;">← Back</button>
     </div>
-
-    <h1>{% if data.id %}Edit{% else %}Create{% endif %} Event</h1>
-    <p class="subtitle">
-        {% if data.id %}Modify the details below to update your event{% else %}Fill in the details to publish a new alumni event{% endif %}
-    </p>
-
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-
-      <div class="form-grid">
-
-        <div class="field full">
-          <label for="id_title">Title</label>
-          <input type="text" name="title" id="id_title" value="{{ data.title }}" placeholder="Event title" required>
-        </div>
-
-        <div class="field full">
-          <label for="id_description">Description</label>
-          <textarea name="description" id="id_description" placeholder="What is this event about?" required>{{ data.description }}</textarea>
-        </div>
-
-        <div class="field">
-          <label for="id_event_type">Event Type</label>
-          <input type="text" name="event_type" id="id_event_type" value="{{ data.event_type }}" placeholder="e.g. Reunion">
-        </div>
-
-        <div class="field">
-          <label for="id_location">Location</label>
-          <input type="text" name="location" id="id_location" value="{{ data.location }}" placeholder="Venue or city" required>
-        </div>
-
-        <div class="field">
-          <label for="id_date">Date</label>
-          <input type="date" name="date" id="id_date" value="{{ data.date|date:'Y-m-d' }}" required>
-        </div>
-
-        <div class="field">
-          <label for="id_event_time">Time</label>
-          <input type="time" name="event_time" id="id_event_time" value="{{ data.event_time|time:'H:i' }}" required>
-        </div>
-
-        <div class="field full">
-          <label for="id_image">Cover Image</label>
-          <input type="file" name="image" id="id_image" accept="image/*">
-          {% if data.image %}
-            <p class="current-img-info">Current: <a href="{{ data.image.url }}" target="_blank">View existing image</a></p>
-          {% endif %}
-        </div>
-
-      </div>
-
-      <button type="submit" class="btn-submit">
-        {% if data.id %}Update Event{% else %}Create Event{% endif %}
-      </button>
-    </form>
-
-  </div>
 </div>
 
+<div style="display: flex; justify-content: center; align-items: start;">
+    <div class="card" style="width: 100%; max-width: 800px; padding: 3.5rem;">
+        
+        <div style="margin-bottom: 3rem; text-align: center;">
+            <div class="nav-logo" style="margin: 0 auto 1.5rem; width: 70px; height: 70px; font-size: 32px; background: var(--primary-glow); color: var(--primary);">📅</div>
+            <h3 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">{% if data.id %}Update{% else %}New{% endif %} Event Details</h3>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 2rem;">
+            {% csrf_token %}
+            
+            <div>
+                <label class="section-label">Event Title *</label>
+                <input type="text" name="title" id="id_title" value="{{ data.title }}" placeholder="e.g. Annual Alumni Meet 2026" required style="width: 100%; padding: 1rem; border-radius: 12px;">
+            </div>
+
+            <div>
+                <label class="section-label">Agenda & Description *</label>
+                <textarea name="description" id="id_description" rows="5" placeholder="Describe the event, agenda, and expectations..." required style="width: 100%; padding: 1rem; border-radius: 12px; line-height: 1.7;">{{ data.description }}</textarea>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <label class="section-label">Event Classification</label>
+                    <input type="text" name="event_type" id="id_event_type" value="{{ data.event_type }}" placeholder="e.g. Reunion, Seminar" style="width: 100%; padding: 1rem; border-radius: 12px;">
+                </div>
+                <div>
+                    <label class="section-label">Venue / Location *</label>
+                    <input type="text" name="location" id="id_location" value="{{ data.location }}" placeholder="Venue name or Video Link" required style="width: 100%; padding: 1rem; border-radius: 12px;">
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <label class="section-label">Event Date *</label>
+                    <input type="date" name="date" id="id_date" value="{{ data.date|date:'Y-m-d' }}" required style="width: 100%; padding: 1rem; border-radius: 12px;">
+                </div>
+                <div>
+                    <label class="section-label">Start Time *</label>
+                    <input type="time" name="event_time" id="id_event_time" value="{{ data.event_time|time:'H:i' }}" required style="width: 100%; padding: 1rem; border-radius: 12px;">
+                </div>
+            </div>
+
+            <div>
+                <label class="section-label">External Registration Link (Optional)</label>
+                <input type="url" name="registration_link" id="id_registration_link" value="{{ data.registration_link }}" placeholder="https://forms.gle/your-event-link" style="width: 100%; padding: 1rem; border-radius: 12px;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Provide a link to a Google Form, Zoom, or external registration page.</p>
+            </div>
+
+            <div>
+                <label class="section-label">Promotional Cover Image</label>
+                <div style="padding: 2.5rem; border: 2px dashed var(--border); border-radius: 15px; background: #fdfdfd; text-align: center;">
+                    <input type="file" name="image" id="id_image" accept="image/*" style="cursor: pointer;">
+                    {% if data.image %}
+                        <p style="font-size: 0.8rem; color: var(--primary); font-weight: 700; margin-top: 1rem;">✅ Current Cover: <a href="{{ data.image.url }}" target="_blank">View File</a></p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-top: 1rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 1.25rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem;">
+                    🚀 {% if data.id %}Update Event Post{% else %}Publish Event{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input:focus, textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+        outline: none;
+    }
+</style>
 {% endblock %}

@@ -1,87 +1,57 @@
 {% extends "user/user_base.html" %}
 
-{% block title %}Community Donations{% endblock %}
+{% block title %}Donations | Alumni Portal{% endblock %}
+{% block page_title %}Community Contributions{% endblock %}
 
 {% block content %}
-<style>
-    .wrapper { max-width: 1200px; margin: 40px auto; padding: 0 20px; font-family: 'Segoe UI', sans-serif; }
-    
-    .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    .header-row h1 { font-size: 1.8rem; color: #111827; margin: 0; }
-    
-    .btn-home { background: #f3f4f6; color: #1f2937; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #d1d5db; transition: 0.2s; margin-right: 12px; }
-    .btn-home:hover { background: #e5e7eb; }
-    .btn-add { background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.2s; }
-    .btn-add:hover { background: #059669; }
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="font-size: 1.25rem;">Support the Institution</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Every contribution helps us build a better future for our students.</p>
+        </div>
+        {% if user.role == 'Alumni' or user.role == 'Admin' %}
+            <a href="{% url 'user:create_donation' %}" class="btn-primary">+ Donate Now</a>
+        {% endif %}
+    </div>
+</div>
 
-    .donation-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-    
-    .donation-card { background: white; border-radius: 15px; border: 1px solid #e5e7eb; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
-    .donation-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-
-    .card-top { padding: 20px; background: #f9fafb; border-bottom: 1px solid #f1f5f9; text-align: center; }
-    .amount-text { font-size: 2rem; font-weight: 800; color: #065f46; }
-    
-    .card-mid { padding: 20px; flex-grow: 1; }
-    .donor-name { font-weight: 700; color: #374151; font-size: 1rem; }
-    .date-text { font-size: 0.8rem; color: #9ca3af; margin-bottom: 10px; display: block; }
-    .desc-text { color: #6b7280; font-size: 0.9rem; line-height: 1.5; }
-
-    .card-footer { padding: 15px 20px; background: #f9fafb; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f1f5f9; }
-    .payment-tag { font-size: 0.75rem; font-weight: 700; background: #ecfdf5; color: #047857; padding: 4px 10px; border-radius: 20px; }
-
-    .action-links a { font-size: 0.8rem; font-weight: 600; text-decoration: none; margin-left: 10px; }
-    .link-edit { color: #2563eb; }
-    .link-delete { color: #dc2626; }
-</style>
-
-<div class="wrapper">
-    <div class="header-row">
-        <h1>🤝 Donations & Contributions</h1>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <a href="{% if user.role == 'Admin' %}{% url 'user:admin_home' %}{% elif user.role == 'Alumni' %}{% url 'user:alumni_home' %}{% else %}{% url 'user:user_home' %}{% endif %}" class="btn-home">Home</a>
-            {% if user.role == 'Alumni' or user.role == 'Admin' %}<a href="{% url 'user:create_donation' %}" class="btn-add">+ Donate Now</a>{% endif %}
+<div class="dashboard-grid">
+    {% for donation in donations %}
+    <div class="dashboard-card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+        <div style="background: var(--primary-glow); padding: 2.5rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border);">
+            <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem;">Amount Contributed</p>
+            <h2 style="font-size: 2.5rem; color: var(--primary);">₹{{ donation.amount }}</h2>
+        </div>
+        
+        <div style="padding: 2rem; flex: 1; display: flex; flex-direction: column;">
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.25rem;">{{ donation.donated_by.name }}</h3>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">{{ donation.donated_at|date:"M d, Y" }}</span>
+            </div>
+            
+            <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-main); margin-bottom: 2rem;">{{ donation.description|default:"A generous contribution towards the college development fund." }}</p>
+            
+            <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <span class="section-label" style="background: white; border: 1px solid var(--border); color: var(--text-muted);">💳 {{ donation.payment_method }}</span>
+                
+                <div style="display: flex; gap: 1rem;">
+                    {% with donor_id=donation.donated_by.register_id|stringformat:"s" user_id=user.register_id|stringformat:"s" %}
+                        {% if donor_id == user_id or user.role == "Admin" %}
+                            <a href="{% url 'user:edit_donation' donation.id %}" class="action-btn btn-edit">Modify</a>
+                            <a href="{% url 'user:delete_donation' donation.id %}" class="action-btn btn-delete" onclick="return confirm('Permanently remove this record?')">Delete</a>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
         </div>
     </div>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div style="padding: 15px; background: #dcfce7; color: #166534; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="donation-grid">
-        {% for donation in donations %}
-            <div class="donation-card">
-                <div class="card-top">
-                    <span class="amount-text">₹{{ donation.amount }}</span>
-                </div>
-                <div class="card-mid">
-                    <span class="donor-name">{{ donation.donated_by.name }}</span>
-                    <span class="date-text">Contributed on {{ donation.donated_at|date:"M d, Y" }}</span>
-                    <p class="desc-text">{{ donation.description|default:"No description provided for this contribution." }}</p>
-                </div>
-                <div class="card-footer">
-                    <span class="payment-tag">💳 {{ donation.payment_method }}</span>
-                    
-                    <div class="action-links">
-                        {% with donor_id=donation.donated_by.register_id|stringformat:"s" user_id=user.register_id|stringformat:"s" %}
-                            {% if donor_id == user_id or user.role == "Admin" %}
-                                <a href="{% url 'user:edit_donation' donation.id %}" class="link-edit">Modify</a>
-                                <a href="{% url 'user:delete_donation' donation.id %}" class="link-delete" 
-                                   onclick="return confirm('Permanently remove this record?')">Delete</a>
-                            {% endif %}
-                        {% endwith %}
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <div style="grid-column: 1/-1; text-align: center; padding: 50px; background: white; border-radius: 15px;">
-                <p style="color: #9ca3af;">No donations found in the records yet.</p>
-            </div>
-        {% endfor %}
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 5rem;">
+        <div class="nav-logo" style="margin: 0 auto 1.5rem; width: 80px; height: 80px; font-size: 40px; background: #ecfdf5; color: #10b981;">🤝</div>
+        <h3>No donation records found</h3>
+        <p>Be the first to contribute to the community.</p>
     </div>
+    {% endfor %}
 </div>
 {% endblock %}

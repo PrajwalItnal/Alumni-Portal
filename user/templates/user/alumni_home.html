@@ -1,240 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Alumni Dashboard | Smart Alumni Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+{% extends "user/user_base.html" %}
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: #f4f3f0;
-      color: #1a1a1a;
-      min-height: 100vh;
-    }
+{% block title %}Alumni Dashboard | Alumni Portal{% endblock %}
+{% block page_title %}Alumni Dashboard{% endblock %}
 
-    
-    .navbar {
-      background: #fff;
-      border-bottom: 1px solid #e5e4e0;
-      padding: 0 2rem;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .navbar h1 {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1a1a1a;
-      letter-spacing: -0.01em;
-    }
-    .navbar li { list-style: none; }
-    .navbar li a {
-      font-size: 13px;
-      color: #555;
-      text-decoration: none;
-      border: 1px solid #d1d0cc;
-      padding: 7px 16px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    .navbar li a:hover { background: #f4f3f0; border-color: #aaa; }
-
-    
-    .main {
-      padding: 2rem;
-      max-width: 980px;
-      margin: 0 auto;
-    }
-
-    
-    .welcome-box {
-      background: #fff;
-      border: 1px solid #e5e4e0;
-      border-radius: 14px;
-      padding: 1.75rem 2rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-    }
-    .welcome-box::before {
-      content: '🎓';
-      font-size: 28px;
-      width: 52px;
-      height: 52px;
-      background: #eef3fb;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .welcome-box h2 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      letter-spacing: -0.01em;
-    }
-    .welcome-box p {
-      font-size: 14px;
-      color: #666;
-      line-height: 1.6;
-    }
-
-    
-    .section-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #999;
-      margin-bottom: 0.75rem;
-    }
-
-    
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 12px;
-    }
-
-    
-    .action-card {
-      background: #fff;
-      border: 1px solid #e5e4e0;
-      border-radius: 14px;
-      padding: 1.25rem 1.4rem;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      transition: border-color 0.15s, transform 0.15s;
-    }
-    .action-card:hover {
-      border-color: #c0bfbb;
-      transform: translateY(-1px);
-    }
-    .action-card h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-    .action-card p {
-      font-size: 13px;
-      color: #777;
-      line-height: 1.55;
-      flex: 1;
-    }
-    .action-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-top: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #1a6fdb;
-      text-decoration: none;
-      width: fit-content;
-    }
-    .action-btn::after { content: ' →'; }
-    .action-btn:hover { text-decoration: underline; }
-
-    
-    @media (max-width: 600px) {
-      .main { padding: 1rem; }
-      .welcome-box { flex-direction: column; align-items: flex-start; }
-      .welcome-box::before { display: none; }
-      .actions { grid-template-columns: 1fr; }
-      .navbar { padding: 0 1rem; }
-    }
-  </style>
-</head>
-<body>
-
-  {% if messages %}
-    <div class="messages-container" style="padding: 20px 20px 0 20px;">
-        {% for message in messages %}
-            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}"
-                 style="padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px;
-                        {% if message.tags == 'success' %} color: #155724; background-color: #d4edda; border-color: #c3e6cb;
-                        {% elif message.tags == 'error' %} color: #721c24; background-color: #f8d7da; border-color: #f5c6cb;
-                        {% else %} color: #004085; background-color: #cce5ff; border-color: #b8daff; {% endif %}">
-                {{ message }}
-            </div>
-        {% endfor %}
+{% block content %}
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="nav-logo" style="width: 60px; height: 60px; font-size: 30px;">🎓</div>
+        <div>
+            <h2 style="font-size: 1.8rem;">Welcome, {{ user.username|title }} 👋</h2>
+            <p>Connect with your institution, share opportunities, participate in meets, and contribute to the community.</p>
+        </div>
     </div>
-{% endif %}
+</div>
 
+<span class="section-label">Quick Actions</span>
 
-  <nav class="navbar">
-    <h1>Alumni Dashboard</h1>
-    <li><a href="{% url 'user:logout' %}">Logout</a></li>
-  </nav>
-
-  <div class="main">
-
-    <div class="welcome-box">
-      <div>
-        <h2>Welcome, {{ user.username|title }} 👋</h2>
-        <p>Connect with your institution, share opportunities, participate in alumni meets, and contribute to the community.</p>
-      </div>
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem;">👤</div>
+        <h3>My Profile</h3>
+        <p>View and update your professional profile and career journey.</p>
+        <a href="{% url 'user:profile_view' %}" class="action-btn">View Profile →</a>
     </div>
 
-    <p class="section-label">Quick Actions</p>
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: var(--secondary);">💰</div>
+        <h3>Donations</h3>
+        <p>Support your institution through contributions and view history.</p>
+        <a href="{% url 'user:donation_list' %}" class="action-btn">Manage →</a>
+    </div>
 
-    <div class="actions">
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: var(--accent);">💼</div>
+        <h3>Jobs & Careers</h3>
+        <p>Share job opportunities or refer candidates from your network.</p>
+        <a href="{% url 'user:view_job' %}" class="action-btn">Open Careers →</a>
+    </div>
 
-      <div class="action-card">
-        <h3>👤 View Profiles</h3>
-        <p>View alumni and student profile information.</p>
-        <a href="{% url 'user:profile_view' %}" class="action-btn">View</a>
-      </div>
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: var(--tertiary);">🏢</div>
+        <h3>Internships</h3>
+        <p>Post or browse internship opportunities for students.</p>
+        <a href="{% url 'user:internship_list' %}" class="action-btn">Manage →</a>
+    </div>
 
-      
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: var(--quaternary);">🏆</div>
+        <h3>Achievements</h3>
+        <p>Share your professional milestones and celebrate successes.</p>
+        <a href="{% url 'user:achievements_view' %}" class="action-btn">Share Milestone →</a>
+    </div>
 
-      <div class="action-card">
-        <h3>💰 Donations</h3>
-        <p>Add or view your donation history.</p>
-        <a href="{% url 'user:donation_list' %}" class="action-btn">View</a>
-      </div>
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: var(--primary);">📅</div>
+        <h3>Events & Meets</h3>
+        <p>Stay updated with alumni meets, reunions, and workshops.</p>
+        <a href="{% url 'user:vi_event' %}" class="action-btn">View Events →</a>
+    </div>
 
-        <div class="action-card">
-            <h3>💼 Add and view Jobs</h3>
-            <p>Share or view job references.</p>
-            <a href="{% url 'user:view_job' %} " class="action-btn">Open</a>
-        </div>
-
-        <div class="action-card">
-            <h3>Create and View Intership</h3>
-            <p>Explore alumni internship details.</p>
-            <a href="{% url 'user:internship_list' %} " class="action-btn">View</a>
-        </div>
-
-        <div class="action-card">
-            <h3>Add and View Achievements</h3>
-            <p>Explore alumni achievements details.</p>
-            <a href="{% url 'user:achievements_view' %}" class="action-btn">View</a>
-        </div>
-
-        <div class="action-card">
-            <h3>Add and View Events</h3>
-            <p>Explore alumni events details.</p>
-            <a href="{% url 'user:vi_event' %}" class="action-btn">View</a>
-        </div>
-
-        <div class="action-card">
-          <h3>👥 Student Details</h3>
-          <p>View Student records.</p>
-          <a href="{% url 'user:student_directory' %}" class="action-btn">View</a>
-      </div>
-
-  
-</body>
-</html>
+    <div class="dashboard-card">
+        <div class="nav-logo" style="margin-bottom: 1rem; background: #64748b;">👥</div>
+        <h3>Student Network</h3>
+        <p>Connect with current students and offer mentorship.</p>
+        <a href="{% url 'user:student_directory' %}" class="action-btn">View Students →</a>
+    </div>
+</div>
+{% endblock %}

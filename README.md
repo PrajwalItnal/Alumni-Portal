@@ -1,157 +1,229 @@
-# Alumni Portal
+# 🎓 Alumni Portal  
+### A Comprehensive Alumni Management System built with Django
 
-A Django-based alumni portal for managing students, alumni, events, jobs, internships, donations, and directory search functionality.
+![Django](https://img.shields.io/badge/Django-4.2-darkgreen)
+![Python](https://img.shields.io/badge/Python-3.x-blue)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-## Table of Contents
+> **Alumni Portal** is a sophisticated platform designed to bridge the gap between educational institutions, current students, and alumni. It facilitates networking, career opportunities, event management, and resource sharing.
 
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Requirements](#requirements)
-- [Setup and Installation](#setup-and-installation)
-- [Running the Application](#running-the-application)
-- [Usage](#usage)
-- [Email Configuration](#email-configuration)
-- [Media and Static Files](#media-and-static-files)
-- [Security Notes](#security-notes)
-- [Development Notes](#development-notes)
-- [Known Issues](#known-issues)
-- [License](#license)
+---
 
-## Project Overview
+## 📌 Table of Contents
 
-This repository contains an Alumni Portal built with Django. It supports role-based access for Admin, Alumni, and Student users, and includes modules for events, achievements, donations, jobs, internships, directory search, bulk student registration, and alumni conversion.
+- [Overview](#-overview)
+- [Features](#-features)
+- [User Roles](#-user-roles)
+- [Project Structure](#-project-structure)
+- [Technology Stack](#-technology-stack)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Validation Logic](#-validation-logic)
+- [Collaborators](#-collaborators)
+- [Future Enhancements](#-future-enhancements)
+- [License](#-license)
+- [Author](#-author)
 
-## Features
+---
 
-- Role-based user system: Admin, Alumni, and Student
-- Login, password reset via OTP, and password change
-- Event creation, viewing, editing, and deletion
-- Achievement creation, editing, and deletion
-- Donation tracking and management
-- Job posting, filtering, editing, and deletion
-- Internship posting, filtering, editing, and deletion
-- Bulk student registration from CSV/XLSX uploads
-- Alumni conversion when students graduate
-- Profile editing and alumni career tracking
-- Alumni and student directory search
-- CSV export for alumni career reports
+## 🚀 Overview
 
-## Tech Stack
+**Alumni Portal** provides a centralized hub for an institution's community. It streamlines administrative tasks like student registration and graduation tracking while offering students and alumni a platform to grow their professional networks.
 
-- Python
-- Django 4.2
-- SQLite
-- pandas
-- openpyxl
+✔ Professional Directory & Search  
+✔ Job & Internship Boards  
+✔ Event Coordination & RSVP  
+✔ Donation Management & Tracking  
 
-## Project Structure
+---
 
-- `manage.py` - Django management CLI
-- `alumni_portal/` - Django project settings, URLs, and WSGI/ASGI entrypoints
-- `user/` - Main application with models, views, forms, and URLs
-- `templates/` - Shared HTML templates
-- `static/` - Static CSS and asset files
-- `media/` - Uploaded files (photos, resumes, certificates, event images)
-- `db.sqlite3` - Default SQLite database
+## ✨ Features
 
-## Requirements
+- **User Authentication**: Secure login system with role-based redirection.
+- **Student Onboarding**: Support for both single and bulk registration (Excel/CSV).
+- **Alumni Transition**: Automated conversion of graduating students to alumni status.
+- **Career Hub**: Posting and filtering for jobs and internships with skill matching.
+- **Event Management**: Create and track institutional events with image uploads.
+- **Achievement Gallery**: Showcasing alumni and student successes with certificate uploads.
+- **Resource Support**: Integrated donation system for alumni to support their alma mater.
+- **Profile Management**: Detailed user profiles including resumes, social links, and skills.
+- **Modern UI**: Clean, "Light & Airy" design with glassmorphism and smooth animations.
 
-- Python 3.10+
-- Django 4.2
-- pandas
-- openpyxl
+---
 
-## Setup and Installation
+## 👥 User Roles
 
-1. Clone the repository:
+| Role | Capabilities |
+|-----|-------------|
+| **Student** | Browse directory, view events, apply for jobs/internships, track achievements |
+| **Alumni** | Post jobs/internships, create events, donate, professional networking |
+| **Admin** | Manage departments, bulk student registration, alumni conversion, full system control |
 
-   ```bash
-   git clone <repository-url>
-   cd "Alumni Portal"
-   ```
+---
 
-2. Create and activate a virtual environment:
+## 🗂 Project Structure
 
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
+```text
+Alumni-Portal/
+│
+├── alumni_portal/             # Project configuration (settings, urls, wsgi)
+│
+├── user/                      # Core application logic
+│   ├── migrations/            # Database schema history
+│   ├── templates/             # App-specific HTML templates
+│   │   └── user/              # Modularized UI components
+│   ├── models.py              # Data structures (User, Student, Alumni, Event, etc.)
+│   ├── views.py               # Request handling & business logic
+│   ├── urls.py                # App-level routing
+│   └── admin.py               # Admin panel configuration
+│
+├── static/                    # Global assets
+│   ├── css/                   # Modernized styling (modern.css)
+│   └── images/                # UI illustrations and icons
+│
+├── media/                     # User-uploaded content (Photos, Resumes, etc.)
+│
+├── templates/                 # Global layout templates (base, home, login)
+│
+├── manage.py                  # Django CLI entry point
+├── requirements.txt           # Project dependencies
+├── db.sqlite3                 # Local database storage
+└── README.md                  # Project documentation
+```
+---
 
-3. Install project dependencies:
+## 🧰 Technology Stack
 
-   ```powershell
-   pip install -r requirements.txt
-   ```
+| Technology | Purpose |
+|:---|:---|
+| **Python** | Core Programming Language |
+| **Django 4.2** | High-level Web Framework |
+| **Pandas / Openpyxl** | Excel/CSV Processing for Bulk Registration |
+| **SQLite** | Efficient Relational Database |
+| **HTML5 / CSS3** | Semantic Structure & Glassmorphic Styling |
+| **JavaScript** | Real-time Validation & UI Interactions |
+| **Git & GitHub** | Distributed Version Control |
 
-4. Apply database migrations:
+---
 
-   ```powershell
-   python manage.py migrate
-   ```
+## ⚙️ Installation
 
-5. Create a superuser (optional):
-
-   ```powershell
-   python manage.py createsuperuser
-   ```
-
-## Running the Application
-
-Start the development server:
-
-```powershell
+### 1️⃣ Clone the Repository
+```bash
+git clone https://github.com/PrajwalItnal/Alumni-Portal.git
+cd Alumni-Portal
+```
+### 2️⃣ Create a Virtual Environment
+```bash
+python -m venv .venv
+```
+### 3️⃣ Activate the Virtual Environment
+**Windows:**
+```bash
+.venv\Scripts\activate
+```
+**Linux / macOS:**
+```bash
+source .venv/bin/activate
+```
+## 4️⃣ Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+## 5️⃣ Apply Migrations
+```bash
+python manage.py migrate
+```
+## 6️⃣ Run the Development Server
+```bash
 python manage.py runserver
 ```
+## 🌐 Open in Browser
 
-Then open `http://127.0.0.1:8000/` in your browser.
+Once the server is running, you can access the application at:
 
-## Usage
+👉 **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**
 
-- Visit `/` for the homepage.
-- Use `/login` to sign in with a `register_id` and password.
-- Admin users can manage students, departments, and convert graduating students to alumni.
-- Alumni and students can access personalized dashboards and manage profiles.
+---
 
-## Email Configuration
+### 🛠 Troubleshooting Connection
+If the page doesn't load, ensure that:
+1. Your virtual environment is still **activated**.
+2. You have run the `python manage.py runserver` command without errors.
+3. No other application is using port **8000**.
 
-Email is currently configured in `alumni_portal/settings.py`. For production, use environment variables instead of hard-coded credentials.
+---
 
-Recommended settings:
+## 🔁 Usage
 
-- `EMAIL_HOST`
-- `EMAIL_PORT`
-- `EMAIL_USE_TLS`
-- `EMAIL_HOST_USER`
-- `EMAIL_HOST_PASSWORD`
+### 🛡 Admin
+* **Bulk Import**: Quickly register an entire batch of students using Excel.
+* **Convert Alumni**: Seamlessly transition students to alumni status upon graduation.
+* **Manage Departments**: Configure academic divisions within the portal.
 
-## Media and Static Files
+### 🎓 Alumni
+* **Give Back**: Post job opportunities or internships for juniors.
+* **Networking**: Connect with fellow alumni and organize events.
+* **Profile**: Maintain a professional portfolio with links and achievements.
 
-- Uploaded media files are stored in `media/`
-- Static files are stored in `static/`
-- `STATIC_ROOT` is configured as `staticfiles`
-- In development, media files are served when `DEBUG=True`
+### 📖 Student
+* **Explore**: Search for alumni in specific companies or departments.
+* **Prepare**: View job requirements and apply through institutional links.
+* **Engage**: Participate in alumni-led events and track professional milestones.
 
-## Security Notes
+---
 
-- Disable `DEBUG` in production.
-- Set `ALLOWED_HOSTS` before deploying.
-- Remove hard-coded credentials from `settings.py`.
-- Custom authentication is used, so review auth and session handling before production use.
+## 📺 Validation Logic
 
-## Development Notes
+### ✅ Smart Onboarding
+The system validates Register IDs to ensure they are exactly 12 characters and alphanumeric, preventing duplicate or malformed entries during both single and bulk registration.
 
-- Most business logic lives in `user/views.py`; refactoring into smaller views or class-based views is recommended.
-- Many forms use manual validation; switching to Django forms would improve maintainability.
-- Repeated session checks should be replaced with decorators.
+### 🔄 Date of Birth Rules
+The profile update system enforces a minimum age of 15 for safety while allowing alumni of all ages to maintain active records without restrictive upper limits.
 
-## Known Issues
+> [!TIP]
+> **Pro Tip:** When uploading bulk data, ensure your Excel headers match: `register id`, `name`, `email`, `phone`, and `gender`.
 
-- Custom user model is not integrated with Django's built-in auth backend.
-- Some validation rules are overly strict for names and locations.
-- SMTP credentials are stored in plain text in `settings.py`.
+---
 
-## License
+## ⚠️ Limitations
+* Custom user model is not integrated with Django's built-in auth backend.
+* SMTP credentials are stored in plain text in `settings.py`.
+* No payment gateway integration for donations.
 
-This repository does not currently include a license. Add a `LICENSE` file if needed.
+---
+
+## 👥 Collaborators
+
+This project was made possible by the following contributors:
+
+- **Prajwal Itnal** ([@PrajwalItnal](https://github.com/PrajwalItnal))
+- **Deepa BL** ([@deepabl](https://github.com/deepabl))
+- **Juned Fattekhan** ([@junedfattekhan5](https://github.com/junedfattekhan5))
+
+---
+
+## 🚧 Future Enhancements
+- [ ] **Advanced Filtering**: Search by graduation year range or industry sector.
+- [ ] **Real-time Messaging**: Direct chat between students and alumni.
+- [ ] **Automated Emails**: Newsletter and event notifications.
+- [ ] **Mobile App**: Dedicated Android/iOS client for the portal.
+- [ ] **PostgreSQL**: Scaling to a robust production database.
+
+---
+
+## 📄 License
+This project is licensed under the **MIT License**.
+
+---
+
+## 👤 Author
+
+**Prajwal Itnal** *Computer Applications Student | Data Enthusiast*
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prajwal-itnal/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PrajwalItnal)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:prajwalitnal20@gmail.com)
+
+---

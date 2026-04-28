@@ -3,170 +3,41 @@
 {% block title %}Login | Alumni Portal{% endblock %}
 
 {% block content %}
-<style>
-  .login-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    background: #fff;
-  }
-
-  .login-card {
-    width: 100%;
-    max-width: 420px;
-    border: 1px solid #e5e5e5;
-    border-radius: 16px;
-    padding: 2.5rem;
-  }
-
-  .logo-mark {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1.8rem;
-  }
-
-  .logo-icon {
-    width: 34px;
-    height: 34px;
-    background: #3b82f6;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .logo-text {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #555;
-  }
-
-  .login-card h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #111;
-    margin-bottom: 0.4rem;
-  }
-
-  .login-card .sub {
-    font-size: 0.88rem;
-    color: #777;
-    margin-bottom: 2rem;
-  }
-
-  .alert-message {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    color: #dc2626;
-    font-size: 0.85rem;
-    margin-bottom: 1.2rem;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-  }
-
-  .form-group label {
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: #999;
-  }
-
-  .form-group input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    font-size: 0.92rem;
-    color: #111;
-    outline: none;
-    background: #fafafa;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .form-group input:focus {
-    border-color: #3b82f6;
-    background: #fff;
-  }
-
-  .forgot-link-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1rem;
-  }
-
-  .forgot-link {
-    font-size: 0.8rem;
-    color: #3b82f6;
-    text-decoration: none;
-  }
-
-  .forgot-link:hover { color: #2563eb; }
-
-  .login-btn {
-    width: 100%;
-    padding: 0.85rem;
-    background: #3b82f6;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .login-btn:hover { background: #2563eb; }
-</style>
-
-<div class="login-wrapper">
-  <div class="login-card">
-
-    <div class="logo-mark">
-      <div class="logo-icon">🎓</div>
-      <span class="logo-text">Alumni Portal</span>
+<div class="section" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+  <div class="card" style="width: 100%; max-width: 450px; padding: 3rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div class="nav-logo" style="margin: 0 auto 1.5rem; width: 60px; height: 60px; font-size: 30px;">🎓</div>
+      <h2 class="text-gradient" style="font-size: 2.2rem;">Welcome Back</h2>
+      <p>Login to access your Alumni Portal dashboard</p>
     </div>
-
-    <h2>Welcome Back</h2>
-    <p class="sub">Login to access your Alumni Portal dashboard</p>
 
     {% if messages %}
       {% for message in messages %}
-        <div class="alert-message">{{ message }}</div>
+        <div class="section-label" style="background: var(--secondary-glow); color: var(--secondary); display: block; width: 100%; margin-bottom: 1.5rem; text-align: center;">
+          {{ message }}
+        </div>
       {% endfor %}
     {% endif %}
 
     <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
 
-      <div class="form-group">
-        <label>Register ID</label>
+      <div style="margin-bottom: 1.5rem;">
+        <label class="section-label">Register ID</label>
         <input type="text" name="register_id" placeholder="Enter your Register ID" required />
       </div>
 
-      <div class="form-group">
-        <label>Password</label>
+      <div style="margin-bottom: 1.5rem;">
+        <label class="section-label">Password</label>
         <input type="password" name="password" placeholder="Enter your password" required />
       </div>
 
-      <div class="forgot-link-row">
-        <a href="{% url 'reset_password' %}" class="forgot-link">Forgot Password?</a>
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 2rem;">
+        <a href="{% url 'reset_password' %}" class="action-btn" style="font-size: 0.9rem;">Forgot Password?</a>
       </div>
 
-      <button type="submit" class="login-btn">Login</button>
+      <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
     </form>
-
   </div>
 </div>
-
 {% endblock %}
