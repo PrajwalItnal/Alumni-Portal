@@ -176,6 +176,13 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### 6️⃣ Populate Test Data (Optional)
+Populate the database with pre-configured Admin, Student, and Alumni test accounts by running:
+```bash
+python setup_test_users.py
+```
+*Note: Refer to `test_plan.md` for standard pre-configured credentials.*
+
 ---
 
 ## 🔁 Usage Workflow
@@ -193,6 +200,8 @@ python manage.py runserver
 - **File Safety**: Uploads are restricted by size (2MB) and type (.jpg, .png, .pdf).
 - **Age Logic**: Minimum 15-year threshold for student/alumni records.
 - **Session Security**: Role-based redirection prevents unauthorized access to Admin modules.
+- **Environment Isolation**: Sensitive configuration settings (Django keys, mail SMTP credentials) are isolated in a local `.env` file and excluded from version control.
+- **User Media Isolation**: The entire `media/` directory is untracked and excluded from version control to prevent dynamic user uploads (resumes, pictures, certificates) from being checked into the repository.
 
 ---
 
