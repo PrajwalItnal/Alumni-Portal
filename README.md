@@ -153,7 +153,24 @@ pip install -r requirements.txt
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
-### 4️⃣ Database Setup & Run
+### 4️⃣ Setup Environment Variables
+Configure the security environment keys. Copy the template and fill in your credentials:
+**Windows (PowerShell):**
+```powershell
+copy .env.example .env
+```
+**Linux / macOS / Bash:**
+```bash
+cp .env.example .env
+```
+
+Open `.env` and customize the variables:
+- `SECRET_KEY`: Django's cryptographic signature key.
+- `DEBUG`: Boolean setting (`True` / `False`).
+- `EMAIL_HOST_USER`: The sender's Gmail address.
+- `EMAIL_HOST_PASSWORD`: The secure 16-character Gmail App Password.
+
+### 5️⃣ Database Setup & Run
 ```bash
 python manage.py migrate
 python manage.py runserver
